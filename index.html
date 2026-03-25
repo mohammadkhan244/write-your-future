@@ -462,54 +462,124 @@
       padding: 0;
     }
     .analysis-note {
-      font-size: 12px;
-      font-style: italic;
-      color: rgba(240, 236, 228, 0.6);
+      font-size: 11px;
+      font-style: normal;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(240, 236, 228, 0.4);
       text-align: center;
-      margin-bottom: 40px;
+      margin-bottom: 48px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
       width: 100%;
     }
     .analysis-section {
       width: 100%;
-      margin-bottom: 32px;
-      padding-bottom: 32px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      margin-bottom: 36px;
+      padding-bottom: 36px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
       opacity: 0;
       transition: opacity 0.5s ease;
     }
+    .analysis-section:last-child { border-bottom: none; margin-bottom: 0; }
     .analysis-section.visible { opacity: 1; }
     .analysis-label {
-      font-size: 11px;
-      font-weight: bold;
-      letter-spacing: 0.15em;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
       text-transform: uppercase;
       color: #b87333;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(184, 115, 51, 0.3);
+      display: block;
     }
     .analysis-text {
       font-family: Georgia, serif;
       font-size: 15px;
-      color: #f0ece4;
+      color: rgba(240, 236, 228, 0.85);
       line-height: 1.7;
-      white-space: pre-wrap;
       width: 100%;
     }
+    .analysis-text p { margin: 0 0 8px; }
+    .analysis-text p:last-child { margin-bottom: 0; }
+    .analysis-text strong { color: #f0ece4; font-weight: 600; }
+
+    /* Bullet list */
+    .analysis-bullet-list {
+      list-style: none;
+      padding: 0;
+      margin: 8px 0;
+    }
+    .analysis-bullet-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 10px;
+      line-height: 1.6;
+    }
+    .analysis-bullet-list li:last-child { margin-bottom: 0; }
+    .analysis-bullet-list li::before {
+      content: "";
+      display: block;
+      min-width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: #b87333;
+      margin-top: 8px;
+      flex-shrink: 0;
+    }
+
+    /* Numbered list */
+    .analysis-numbered-list {
+      list-style: none;
+      padding: 0;
+      margin: 8px 0;
+      counter-reset: analysis-counter;
+    }
+    .analysis-numbered-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 12px;
+      line-height: 1.6;
+      counter-increment: analysis-counter;
+    }
+    .analysis-numbered-list li:last-child { margin-bottom: 0; }
+    .analysis-numbered-list li::before {
+      content: counter(analysis-counter);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background-color: #b87333;
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: bold;
+      flex-shrink: 0;
+      margin-top: 2px;
+      font-family: system-ui, sans-serif;
+    }
+
+    /* One Action */
     .analysis-section.one-action {
       border: 1px solid #b87333;
       border-radius: 6px;
-      padding: 24px;
-      background: rgba(184, 115, 51, 0.05);
+      padding: 20px 24px;
+      background: rgba(184, 115, 51, 0.06);
       margin-bottom: 0;
-      padding-bottom: 24px;
+      padding-bottom: 20px;
     }
     .analysis-section.one-action .analysis-label {
       color: #b87333;
+      border-bottom-color: rgba(184, 115, 51, 0.3);
     }
     .analysis-section.one-action .analysis-text {
-      font-size: 16px;
-      font-weight: 500;
-      color: #f0ece4;
-      line-height: 1.7;
+      font-size: 15px;
+      line-height: 1.75;
+      font-style: italic;
     }
     .analysis-continue-container {
       width: 100%;
@@ -1418,6 +1488,68 @@ function parseAnalysis(text) {
   return result;
 }
 
+// ─── ANALYSIS TEXT FORMATTING ────────────────────
+
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function formatInlineBold(text) {
+  // Handle **Label** - description (emotional field pattern)
+  const boldDash = /^\*\*(.+?)\*\*\s*[-–]\s*(.+)$/.exec(text);
+  if (boldDash) {
+    return '<strong style="color:#f0ece4;margin-right:4px;">' + escHtml(boldDash[1]) + '</strong>'
+         + '<span style="color:rgba(240,236,228,0.75);">' + escHtml(boldDash[2]) + '</span>';
+  }
+  // Regular **bold**
+  return escHtml(text).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+}
+
+function renderSectionContent(raw) {
+  if (!raw) return '';
+
+  // Strip ## section markers and leading/trailing whitespace
+  let text = raw.replace(/^##\s*/gm, '').trim();
+
+  const lines = text.split('\n');
+  let html = '';
+  let i = 0;
+
+  while (i < lines.length) {
+    const line = lines[i].trim();
+    if (!line) { i++; continue; }
+
+    if (/^-\s+/.test(line)) {
+      // Bullet list — collect consecutive bullet lines
+      html += '<ul class="analysis-bullet-list">';
+      while (i < lines.length && /^-\s+/.test(lines[i].trim())) {
+        const content = lines[i].trim().replace(/^-\s+/, '');
+        html += '<li>' + formatInlineBold(content) + '</li>';
+        i++;
+      }
+      html += '</ul>';
+    } else if (/^\d+\.\s+/.test(line)) {
+      // Numbered list — collect consecutive numbered lines
+      html += '<ol class="analysis-numbered-list">';
+      while (i < lines.length && /^\d+\.\s+/.test(lines[i].trim())) {
+        const content = lines[i].trim().replace(/^\d+\.\s+/, '');
+        html += '<li>' + formatInlineBold(content) + '</li>';
+        i++;
+      }
+      html += '</ol>';
+    } else {
+      html += '<p>' + formatInlineBold(line) + '</p>';
+      i++;
+    }
+  }
+
+  return html;
+}
+
 function renderAnalysis() {
   const radarEl = document.getElementById('radar-loading');
   radarEl.style.transition = 'opacity 0.5s ease';
@@ -1427,13 +1559,13 @@ function renderAnalysis() {
     radarEl.style.display = 'none';
 
     const a = appState.analysis || {};
-    document.getElementById('txt-unplanned').textContent    = a['UNPLANNED']       || '';
-    document.getElementById('txt-emotional').textContent    = a['EMOTIONAL FIELD']  || '';
-    document.getElementById('txt-assumptions').textContent  = a['ASSUMPTIONS']      || '';
-    document.getElementById('txt-prerequisites').textContent= a['PREREQUISITES']    || '';
-    document.getElementById('txt-warnings').textContent     = a['EARLY WARNINGS']   || '';
-    document.getElementById('txt-absence').textContent      = a['ABSENCE']          || '';
-    document.getElementById('txt-action').textContent       = a['ONE ACTION']        || '';
+    document.getElementById('txt-unplanned').innerHTML    = renderSectionContent(a['UNPLANNED']);
+    document.getElementById('txt-emotional').innerHTML    = renderSectionContent(a['EMOTIONAL FIELD']);
+    document.getElementById('txt-assumptions').innerHTML  = renderSectionContent(a['ASSUMPTIONS']);
+    document.getElementById('txt-prerequisites').innerHTML= renderSectionContent(a['PREREQUISITES']);
+    document.getElementById('txt-warnings').innerHTML     = renderSectionContent(a['EARLY WARNINGS']);
+    document.getElementById('txt-absence').innerHTML      = renderSectionContent(a['ABSENCE']);
+    document.getElementById('txt-action').innerHTML       = renderSectionContent(a['ONE ACTION']);
 
     const container = document.getElementById('analysis-container');
     container.style.display = 'block';

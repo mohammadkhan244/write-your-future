@@ -1,0 +1,1630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Early Warning System — Modern Myths</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      background: #0a0a0a;
+      color: #f0ece4;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.6;
+      overflow: hidden;
+    }
+
+    /* ─── STAGE SYSTEM ─── */
+    .stage {
+      position: fixed;
+      inset: 0;
+      background: #0a0a0a;
+      overflow-y: auto;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .stage.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    /* ─── CONTENT CONTAINER ─── */
+    .stage-content {
+      max-width: 680px;
+      width: 90%;
+      padding: 80px 0;
+    }
+
+    /* ─── TYPOGRAPHY ─── */
+    h1 {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: normal;
+      line-height: 1.2;
+      color: #f0ece4;
+      margin-bottom: 20px;
+    }
+    h2 {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-weight: normal;
+      line-height: 1.3;
+      color: #f0ece4;
+      margin-bottom: 16px;
+    }
+    p { color: #c8c4bc; margin-bottom: 14px; font-size: 1rem; }
+
+    .subhead {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: clamp(1rem, 2.2vw, 1.25rem);
+      color: #9a9690;
+      margin-bottom: 12px;
+    }
+    .disclaimer {
+      font-style: italic;
+      font-size: 0.85rem;
+      color: #5a5a52;
+      margin-bottom: 44px;
+    }
+    .stage-subtext {
+      font-size: 0.9rem;
+      color: #6a6a62;
+      margin-bottom: 36px;
+      line-height: 1.7;
+    }
+
+    /* ─── BUTTONS ─── */
+    .btn {
+      display: inline-block;
+      padding: 13px 30px;
+      background: transparent;
+      border: 1px solid #4a7c59;
+      color: #4a7c59;
+      font-family: system-ui, sans-serif;
+      font-size: 0.9rem;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease;
+      text-decoration: none;
+    }
+    .btn:hover:not(:disabled) { background: #4a7c59; color: #0a0a0a; }
+    .btn:disabled { opacity: 0.25; cursor: not-allowed; pointer-events: none; }
+    .btn-primary { background: #4a7c59; color: #0a0a0a; font-weight: 600; }
+    .btn-primary:hover:not(:disabled) { background: #5c9870; }
+
+    /* ─── FILL-IN-BLANK ─── */
+    .fill-blank {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 36px;
+    }
+    .fill-blank-prefix {
+      font-family: Georgia, serif;
+      font-size: 1.05rem;
+      color: #4a7c59;
+      white-space: nowrap;
+      padding-top: 13px;
+      flex-shrink: 0;
+    }
+    .fill-blank-input-wrapper {
+      position: relative;
+      flex: 1;
+    }
+    .fill-blank-placeholder {
+      position: absolute;
+      top: 13px;
+      left: 16px;
+      right: 16px;
+      font-family: Georgia, serif;
+      font-size: 0.95rem;
+      color: #3a3a34;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+      font-style: italic;
+      line-height: 1.5;
+    }
+
+    textarea, input[type="text"], input[type="email"] {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid #1e1e18;
+      color: #f0ece4;
+      font-family: Georgia, serif;
+      font-size: 0.95rem;
+      padding: 12px 16px;
+      outline: none;
+      resize: none;
+      transition: border-color 0.2s ease;
+      line-height: 1.55;
+      caret-color: #4a7c59;
+    }
+    textarea:focus, input:focus { border-bottom-color: #4a7c59; }
+    textarea { min-height: 70px; }
+
+    /* ─── STAGE 1: INTRO ─── */
+    #stage-1 .stage-content { text-align: center; }
+    #stage-1 .body-copy {
+      text-align: left;
+      margin: 44px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    #stage-1 .body-copy p {
+      font-family: Georgia, serif;
+      font-size: 1.05rem;
+      color: #7a7670;
+      line-height: 1.85;
+      margin: 0;
+    }
+
+    /* ─── STAGE 3.5: TIMER SELECT ─── */
+    .timer-toggle {
+      display: flex;
+      margin-bottom: 20px;
+    }
+    .timer-option {
+      padding: 15px 40px;
+      border: 1px solid #1e1e18;
+      color: #5a5a52;
+      cursor: pointer;
+      font-family: Georgia, serif;
+      font-size: 1rem;
+      background: transparent;
+      transition: all 0.2s ease;
+    }
+    .timer-option:first-child { border-right: none; }
+    .timer-option.selected {
+      border-color: #4a7c59;
+      color: #4a7c59;
+      background: rgba(74,124,89,0.07);
+    }
+    .timer-note {
+      font-size: 0.83rem;
+      color: #3a3a34;
+      margin-bottom: 44px;
+      font-style: italic;
+    }
+
+    /* ─── STAGE 4: STORY ─── */
+    #stage-4 { align-items: flex-start; }
+    .story-container {
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .story-context-bar {
+      padding: 14px 60px;
+      display: flex;
+      gap: 48px;
+      align-items: center;
+      border-bottom: 1px solid #111108;
+      font-size: 0.75rem;
+      color: #3a3a34;
+      background: #0a0a0a;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      flex-wrap: wrap;
+    }
+    .story-context-bar strong { color: #4a4a42; }
+    .story-timer {
+      margin-left: auto;
+      font-family: Georgia, serif;
+      font-size: 0.82rem;
+      color: #4a7c59;
+      opacity: 0.65;
+      letter-spacing: 0.05em;
+      transition: opacity 0.3s ease;
+    }
+    .story-area {
+      position: relative;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .story-instruction {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 80px;
+      pointer-events: none;
+      transition: opacity 0.6s ease;
+      z-index: 5;
+    }
+    .story-instruction p {
+      font-family: Georgia, serif;
+      font-size: 1.05rem;
+      color: #2a2a24;
+      line-height: 1.9;
+      white-space: pre-line;
+      max-width: 540px;
+      margin: 0;
+    }
+    #story-textarea {
+      flex: 1;
+      width: 100%;
+      min-height: calc(100vh - 52px);
+      background: transparent;
+      border: none;
+      color: #f0ece4;
+      font-family: Georgia, serif;
+      font-size: 1.05rem;
+      padding: 80px;
+      outline: none;
+      resize: none;
+      line-height: 1.9;
+      caret-color: #4a7c59;
+    }
+    .story-bottom-bar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      padding: 16px 60px;
+      display: flex;
+      align-items: center;
+      background: linear-gradient(transparent, #0a0a0a 50%);
+      z-index: 10;
+    }
+    .word-count {
+      font-size: 0.72rem;
+      color: #2e2e28;
+      letter-spacing: 0.04em;
+    }
+    .story-nudge {
+      position: fixed;
+      bottom: 68px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(10,10,10,0.97);
+      border: 1px solid #181814;
+      padding: 11px 22px;
+      font-size: 0.82rem;
+      color: #4a4a42;
+      font-style: italic;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      pointer-events: none;
+      z-index: 20;
+      max-width: 480px;
+      text-align: center;
+    }
+    .story-nudge.visible { opacity: 1; }
+
+    /* ─── STAGE 5: QUESTIONS ─── */
+    #stage-5 { align-items: flex-start; }
+    .questions-layout {
+      display: flex;
+      width: 100%;
+      min-height: 100vh;
+    }
+    .questions-story-panel {
+      width: 40%;
+      padding: 60px 40px;
+      border-right: 1px solid #111108;
+      overflow-y: auto;
+      max-height: 100vh;
+      position: sticky;
+      top: 0;
+    }
+    .questions-story-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #2e2e28;
+      margin-bottom: 20px;
+    }
+    .questions-story-text {
+      font-family: Georgia, serif;
+      font-size: 0.85rem;
+      color: #3a3a34;
+      line-height: 1.85;
+    }
+    .questions-panel {
+      width: 60%;
+      padding: 60px 64px;
+      overflow-y: auto;
+    }
+    .question-item {
+      margin-bottom: 52px;
+      transition: opacity 0.5s ease;
+    }
+    .question-item.hidden { display: none; }
+    .question-text {
+      font-family: Georgia, serif;
+      font-size: 1.05rem;
+      color: #f0ece4;
+      margin-bottom: 8px;
+    }
+    .question-helper {
+      font-size: 0.82rem;
+      color: #4a4a42;
+      font-style: italic;
+      margin-bottom: 14px;
+      line-height: 1.65;
+    }
+    .question-input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid #181814;
+      color: #f0ece4;
+      font-family: Georgia, serif;
+      font-size: 0.9rem;
+      padding: 10px 0;
+      outline: none;
+      resize: none;
+      min-height: 72px;
+      line-height: 1.65;
+      caret-color: #4a7c59;
+      transition: border-color 0.2s ease;
+    }
+    .question-input:focus { border-bottom-color: #2a3c2e; }
+
+    /* ─── STAGE 6: ANALYSIS ─── */
+    #stage-6 .stage-content { text-align: center; }
+
+    .radar-container {
+      width: 180px;
+      height: 180px;
+      margin: 0 auto 28px;
+    }
+    #radar-svg { width: 100%; height: 100%; }
+    .radar-circle {
+      fill: none;
+      stroke: #4a7c59;
+      stroke-width: 0.6;
+      opacity: 0.18;
+    }
+    .radar-circle-outer {
+      fill: none;
+      stroke: #4a7c59;
+      stroke-width: 0.6;
+      opacity: 0.25;
+      animation: radar-flash 4s linear infinite;
+    }
+    @keyframes radar-flash {
+      0%, 92%, 100% { opacity: 0.25; stroke-width: 0.6; }
+      96% { opacity: 0.85; stroke-width: 2; }
+    }
+    .radar-sweep-group {
+      transform-origin: 100px 100px;
+      animation: radar-rotate 4s linear infinite;
+    }
+    @keyframes radar-rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-message {
+      font-family: Georgia, serif;
+      font-size: 0.95rem;
+      color: #4a7c59;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      min-height: 1.4em;
+      letter-spacing: 0.02em;
+    }
+    .loading-message.visible { opacity: 1; }
+
+    .analysis-container { display: none; text-align: left; }
+    .analysis-note {
+      font-size: 0.72rem;
+      color: #2e2e28;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 52px;
+      text-align: center;
+    }
+    .analysis-section {
+      margin-bottom: 44px;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+    .analysis-section.visible { opacity: 1; }
+    .analysis-label {
+      font-size: 0.62rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #4a7c59;
+      margin-bottom: 10px;
+    }
+    .analysis-text {
+      font-family: Georgia, serif;
+      font-size: 0.98rem;
+      color: #b0aca4;
+      line-height: 1.85;
+      white-space: pre-wrap;
+    }
+    .analysis-section.one-action {
+      border-left: 2px solid #4a7c59;
+      padding-left: 22px;
+    }
+    .analysis-section.one-action .analysis-text {
+      font-size: 1.2rem;
+      color: #f0ece4;
+      line-height: 1.7;
+    }
+
+    .analysis-progress-wrap {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: 2px;
+      background: #0e0e0a;
+      display: none;
+      z-index: 100;
+    }
+    .analysis-progress-bar {
+      height: 100%;
+      background: #4a7c59;
+      width: 0%;
+      transition: width 0.8s linear;
+    }
+
+    /* ─── STAGE 7: REVEAL ─── */
+    #stage-7 .stage-content { text-align: center; }
+    .reveal-line {
+      font-family: Georgia, serif;
+      font-size: clamp(1.5rem, 4vw, 2.4rem);
+      color: #f0ece4;
+      line-height: 1.4;
+      margin-bottom: 12px;
+      opacity: 0;
+      transition: opacity 0.9s ease;
+    }
+    .reveal-line.visible { opacity: 1; }
+    .reveal-paragraph {
+      max-width: 500px;
+      margin: 44px auto;
+      font-family: Georgia, serif;
+      font-size: 1rem;
+      color: #6a6a62;
+      line-height: 1.85;
+      opacity: 0;
+      transition: opacity 0.9s ease;
+    }
+    .reveal-paragraph.visible { opacity: 1; }
+    .reveal-btn { opacity: 0; transition: opacity 0.9s ease; }
+    .reveal-btn.visible { opacity: 1; }
+
+    /* ─── STAGE 8: CTA ─── */
+    .cta-divider {
+      border: none;
+      border-top: 1px solid #141410;
+      margin: 52px 0;
+    }
+    .email-label {
+      font-size: 0.72rem;
+      color: #4a4a42;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .email-wrapper { margin: 28px 0; }
+    .cta-confirmation {
+      font-size: 0.85rem;
+      color: #4a7c59;
+      margin-top: 10px;
+      display: none;
+    }
+    .session-heading {
+      font-family: Georgia, serif;
+      font-size: 1.25rem;
+      color: #f0ece4;
+      margin-bottom: 14px;
+    }
+    .session-copy {
+      color: #6a6a62;
+      font-size: 0.9rem;
+      line-height: 1.75;
+      max-width: 480px;
+      margin-bottom: 28px;
+    }
+
+    /* ─── ADMIN OVERLAY ─── */
+    #admin-overlay {
+      display: none;
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      background: rgba(8,8,6,0.94);
+      border: 1px solid #1e1e18;
+      padding: 14px 18px;
+      z-index: 9999;
+      font-size: 0.72rem;
+      color: #4a4a42;
+      min-width: 190px;
+      backdrop-filter: blur(12px);
+    }
+    #admin-overlay.visible { display: block; }
+    .admin-title {
+      font-size: 0.6rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #4a7c59;
+      margin-bottom: 10px;
+    }
+    .admin-stat { margin-bottom: 3px; }
+    .admin-stat span { color: #c8c4bc; }
+    .admin-actions { margin-top: 10px; display: flex; flex-direction: column; gap: 5px; }
+    .admin-btn {
+      padding: 5px 10px;
+      background: transparent;
+      border: 1px solid #1e1e18;
+      color: #4a4a42;
+      font-size: 0.68rem;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s ease;
+    }
+    .admin-btn:hover { border-color: #4a7c59; color: #4a7c59; }
+
+    /* ─── UTILITIES ─── */
+    .hidden { display: none !important; }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 700px) {
+      .story-context-bar { padding: 12px 24px; gap: 12px; }
+      #story-textarea { padding: 40px 24px; }
+      .story-instruction { padding: 40px 24px; }
+      .story-bottom-bar { padding: 16px 24px; }
+      .questions-layout { flex-direction: column; }
+      .questions-story-panel {
+        width: 100%;
+        max-height: 180px;
+        position: relative;
+        border-right: none;
+        border-bottom: 1px solid #111108;
+        padding: 28px 24px;
+      }
+      .questions-panel { width: 100%; padding: 32px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════
+     STAGE 1: INTRO
+═══════════════════════════════════════════════ -->
+<div id="stage-1" class="stage">
+  <div class="stage-content">
+    <h1>Experience the next 5 years before they actually happen.</h1>
+    <p class="subhead">Build your Early Warning System</p>
+    <p class="disclaimer">(This isn't about predicting the future. It's about preparing for it.)</p>
+    <div class="body-copy">
+      <p>In 5 years, you'll know exactly how this plays out.</p>
+      <p>You'll know which signals you were already tracking but didn't act on. Which assumptions were quietly making decisions for you. Which direction you moved when the pressure arrived.</p>
+      <p>You'll know all of that.</p>
+      <p>The only question is whether you find out then — or now.</p>
+    </div>
+    <button class="btn btn-primary" onclick="goToStage('stage-2')">Start the simulation</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     STAGE 2: SIGNAL
+═══════════════════════════════════════════════ -->
+<div id="stage-2" class="stage">
+  <div class="stage-content">
+    <h2>What's one thing you've noticed this week you can't stop thinking about?</h2>
+    <p class="stage-subtext">Not a headline. Not a macro trend. Something you saw, felt, or overheard. Something that felt slightly off, slightly new, or slightly more than it used to be.</p>
+
+    <div class="fill-blank">
+      <span class="fill-blank-prefix">I noticed...</span>
+      <div class="fill-blank-input-wrapper">
+        <div class="fill-blank-placeholder" id="signal-placeholder"></div>
+        <textarea id="signal-input" rows="2"
+          oninput="onSignalInput()"
+          onfocus="onSignalFocus()"
+          onblur="onSignalBlur()"></textarea>
+      </div>
+    </div>
+
+    <button id="signal-continue" class="btn" disabled onclick="goToStage('stage-3')">Continue</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     STAGE 3: HEADLINE
+═══════════════════════════════════════════════ -->
+<div id="stage-3" class="stage">
+  <div class="stage-content">
+    <h2>Give your future a name.</h2>
+    <p class="stage-subtext">3 to 5 words. Something you could say to yourself in three years — "oh, we're moving toward ___" — and know exactly what it means.</p>
+
+    <div class="fill-blank" style="align-items:center;">
+      <span class="fill-blank-prefix">I call this future...</span>
+      <div class="fill-blank-input-wrapper">
+        <div class="fill-blank-placeholder" id="headline-placeholder"></div>
+        <input type="text" id="headline-input" style="min-height:0;padding:12px 16px;"
+          oninput="onHeadlineInput()"
+          onfocus="onHeadlineFocus()"
+          onblur="onHeadlineBlur()">
+      </div>
+    </div>
+
+    <button id="headline-continue" class="btn" disabled onclick="goToStage('stage-3-5')">Choose your writing time</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     STAGE 3.5: TIMER SELECT
+═══════════════════════════════════════════════ -->
+<div id="stage-3-5" class="stage">
+  <div class="stage-content">
+    <h2>How long do you want to write?</h2>
+    <div class="timer-toggle">
+      <button class="timer-option selected" onclick="selectTimer(10, this)">10 minutes</button>
+      <button class="timer-option" onclick="selectTimer(15, this)">15 minutes</button>
+    </div>
+    <p class="timer-note">10 minutes is enough to surface something real. 15 gives it more room. Either way — don't stop writing.</p>
+    <button class="btn btn-primary" onclick="goToStage('stage-4'); initStory()">Begin</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     STAGE 4: STORY
+═══════════════════════════════════════════════ -->
+<div id="stage-4" class="stage">
+  <div class="story-container">
+    <div class="story-context-bar">
+      <span><strong>Signal:</strong> <span id="context-signal"></span></span>
+      <span><strong>Future:</strong> <span id="context-headline"></span></span>
+      <span class="story-timer" id="story-timer"></span>
+    </div>
+    <div class="story-area">
+      <div class="story-instruction" id="story-instruction">
+        <p id="story-instruction-text"></p>
+      </div>
+      <textarea id="story-textarea"
+        oninput="onStoryInput()"
+        onkeydown="onStoryKeydown()"></textarea>
+    </div>
+    <div class="story-nudge" id="story-nudge"></div>
+    <div class="story-bottom-bar">
+      <span class="word-count" id="word-count">0 words</span>
+      <button id="finish-btn" class="btn hidden" onclick="goToStage('stage-5'); initQuestions()">Finish</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     STAGE 5: QUESTIONS
+═══════════════════════════════════════════════ -->
+<div id="stage-5" class="stage">
+  <div class="questions-layout">
+    <div class="questions-story-panel">
+      <div class="questions-story-label">Your story</div>
+      <div class="questions-story-text" id="questions-story-text"></div>
+    </div>
+    <div class="questions-panel">
+
+      <div class="question-item" id="q1-item">
+        <p class="question-text">Who's in your story — and who isn't?</p>
+        <p class="question-helper">Look at who showed up. Is your family there? Friends? Coworkers? Are you completely alone? The people missing from your future are as telling as the ones you included.</p>
+        <textarea class="question-input" id="q1-input" placeholder="I noticed I wrote about..." rows="3" oninput="onQInput(1)"></textarea>
+      </div>
+
+      <div class="question-item hidden" id="q2-item">
+        <p class="question-text">What assumptions did you make about the world around you?</p>
+        <p class="question-helper">Did you assume things still work the same way they do now? What stayed the same that you didn't question? What changed that surprised you as you were writing?</p>
+        <textarea class="question-input" id="q2-input" placeholder="I assumed that..." rows="3" oninput="onQInput(2)"></textarea>
+      </div>
+
+      <div class="question-item hidden" id="q3-item">
+        <p class="question-text">What did you NOT write about — and what does that mean?</p>
+        <p class="question-helper">Every story has gaps. What topic, relationship, or problem was completely absent? The thing you didn't write is often the thing you're most confidently wrong about.</p>
+        <textarea class="question-input" id="q3-input" placeholder="I didn't write about..." rows="3" oninput="onQInput(3)"></textarea>
+      </div>
+
+      <div style="margin-top:16px;">
+        <button id="questions-continue" class="btn hidden" onclick="goToStage('stage-6'); initAnalysis()">Continue</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     STAGE 6: ANALYSIS
+═══════════════════════════════════════════════ -->
+<div id="stage-6" class="stage">
+  <div class="stage-content">
+
+    <!-- Radar loading -->
+    <div id="radar-loading">
+      <div class="radar-container">
+        <svg id="radar-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+          <!-- Concentric rings -->
+          <circle cx="100" cy="100" r="24" class="radar-circle"/>
+          <circle cx="100" cy="100" r="48" class="radar-circle"/>
+          <circle cx="100" cy="100" r="72" class="radar-circle"/>
+          <circle cx="100" cy="100" r="96" class="radar-circle-outer"/>
+          <!-- Rotating sweep -->
+          <g class="radar-sweep-group">
+            <!-- Trailing fade sectors -->
+            <path d="M 100 100 L 100 4 A 96 96 0 0 0 62 16 Z" fill="#4a7c59" opacity="0.04"/>
+            <path d="M 100 100 L 100 4 A 96 96 0 0 0 77 9 Z"  fill="#4a7c59" opacity="0.09"/>
+            <!-- Sweep line -->
+            <line x1="100" y1="100" x2="100" y2="4" stroke="#4a7c59" stroke-width="1.5" opacity="0.85"/>
+            <!-- Pulse dot -->
+            <circle cx="100" cy="7" r="3.5" fill="#4a7c59" opacity="1"/>
+            <circle cx="100" cy="7" r="6"   fill="#4a7c59" opacity="0.18"/>
+          </g>
+          <!-- Center point -->
+          <circle cx="100" cy="100" r="2" fill="#4a7c59" opacity="0.5"/>
+        </svg>
+      </div>
+      <p class="loading-message" id="loading-message"></p>
+    </div>
+
+    <!-- Analysis content -->
+    <div class="analysis-container" id="analysis-container">
+      <p class="analysis-note">This is built from your words, not generic advice.</p>
+
+      <div class="analysis-section" id="sec-unplanned">
+        <div class="analysis-label">What you didn't plan to write</div>
+        <div class="analysis-text" id="txt-unplanned"></div>
+      </div>
+      <div class="analysis-section" id="sec-emotional">
+        <div class="analysis-label">The emotional field underneath</div>
+        <div class="analysis-text" id="txt-emotional"></div>
+      </div>
+      <div class="analysis-section" id="sec-assumptions">
+        <div class="analysis-label">The assumptions running your story</div>
+        <div class="analysis-text" id="txt-assumptions"></div>
+      </div>
+      <div class="analysis-section" id="sec-prerequisites">
+        <div class="analysis-label">What must be true for this future to exist</div>
+        <div class="analysis-text" id="txt-prerequisites"></div>
+      </div>
+      <div class="analysis-section" id="sec-warnings">
+        <div class="analysis-label">What to watch for right now</div>
+        <div class="analysis-text" id="txt-warnings"></div>
+      </div>
+      <div class="analysis-section" id="sec-absence">
+        <div class="analysis-label">What's missing — and what that means</div>
+        <div class="analysis-text" id="txt-absence"></div>
+      </div>
+      <div class="analysis-section one-action" id="sec-action">
+        <div class="analysis-label">One thing to do this week</div>
+        <div class="analysis-text" id="txt-action"></div>
+      </div>
+
+      <div style="margin-top:60px; text-align:center; padding-bottom:60px;">
+        <button id="analysis-continue" class="btn hidden" onclick="goToStage('stage-7'); initReveal()">Continue</button>
+      </div>
+    </div>
+
+  </div><!-- /stage-content -->
+
+  <div class="analysis-progress-wrap" id="analysis-progress-wrap">
+    <div class="analysis-progress-bar" id="analysis-progress-bar"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     STAGE 7: REVEAL
+═══════════════════════════════════════════════ -->
+<div id="stage-7" class="stage">
+  <div class="stage-content">
+    <div class="reveal-line" id="reveal-1">You simulated a future.</div>
+    <div class="reveal-line" id="reveal-2">You simulated how you acted inside it.</div>
+    <div class="reveal-line" id="reveal-3">You felt the emotions of it before it arrived.</div>
+    <p class="reveal-paragraph" id="reveal-para">Most people find out how they respond to a future when the future arrives. You just practiced before it did. That's the Early Warning System.</p>
+    <div class="reveal-btn" id="reveal-btn">
+      <button class="btn btn-primary" onclick="goToStage('stage-8')">Get your report</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     STAGE 8: CTA
+═══════════════════════════════════════════════ -->
+<div id="stage-8" class="stage">
+  <div class="stage-content">
+    <h2>Your Early Warning System report is ready.</h2>
+    <p class="stage-subtext">Your signal. Your story. Your analysis. Your one action. All in one document.</p>
+
+    <div class="email-wrapper">
+      <div class="email-label">Where should we send it?</div>
+      <input type="email" id="email-input" placeholder="your@email.com" oninput="appState.email = this.value">
+    </div>
+
+    <button class="btn btn-primary" onclick="handleReport()">Send my report</button>
+    <p class="cta-confirmation" id="cta-confirmation">Your report is downloading.</p>
+
+    <hr class="cta-divider">
+
+    <p class="session-heading">Want to go deeper?</p>
+    <p class="session-copy">You just found something you didn't plan to find. The session is where we go deeper into what your story actually revealed — and what to do about it.</p>
+    <a href="[BOOKING_URL]" class="btn btn-primary">Book a session — $500</a>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     ADMIN OVERLAY
+═══════════════════════════════════════════════ -->
+<div id="admin-overlay">
+  <div class="admin-title">Admin Mode</div>
+  <div class="admin-stat">Stage: <span id="adm-stage">1</span></div>
+  <div class="admin-stat">Words: <span id="adm-words">—</span></div>
+  <div class="admin-stat">Elapsed: <span id="adm-elapsed">—</span></div>
+  <div class="admin-stat">API: <span id="adm-api">—</span></div>
+  <div class="admin-stat">Airtable: <span id="adm-airtable">—</span></div>
+  <div class="admin-actions" id="adm-actions">
+    <button class="admin-btn" onclick="adminSkip()">Skip to next stage →</button>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════════ -->
+<script>
+'use strict';
+
+// ─── STATE ───────────────────────────────────────
+const appState = {
+  signal: '',
+  headline: '',
+  timerDuration: 10,
+  story: '',
+  questions: ['', '', ''],
+  analysis: null,
+  analysisRaw: '',
+  email: '',
+  completionTime: null,
+  currentStage: 'stage-1',
+  adminMode: false
+};
+
+// ─── ADMIN DETECTION ─────────────────────────────
+appState.adminMode = new URLSearchParams(location.search).get('admin') === 'true';
+if (appState.adminMode) {
+  document.getElementById('admin-overlay').classList.add('visible');
+}
+
+// ─── STAGE ORDER ─────────────────────────────────
+const STAGES = ['stage-1','stage-2','stage-3','stage-3-5','stage-4','stage-5','stage-6','stage-7','stage-8'];
+
+// ─── NAVIGATION ──────────────────────────────────
+function goToStage(id) {
+  const current = document.getElementById(appState.currentStage);
+  const next    = document.getElementById(id);
+  if (!next || id === appState.currentStage) return;
+
+  current.style.opacity = '0';
+  current.style.pointerEvents = 'none';
+
+  setTimeout(() => {
+    current.classList.remove('active');
+    appState.currentStage = id;
+    next.scrollTop = 0;
+    next.classList.add('active');
+    // Hide analysis progress if leaving stage 6
+    if (id !== 'stage-6') {
+      document.getElementById('analysis-progress-wrap').style.display = 'none';
+    }
+    updateAdmin();
+    buildAdminActions();
+  }, 350);
+}
+
+// ─── ADMIN HELPERS ───────────────────────────────
+function updateAdmin() {
+  if (!appState.adminMode) return;
+  document.getElementById('adm-stage').textContent = appState.currentStage.replace('stage-','');
+  document.getElementById('adm-words').textContent  = wordCount(appState.story);
+  const elapsed = storyStartTs
+    ? Math.floor((Date.now() - storyStartTs) / 1000)
+    : 0;
+  document.getElementById('adm-elapsed').textContent = elapsed + 's';
+}
+
+function buildAdminActions() {
+  if (!appState.adminMode) return;
+  let html = '<button class="admin-btn" onclick="adminSkip()">Skip to next stage →</button>';
+  if (appState.currentStage === 'stage-4') {
+    html += '<button class="admin-btn" onclick="adminSkipTimer()">Skip Timer</button>';
+    html += '<button class="admin-btn" onclick="adminPrefill()">Prefill Story</button>';
+  }
+  if (appState.currentStage === 'stage-6') {
+    html += '<button class="admin-btn" onclick="adminSkipAnalysis()">Skip Analysis Timer</button>';
+  }
+  document.getElementById('adm-actions').innerHTML = html;
+}
+
+function adminSkip() {
+  const idx = STAGES.indexOf(appState.currentStage);
+  if (idx >= STAGES.length - 1) return;
+  const next = STAGES[idx + 1];
+  if (next === 'stage-4') initStory();
+  if (next === 'stage-5') initQuestions();
+  if (next === 'stage-6') initAnalysis();
+  if (next === 'stage-7') initReveal();
+  goToStage(next);
+}
+
+function adminSkipTimer() {
+  storyElapsed = appState.timerDuration * 60;
+  document.getElementById('finish-btn').classList.remove('hidden');
+  updateTimerDisplay();
+}
+
+function adminSkipAnalysis() {
+  clearInterval(analysisTimerInt);
+  document.getElementById('analysis-progress-bar').style.width = '100%';
+  document.getElementById('analysis-continue').classList.remove('hidden');
+}
+
+function adminPrefill() {
+  appState.signal  = "I noticed fewer people in my building's lobby every morning this week.";
+  appState.story   = `It's Tuesday, seven years from now, and I'm working from the corner of my bedroom — the standing desk I bought during the first wave of all this. The lobby thing I noticed turned out to be a leading indicator; within eighteen months, our entire floor was gone. Not the company, just the floor.
+
+I wake up to three notifications: a Slack from Tokyo (they're always three hours ahead now that everyone works async), a calendar reminder for my 11am co-presence session — that's what we call video calls now, ironically — and a text from my neighbor asking if I want to walk to the coffee shop before the crowds hit.
+
+The coffee shop is different. It's busier than ever, but differently busy. It's the third place now that offices aren't. People don't go there to be alone with laptops — they go to be around other humans. Ambient presence. I go for twenty minutes just to feel like I'm somewhere.
+
+My afternoon strategy session runs long — six people, none of whom I've met in person. We've been working together for two years. My manager lives in Lisbon. I haven't thought about this as strange in a long time.
+
+At five o'clock I close my laptop and realize I haven't left the apartment. That used to bother me. Now I just note it and go for a run.`;
+
+  document.getElementById('story-textarea').value    = appState.story;
+  document.getElementById('context-signal').textContent   = appState.signal;
+  document.getElementById('story-instruction').style.opacity = '0';
+  setTimeout(() => { document.getElementById('story-instruction').style.display = 'none'; }, 600);
+
+  const wc = wordCount(appState.story);
+  document.getElementById('word-count').textContent = wc + ' words';
+  document.getElementById('finish-btn').classList.remove('hidden');
+  updateAdmin();
+}
+
+
+// ─── SIGNAL PLACEHOLDER CYCLING ─────────────────
+const signalPlaceholders = [
+  "my boss parked in a completely different spot this morning — she has two knee replacements and walked twice as far for no obvious reason.",
+  "the number of people biking to work go from one to five in a single week.",
+  "the gas prices on the pump were flipped — the most expensive was on the left where the cheapest always was.",
+  "the clock change hit our whole family harder than it ever has before.",
+  "the microclimate shifting — beach crowds showing up earlier than they should be."
+];
+let sigIdx = 0, sigInterval = null, sigFocused = false;
+
+function startSignalCycle() {
+  const el = document.getElementById('signal-placeholder');
+  el.style.opacity = '1';
+  el.textContent   = signalPlaceholders[sigIdx];
+  if (sigInterval) return;
+  sigInterval = setInterval(() => {
+    if (sigFocused || appState.signal) return;
+    el.style.opacity = '0';
+    setTimeout(() => {
+      sigIdx = (sigIdx + 1) % signalPlaceholders.length;
+      el.textContent   = signalPlaceholders[sigIdx];
+      el.style.opacity = '1';
+    }, 500);
+  }, 3000);
+}
+
+function onSignalFocus() {
+  sigFocused = true;
+  document.getElementById('signal-placeholder').style.opacity = '0';
+}
+function onSignalBlur() {
+  if (!appState.signal) {
+    sigFocused = false;
+    document.getElementById('signal-placeholder').style.opacity = '1';
+  }
+}
+function onSignalInput() {
+  appState.signal = document.getElementById('signal-input').value;
+  const btn = document.getElementById('signal-continue');
+  btn.disabled = appState.adminMode ? false : appState.signal.length < 20;
+}
+
+
+// ─── HEADLINE PLACEHOLDER CYCLING ───────────────
+const headlinePlaceholders = [
+  "Quarterly Brain Audits World",
+  "No One Parks Here Anymore",
+  "Five Bikers Became Fifty",
+  "The Score That Follows You",
+  "Always Behind the Curve"
+];
+let hdlIdx = 0, hdlInterval = null, hdlFocused = false;
+
+function startHeadlineCycle() {
+  const el = document.getElementById('headline-placeholder');
+  el.style.opacity = '1';
+  el.textContent   = headlinePlaceholders[hdlIdx];
+  if (hdlInterval) return;
+  hdlInterval = setInterval(() => {
+    if (hdlFocused || appState.headline) return;
+    el.style.opacity = '0';
+    setTimeout(() => {
+      hdlIdx = (hdlIdx + 1) % headlinePlaceholders.length;
+      el.textContent   = headlinePlaceholders[hdlIdx];
+      el.style.opacity = '1';
+    }, 500);
+  }, 3000);
+}
+
+function onHeadlineFocus() {
+  hdlFocused = true;
+  document.getElementById('headline-placeholder').style.opacity = '0';
+}
+function onHeadlineBlur() {
+  if (!appState.headline) {
+    hdlFocused = false;
+    document.getElementById('headline-placeholder').style.opacity = '1';
+  }
+}
+function onHeadlineInput() {
+  appState.headline = document.getElementById('headline-input').value;
+  const btn = document.getElementById('headline-continue');
+  btn.disabled = appState.adminMode ? false : appState.headline.length < 3;
+}
+
+
+// ─── TIMER SELECT ────────────────────────────────
+function selectTimer(mins, el) {
+  document.querySelectorAll('.timer-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  appState.timerDuration = mins;
+}
+
+
+// ─── STORY STAGE ─────────────────────────────────
+let storyStarted   = false;
+let storyPaused    = false;
+let storyElapsed   = 0;   // active seconds counted
+let storyStartTs   = null;
+let storyTimerInt  = null;
+let storyLastKey   = null;
+let nudgeTimeouts  = [];
+
+function initStory() {
+  document.getElementById('context-signal').textContent   = appState.signal   || '(your signal)';
+  document.getElementById('context-headline').textContent = appState.headline || '(your future)';
+
+  const dur = appState.timerDuration;
+  document.getElementById('story-timer').textContent = dur + ':00';
+
+  const headline = appState.headline || 'your future';
+  document.getElementById('story-instruction-text').textContent =
+    `It is 15 years from now. ${headline} is standard reality. Everyone lives around it.\n\nWalk through your Tuesday. First person. Present tense. As if you're living it right now.\n\nMorning. Work. Evening. What's different? What's harder? What surprised you about how life actually turned out?\n\nDon't think. Don't edit. Just write.`;
+
+  // Reset timer vars
+  storyStarted = false;
+  storyPaused  = false;
+  storyElapsed = 0;
+  storyStartTs = null;
+  storyLastKey = null;
+  clearInterval(storyTimerInt);
+  clearNudges();
+
+  // Reset UI
+  document.getElementById('story-textarea').value = '';
+  appState.story = '';
+  document.getElementById('word-count').textContent = '0 words';
+  document.getElementById('story-instruction').style.display = '';
+  document.getElementById('story-instruction').style.opacity = '1';
+  document.getElementById('finish-btn').classList.toggle('hidden', !appState.adminMode);
+  document.getElementById('story-nudge').classList.remove('visible');
+  document.getElementById('story-timer').style.opacity = '0.65';
+}
+
+function updateTimerDisplay() {
+  const total = appState.timerDuration * 60;
+  const remaining = total - storyElapsed;
+  const m = Math.floor(remaining / 60);
+  const s = remaining % 60;
+  document.getElementById('story-timer').textContent =
+    m + ':' + String(s).padStart(2,'0');
+}
+
+function onStoryKeydown() {
+  if (!storyStarted) {
+    storyStarted = true;
+    storyStartTs = Date.now();
+
+    // Fade instruction
+    const instr = document.getElementById('story-instruction');
+    instr.style.opacity = '0';
+    setTimeout(() => { instr.style.display = 'none'; }, 600);
+
+    // Start timer
+    storyTimerInt = setInterval(tickStory, 1000);
+  }
+
+  // Resume if paused
+  if (storyPaused) {
+    storyPaused = false;
+    document.getElementById('story-timer').style.opacity = '0.65';
+  }
+
+  // Clear nudge
+  document.getElementById('story-nudge').classList.remove('visible');
+  clearNudges();
+
+  storyLastKey = Date.now();
+  scheduleNudges();
+}
+
+function tickStory() {
+  if (!storyPaused) {
+    storyElapsed++;
+    updateTimerDisplay();
+    checkFinish();
+    updateAdmin();
+
+    // Auto-advance at hard max (15 min)
+    if (storyElapsed >= 15 * 60) {
+      clearInterval(storyTimerInt);
+      goToStage('stage-5');
+      initQuestions();
+    }
+  }
+}
+
+function checkFinish() {
+  if (appState.adminMode) return; // always shown in admin
+  const minElapsed = appState.timerDuration * 60;
+  if (storyElapsed >= minElapsed || wordCount(appState.story) >= 300) {
+    document.getElementById('finish-btn').classList.remove('hidden');
+  }
+}
+
+function onStoryInput() {
+  appState.story = document.getElementById('story-textarea').value;
+  const wc = wordCount(appState.story);
+  document.getElementById('word-count').textContent = wc + ' word' + (wc !== 1 ? 's' : '');
+  checkFinish();
+}
+
+function clearNudges() {
+  nudgeTimeouts.forEach(clearTimeout);
+  nudgeTimeouts = [];
+}
+
+function scheduleNudges() {
+  clearNudges();
+  const nudge = document.getElementById('story-nudge');
+
+  nudgeTimeouts.push(setTimeout(() => {
+    if (!storyStarted) return;
+    nudge.textContent = "Don't think. Just type.";
+    nudge.classList.add('visible');
+  }, 8000));
+
+  nudgeTimeouts.push(setTimeout(() => {
+    if (!storyStarted) return;
+    storyPaused = true;
+    document.getElementById('story-timer').style.opacity = '0.2';
+    nudge.textContent = "Stuck? Think about what's different about your morning. Start there and walk through the entire day.";
+    nudge.classList.add('visible');
+  }, 20000));
+
+  nudgeTimeouts.push(setTimeout(() => {
+    if (!storyStarted) return;
+    nudge.textContent = "Feels like you're distracted. That's ok. I'll wait.";
+    nudge.classList.add('visible');
+  }, 45000));
+}
+
+
+// ─── QUESTIONS STAGE ─────────────────────────────
+function initQuestions() {
+  if (storyStartTs) {
+    appState.completionTime = Math.floor((Date.now() - storyStartTs) / 1000);
+  }
+  clearInterval(storyTimerInt);
+  clearNudges();
+
+  document.getElementById('questions-story-text').textContent = appState.story;
+
+  // Reset question visibility
+  document.getElementById('q2-item').classList.add('hidden');
+  document.getElementById('q3-item').classList.add('hidden');
+  document.getElementById('questions-continue').classList.add('hidden');
+
+  if (appState.adminMode) {
+    document.getElementById('q2-item').classList.remove('hidden');
+    document.getElementById('q3-item').classList.remove('hidden');
+    document.getElementById('questions-continue').classList.remove('hidden');
+  }
+}
+
+function onQInput(n) {
+  appState.questions[n - 1] = document.getElementById('q' + n + '-input').value;
+  const len = appState.questions[n - 1].length;
+
+  if (n === 1 && (appState.adminMode || len > 30)) {
+    document.getElementById('q2-item').classList.remove('hidden');
+  }
+  if (n === 2 && (appState.adminMode || len > 30)) {
+    document.getElementById('q3-item').classList.remove('hidden');
+  }
+  if (n === 3 && (appState.adminMode || len > 30)) {
+    document.getElementById('questions-continue').classList.remove('hidden');
+  }
+}
+
+
+// ─── ANALYSIS STAGE ──────────────────────────────
+const loadingMsgs = [
+  "Reading your signal...",
+  "Mapping your assumptions...",
+  "Finding what you didn't write...",
+  "Surfacing the emotional field...",
+  "Building your Early Warning System..."
+];
+let loadingInt = null, loadingIdx = 0;
+let analysisTimerInt = null;
+
+async function initAnalysis() {
+  // Show radar
+  const radarEl = document.getElementById('radar-loading');
+  radarEl.style.display = '';
+  radarEl.style.opacity = '1';
+  document.getElementById('analysis-container').style.display = 'none';
+
+  // Start cycling messages
+  loadingIdx = 0;
+  const msgEl = document.getElementById('loading-message');
+  msgEl.textContent = loadingMsgs[0];
+  msgEl.classList.add('visible');
+  clearInterval(loadingInt);
+  loadingInt = setInterval(() => {
+    msgEl.style.opacity = '0';
+    setTimeout(() => {
+      loadingIdx = (loadingIdx + 1) % loadingMsgs.length;
+      msgEl.textContent = loadingMsgs[loadingIdx];
+      msgEl.style.opacity = '1';
+    }, 500);
+  }, 4000);
+
+  if (appState.adminMode) document.getElementById('adm-api').textContent = 'Calling...';
+
+  try {
+    const res = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        signal:   appState.signal,
+        headline: appState.headline,
+        story:    appState.story
+      })
+    });
+
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+
+    appState.analysisRaw = data.analysis;
+    appState.analysis    = parseAnalysis(data.analysis);
+
+    if (appState.adminMode) document.getElementById('adm-api').textContent = 'OK';
+
+    clearInterval(loadingInt);
+    renderAnalysis();
+
+  } catch (err) {
+    console.error('Analysis error:', err);
+    if (appState.adminMode) document.getElementById('adm-api').textContent = 'Error';
+    clearInterval(loadingInt);
+    msgEl.textContent = 'Something went wrong. Please try again.';
+    msgEl.style.opacity = '1';
+  }
+}
+
+function parseAnalysis(text) {
+  const keys = ['UNPLANNED','EMOTIONAL FIELD','ASSUMPTIONS','PREREQUISITES','EARLY WARNINGS','ABSENCE','ONE ACTION'];
+  const result = {};
+  for (let i = 0; i < keys.length; i++) {
+    const k    = keys[i];
+    const from = text.indexOf(k);
+    if (from === -1) continue;
+    let to = text.length;
+    for (let j = i + 1; j < keys.length; j++) {
+      const nxt = text.indexOf(keys[j], from + k.length);
+      if (nxt !== -1) { to = nxt; break; }
+    }
+    result[k] = text.slice(from + k.length, to).trim();
+  }
+  return result;
+}
+
+function renderAnalysis() {
+  const radarEl = document.getElementById('radar-loading');
+  radarEl.style.transition = 'opacity 0.5s ease';
+  radarEl.style.opacity    = '0';
+
+  setTimeout(() => {
+    radarEl.style.display = 'none';
+
+    const a = appState.analysis || {};
+    document.getElementById('txt-unplanned').textContent    = a['UNPLANNED']       || '';
+    document.getElementById('txt-emotional').textContent    = a['EMOTIONAL FIELD']  || '';
+    document.getElementById('txt-assumptions').textContent  = a['ASSUMPTIONS']      || '';
+    document.getElementById('txt-prerequisites').textContent= a['PREREQUISITES']    || '';
+    document.getElementById('txt-warnings').textContent     = a['EARLY WARNINGS']   || '';
+    document.getElementById('txt-absence').textContent      = a['ABSENCE']          || '';
+    document.getElementById('txt-action').textContent       = a['ONE ACTION']        || '';
+
+    const container = document.getElementById('analysis-container');
+    container.style.display = 'block';
+
+    // Stagger section reveals
+    container.querySelectorAll('.analysis-section').forEach((el, i) => {
+      setTimeout(() => el.classList.add('visible'), 400 + i * 450);
+    });
+
+    // Start forced read timer
+    startAnalysisTimer();
+  }, 600);
+}
+
+function startAnalysisTimer() {
+  const duration = appState.adminMode ? 5 : 90;
+  let elapsed    = 0;
+
+  const wrap = document.getElementById('analysis-progress-wrap');
+  const bar  = document.getElementById('analysis-progress-bar');
+  wrap.style.display = 'block';
+  bar.style.width    = '0%';
+
+  clearInterval(analysisTimerInt);
+  analysisTimerInt = setInterval(() => {
+    elapsed++;
+    bar.style.width = (elapsed / duration * 100) + '%';
+    if (elapsed >= duration) {
+      clearInterval(analysisTimerInt);
+      document.getElementById('analysis-continue').classList.remove('hidden');
+    }
+  }, 1000);
+}
+
+
+// ─── REVEAL STAGE ────────────────────────────────
+function initReveal() {
+  ['reveal-1','reveal-2','reveal-3','reveal-para','reveal-btn'].forEach(id => {
+    document.getElementById(id).classList.remove('visible');
+  });
+
+  const base = 500; // wait for transition
+  setTimeout(() => document.getElementById('reveal-1').classList.add('visible'),   base);
+  setTimeout(() => document.getElementById('reveal-2').classList.add('visible'),   base + 2200);
+  setTimeout(() => document.getElementById('reveal-3').classList.add('visible'),   base + 4400);
+  setTimeout(() => document.getElementById('reveal-para').classList.add('visible'),base + 6800);
+  setTimeout(() => document.getElementById('reveal-btn').classList.add('visible'), base + 8000);
+}
+
+
+// ─── CTA / REPORT ────────────────────────────────
+async function handleReport() {
+  appState.email = document.getElementById('email-input').value;
+
+  // Generate PDF (client-side)
+  generatePDF();
+
+  // Show confirmation
+  document.getElementById('cta-confirmation').style.display = 'block';
+
+  // Store to Airtable (best-effort)
+  try {
+    if (appState.adminMode) document.getElementById('adm-airtable').textContent = 'Writing...';
+    await fetch('/api/store', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        signal:         appState.signal,
+        headline:       appState.headline,
+        story:          appState.story,
+        questions:      appState.questions,
+        analysis:       appState.analysisRaw,
+        email:          appState.email,
+        completionTime: appState.completionTime,
+        timestamp:      new Date().toISOString(),
+        adminMode:      appState.adminMode
+      })
+    });
+    if (appState.adminMode) document.getElementById('adm-airtable').textContent = 'OK';
+  } catch (err) {
+    console.error('Store error:', err);
+    if (appState.adminMode) document.getElementById('adm-airtable').textContent = 'Error';
+  }
+}
+
+
+// ─── PDF GENERATION ──────────────────────────────
+function generatePDF() {
+  if (!window.jspdf) { console.warn('jsPDF not loaded'); return; }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+
+  const W = 210, H = 297, M = 22, CW = W - M * 2;
+  const today = new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+
+  // Color helpers
+  const dark  = () => doc.setTextColor(240, 236, 228);
+  const green = () => doc.setTextColor(74, 124, 89);
+  const dim   = () => doc.setTextColor(80, 80, 74);
+  const mid   = () => doc.setTextColor(110, 106, 100);
+  const bg    = () => { doc.setFillColor(10, 10, 10); doc.rect(0, 0, W, H, 'F'); };
+
+  // ── Page 1: Cover ──
+  bg();
+  doc.setFillColor(74, 124, 89);
+  doc.rect(M, 38, 28, 0.4, 'F');
+
+  dim(); doc.setFontSize(7); doc.setFont('helvetica','normal');
+  doc.text('EARLY WARNING SYSTEM REPORT', M, 50);
+
+  dark(); doc.setFontSize(26); doc.setFont('times','bold');
+  const hlLines = doc.splitTextToSize(appState.headline || 'Your Future', CW);
+  doc.text(hlLines, W / 2, 108, { align: 'center' });
+
+  dim(); doc.setFontSize(8); doc.setFont('helvetica','normal');
+  doc.text(today, W / 2, 132, { align: 'center' });
+
+  green(); doc.setFontSize(9);
+  doc.text('Modern Myths  |  Mohammad Khan', W / 2, H - 28, { align: 'center' });
+
+  // ── Page 2: Signal ──
+  doc.addPage(); bg();
+  green(); doc.setFontSize(7); doc.setFont('helvetica','normal');
+  doc.text('YOUR SIGNAL', M, 38);
+
+  dim(); doc.setFontSize(10); doc.setFont('times','italic');
+  doc.text('I noticed...', M, 54);
+
+  dark(); doc.setFontSize(14); doc.setFont('times','normal');
+  const sigLines = doc.splitTextToSize(appState.signal || '', CW);
+  doc.text(sigLines, M, 68);
+
+  // ── Page 3+: Story ──
+  doc.addPage(); bg();
+  green(); doc.setFontSize(7); doc.setFont('helvetica','normal');
+  doc.text('YOUR FUTURE', M, 38);
+
+  dark(); doc.setFontSize(10); doc.setFont('times','normal');
+  const storyLines = doc.splitTextToSize(appState.story || '', CW);
+  let sy = 52;
+  for (const line of storyLines) {
+    if (sy > H - M) { doc.addPage(); bg(); sy = M + 10; }
+    doc.text(line, M, sy);
+    sy += 5.8;
+  }
+
+  // ── Analysis pages ──
+  doc.addPage(); bg();
+  const analysisSections = [
+    { key: 'UNPLANNED',       label: "WHAT YOU DIDN'T PLAN TO WRITE" },
+    { key: 'EMOTIONAL FIELD', label: 'THE EMOTIONAL FIELD UNDERNEATH' },
+    { key: 'ASSUMPTIONS',     label: 'THE ASSUMPTIONS RUNNING YOUR STORY' },
+    { key: 'PREREQUISITES',   label: 'WHAT MUST BE TRUE FOR THIS FUTURE TO EXIST' },
+    { key: 'EARLY WARNINGS',  label: 'WHAT TO WATCH FOR RIGHT NOW' },
+    { key: 'ABSENCE',         label: "WHAT'S MISSING — AND WHAT THAT MEANS" },
+    { key: 'ONE ACTION',      label: 'ONE THING TO DO THIS WEEK', prominent: true }
+  ];
+
+  let ay = 38;
+  for (const sec of analysisSections) {
+    if (ay > H - 50) { doc.addPage(); bg(); ay = 38; }
+
+    green(); doc.setFontSize(6.5); doc.setFont('helvetica','bold');
+    doc.text(sec.label, M, ay);
+    ay += 7;
+
+    const content   = (appState.analysis && appState.analysis[sec.key]) || '';
+    const textIndent = sec.prominent ? M + 5 : M;
+    const textWidth  = sec.prominent ? CW - 5 : CW;
+
+    if (sec.prominent) {
+      doc.setFillColor(74, 124, 89);
+      doc.rect(M, ay - 2, 1.5, 12, 'F');
+      dark(); doc.setFontSize(12); doc.setFont('times','bold');
+    } else {
+      mid(); doc.setFontSize(9.5); doc.setFont('times','normal');
+    }
+
+    const cLines = doc.splitTextToSize(content, textWidth);
+    for (const cl of cLines) {
+      if (ay > H - M) { doc.addPage(); bg(); ay = M + 10; }
+      doc.text(cl, textIndent, ay);
+      ay += sec.prominent ? 6.5 : 5.2;
+    }
+    ay += 8;
+  }
+
+  // ── Reflections page ──
+  doc.addPage(); bg();
+  green(); doc.setFontSize(7); doc.setFont('helvetica','normal');
+  doc.text('YOUR REFLECTIONS', M, 38);
+
+  const qTexts = [
+    "Who's in your story — and who isn't?",
+    "What assumptions did you make about the world around you?",
+    "What did you NOT write about — and what does that mean?"
+  ];
+  let ry = 52;
+  for (let i = 0; i < 3; i++) {
+    if (ry > H - 50) { doc.addPage(); bg(); ry = 38; }
+    dim(); doc.setFontSize(8.5); doc.setFont('helvetica','bold');
+    const qLns = doc.splitTextToSize(qTexts[i], CW);
+    doc.text(qLns, M, ry);
+    ry += qLns.length * 4.8 + 4;
+
+    dark(); doc.setFontSize(9.5); doc.setFont('times','normal');
+    const aLns = doc.splitTextToSize(appState.questions[i] || '', CW);
+    doc.text(aLns, M, ry);
+    ry += aLns.length * 5.2 + 12;
+  }
+
+  // ── Back page ──
+  doc.addPage(); bg();
+  green(); doc.setFontSize(7); doc.setFont('helvetica','normal');
+  doc.text('MODERN MYTHS  |  THE EARLY WARNING SYSTEM', W / 2, 118, { align: 'center' });
+
+  dark(); doc.setFontSize(15); doc.setFont('times','bold');
+  doc.text('One session. 90 minutes. $500.', W / 2, 136, { align: 'center' });
+
+  dim(); doc.setFontSize(9); doc.setFont('helvetica','normal');
+  doc.text('[BOOKING_URL]', W / 2, 152, { align: 'center' });
+
+  const filename = 'early-warning-system-' +
+    (appState.headline || 'report').toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'') +
+    '.pdf';
+  doc.save(filename);
+}
+
+
+// ─── UTILITY ─────────────────────────────────────
+function wordCount(text) {
+  if (!text || !text.trim()) return 0;
+  return text.trim().split(/\s+/).filter(w => w.length > 0).length;
+}
+
+
+// ─── MUTATION OBSERVER: start placeholder cycles ─
+const stageObs = new MutationObserver(mutations => {
+  for (const m of mutations) {
+    if (m.type !== 'attributes') continue;
+    const el = m.target;
+    if (el.id === 'stage-2' && el.classList.contains('active')) startSignalCycle();
+    if (el.id === 'stage-3' && el.classList.contains('active')) startHeadlineCycle();
+  }
+});
+document.querySelectorAll('.stage').forEach(s => {
+  stageObs.observe(s, { attributes: true, attributeFilter: ['class'] });
+});
+
+
+// ─── INIT ────────────────────────────────────────
+(function init() {
+  const stage1 = document.getElementById('stage-1');
+  stage1.classList.add('active');
+
+  // In admin mode, unlock disabled buttons immediately
+  if (appState.adminMode) {
+    setTimeout(() => {
+      document.getElementById('signal-continue').disabled  = false;
+      document.getElementById('headline-continue').disabled = false;
+    }, 0);
+  }
+})();
+</script>
+</body>
+</html>

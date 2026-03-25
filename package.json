@@ -1,0 +1,9 @@
+{
+  "name": "early-warning-system",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@anthropic-ai/sdk": "latest",
+    "airtable": "latest"
+  }
+}

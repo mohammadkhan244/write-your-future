@@ -81,23 +81,44 @@
     }
 
     /* ─── BUTTONS ─── */
-    .btn {
+    button {
       display: inline-block;
-      padding: 13px 30px;
-      background: transparent;
-      border: 1px solid #b87333;
-      color: #b87333;
+      background-color: #b87333;
+      color: #ffffff;
+      border: none;
+      border-radius: 4px;
+      padding: 12px 28px;
+      font-size: 16px;
       font-family: system-ui, sans-serif;
-      font-size: 0.9rem;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.03em;
       cursor: pointer;
-      transition: background 0.2s ease, color 0.2s ease;
+      transition: background-color 0.2s ease;
       text-decoration: none;
     }
-    .btn:hover:not(:disabled) { background: #b87333; color: #0a0a0a; }
-    .btn:disabled { opacity: 0.25; cursor: not-allowed; pointer-events: none; }
-    .btn-primary { background: #b87333; color: #0a0a0a; font-weight: 600; }
-    .btn-primary:hover:not(:disabled) { background: #cc8a45; }
+    button:hover:not(:disabled) { background-color: #a0612a; }
+    button:disabled {
+      background-color: #6b4a2a;
+      opacity: 0.5;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    /* Anchor-tag button (Book a session) */
+    .btn {
+      display: inline-block;
+      background-color: #b87333;
+      color: #ffffff;
+      border: none;
+      border-radius: 4px;
+      padding: 12px 28px;
+      font-size: 16px;
+      font-family: system-ui, sans-serif;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      text-decoration: none;
+    }
+    .btn:hover { background-color: #a0612a; color: #ffffff; }
 
     /* ─── FILL-IN-BLANK ─── */
     .fill-blank {
@@ -174,20 +195,21 @@
     }
     .timer-option {
       padding: 15px 40px;
-      border: 1px solid #1e1e18;
-      color: #5a5a52;
-      cursor: pointer;
+      background-color: #1e1408;
+      color: #7a5a3a;
+      border: 1px solid #2a1a0a;
+      border-radius: 0;
       font-family: Georgia, serif;
       font-size: 1rem;
-      background: transparent;
-      transition: all 0.2s ease;
+      transition: background-color 0.2s ease;
     }
     .timer-option:first-child { border-right: none; }
     .timer-option.selected {
+      background-color: #b87333;
+      color: #ffffff;
       border-color: #b87333;
-      color: #b87333;
-      background: rgba(184,115,51,0.07);
     }
+    .timer-option:hover:not(:disabled) { background-color: #7a4a22; color: #ffffff; }
     .timer-note {
       font-size: 0.83rem;
       color: #3a3a34;
@@ -856,7 +878,7 @@
     <a href="[BOOKING_URL]" class="btn btn-primary">Book a session — $500</a>
 
     <hr class="cta-divider" style="margin-top:52px;">
-    <button class="btn" style="opacity:0.4; font-size:0.8rem;" onclick="restartApp()">← Start over</button>
+    <button onclick="restartApp()">← Start over</button>
   </div>
 </div>
 
@@ -1462,62 +1484,140 @@ function generatePDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
 
-  const W = 210, H = 297, M = 22, CW = W - M * 2;
+  const W = 210, H = 297, M = 20, CW = 170;
+  const BODY_LH  = 5;   // mm per body line
+  const LABEL_H  = 7;   // mm label occupies
+  const SEC_GAP  = 8;   // mm between sections
   const today = new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
 
-  // Color helpers
-  const dark  = () => doc.setTextColor(240, 236, 228);
-  const green = () => doc.setTextColor(184, 115, 51);
-  const dim   = () => doc.setTextColor(80, 80, 74);
-  const mid   = () => doc.setTextColor(110, 106, 100);
-  const bg    = () => { doc.setFillColor(10, 10, 10); doc.rect(0, 0, W, H, 'F'); };
+  // ── Color helpers ──
+  const cDark   = () => doc.setTextColor(240, 236, 228);
+  const cCopper = () => doc.setTextColor(184, 115, 51);
+  const cDim    = () => doc.setTextColor(80, 80, 74);
+  const cMid    = () => doc.setTextColor(110, 106, 100);
+  const bg      = () => { doc.setFillColor(10, 10, 10); doc.rect(0, 0, W, H, 'F'); };
 
-  // ── Page 1: Cover ──
-  bg();
-  doc.setFillColor(184, 115, 51);
-  doc.rect(M, 38, 28, 0.4, 'F');
-
-  dim(); doc.setFontSize(7); doc.setFont('helvetica','normal');
-  doc.text('EARLY WARNING SYSTEM REPORT', M, 50);
-
-  dark(); doc.setFontSize(26); doc.setFont('times','bold');
-  const hlLines = doc.splitTextToSize(appState.headline || 'Your Future', CW);
-  doc.text(hlLines, W / 2, 108, { align: 'center' });
-
-  dim(); doc.setFontSize(8); doc.setFont('helvetica','normal');
-  doc.text(today, W / 2, 132, { align: 'center' });
-
-  green(); doc.setFontSize(9);
-  doc.text('Modern Myths  |  Mohammad Khan', W / 2, H - 28, { align: 'center' });
-
-  // ── Page 2: Signal ──
-  doc.addPage(); bg();
-  green(); doc.setFontSize(7); doc.setFont('helvetica','normal');
-  doc.text('YOUR SIGNAL', M, 38);
-
-  dim(); doc.setFontSize(10); doc.setFont('times','italic');
-  doc.text('I noticed...', M, 54);
-
-  dark(); doc.setFontSize(14); doc.setFont('times','normal');
-  const sigLines = doc.splitTextToSize(appState.signal || '', CW);
-  doc.text(sigLines, M, 68);
-
-  // ── Page 3+: Story ──
-  doc.addPage(); bg();
-  green(); doc.setFontSize(7); doc.setFont('helvetica','normal');
-  doc.text('YOUR FUTURE', M, 38);
-
-  dark(); doc.setFontSize(10); doc.setFont('times','normal');
-  const storyLines = doc.splitTextToSize(appState.story || '', CW);
-  let sy = 52;
-  for (const line of storyLines) {
-    if (sy > H - M) { doc.addPage(); bg(); sy = M + 10; }
-    doc.text(line, M, sy);
-    sy += 5.8;
+  // ── Measure plain-text height ──
+  function textH(text, width, lh) {
+    if (!text) return lh;
+    const plain = text.replace(/\*\*/g, '');
+    return doc.splitTextToSize(plain, width).length * lh;
   }
 
-  // ── Analysis pages ──
+  // ── Render text with **bold** markers inline; returns new Y ──
+  function renderBold(text, x, y, maxW, fontSize, lh, fontFam) {
+    if (!text) return y;
+    const segments = text.split('**');
+    // Build word tokens: {t: string, b: boolean}
+    const tokens = [];
+    for (let i = 0; i < segments.length; i++) {
+      const bold = i % 2 === 1;
+      const parts = segments[i].split('\n');
+      for (let pi = 0; pi < parts.length; pi++) {
+        if (pi > 0) tokens.push({ t: '\n', b: false });
+        const words = parts[pi].split(' ');
+        for (let wi = 0; wi < words.length; wi++) {
+          if (wi > 0) tokens.push({ t: ' ', b: false });
+          if (words[wi]) tokens.push({ t: words[wi], b: bold });
+        }
+      }
+    }
+
+    // Measure a token's width (requires correct font set first)
+    function tw(token) {
+      doc.setFont(fontFam, token.b ? 'bold' : 'normal');
+      doc.setFontSize(fontSize);
+      return doc.getStringUnitWidth(token.t) * fontSize / doc.internal.scaleFactor;
+    }
+
+    // Lay out tokens into lines
+    const lines = [[]];
+    let lineW = 0;
+    for (const tok of tokens) {
+      if (tok.t === '\n') { lines.push([]); lineW = 0; continue; }
+      const w = tw(tok);
+      if (tok.t === ' ') {
+        if (lineW > 0) { lines[lines.length - 1].push(tok); lineW += w; }
+        continue;
+      }
+      if (lineW > 0 && lineW + w > maxW) { lines.push([]); lineW = 0; }
+      lines[lines.length - 1].push(tok);
+      lineW += w;
+    }
+
+    // Render each line
+    for (const line of lines) {
+      while (line.length && line[line.length - 1].t === ' ') line.pop();
+      let cx = x;
+      for (const tok of line) {
+        doc.setFont(fontFam, tok.b ? 'bold' : 'normal');
+        doc.setFontSize(fontSize);
+        doc.text(tok.t, cx, y);
+        cx += tw(tok);
+      }
+      y += lh;
+    }
+    return y;
+  }
+
+  // ── PAGE 1: COVER ──
+  bg();
+  doc.setFillColor(184, 115, 51);
+  doc.rect(M, 40, 25, 0.4, 'F');
+
+  cDim(); doc.setFontSize(8); doc.setFont('helvetica', 'normal');
+  doc.text('EARLY WARNING SYSTEM REPORT', M, 52);
+
+  cDark(); doc.setFontSize(24); doc.setFont('times', 'bold');
+  const hlLines = doc.splitTextToSize(appState.headline || 'Your Future', CW);
+  doc.text(hlLines, W / 2, 112, { align: 'center' });
+
+  cDim(); doc.setFontSize(8); doc.setFont('helvetica', 'normal');
+  doc.text(today, W / 2, 136, { align: 'center' });
+
+  cCopper(); doc.setFontSize(8); doc.setFont('helvetica', 'normal');
+  doc.text('Modern Myths  |  Mohammad Khan', W / 2, H - 22, { align: 'center' });
+
+  // ── PAGE 2: SIGNAL + STORY ──
   doc.addPage(); bg();
+  let y = M + 5;
+
+  // Signal label
+  cCopper(); doc.setFontSize(11); doc.setFont('helvetica', 'bold');
+  doc.text('YOUR SIGNAL', M, y);
+  y += LABEL_H;
+
+  cDim(); doc.setFontSize(9); doc.setFont('times', 'italic');
+  doc.text('I noticed...', M, y);
+  y += BODY_LH + 1;
+
+  cDark();
+  y = renderBold(appState.signal || '', M, y, CW, 9, BODY_LH, 'times');
+  y += 10; // 10mm gap between signal and story
+
+  // Story label (check page break)
+  if (y + LABEL_H + BODY_LH * 3 > H - M) { doc.addPage(); bg(); y = M + 5; }
+  cCopper(); doc.setFontSize(11); doc.setFont('helvetica', 'bold');
+  doc.text('YOUR FUTURE', M, y);
+  y += LABEL_H;
+
+  cDark();
+  const storyLines = doc.splitTextToSize(appState.story || '', CW);
+  doc.setFontSize(9); doc.setFont('times', 'normal');
+  for (const line of storyLines) {
+    if (y > H - M) { doc.addPage(); bg(); y = M + 5; }
+    doc.text(line, M, y);
+    y += BODY_LH;
+  }
+
+  // ── ANALYSIS: FRESH PAGE ──
+  doc.addPage(); bg();
+  y = M + 5;
+
+  cDim(); doc.setFontSize(8); doc.setFont('times', 'italic');
+  doc.text('This is built from your words, not generic advice.', M, y);
+  y += 10;
+
   const analysisSections = [
     { key: 'UNPLANNED',       label: "WHAT YOU DIDN'T PLAN TO WRITE" },
     { key: 'EMOTIONAL FIELD', label: 'THE EMOTIONAL FIELD UNDERNEATH' },
@@ -1528,72 +1628,92 @@ function generatePDF() {
     { key: 'ONE ACTION',      label: 'ONE THING TO DO THIS WEEK', prominent: true }
   ];
 
-  let ay = 38;
   for (const sec of analysisSections) {
-    if (ay > H - 50) { doc.addPage(); bg(); ay = 38; }
-
-    green(); doc.setFontSize(6.5); doc.setFont('helvetica','bold');
-    doc.text(sec.label, M, ay);
-    ay += 7;
-
-    const content   = (appState.analysis && appState.analysis[sec.key]) || '';
-    const textIndent = sec.prominent ? M + 5 : M;
-    const textWidth  = sec.prominent ? CW - 5 : CW;
+    const content = (appState.analysis && appState.analysis[sec.key]) || '';
+    const bodyFs  = sec.prominent ? 10 : 9;
+    const innerW  = sec.prominent ? CW - 10 : CW;
+    const cHeight = textH(content, innerW, BODY_LH);
 
     if (sec.prominent) {
-      doc.setFillColor(184, 115, 51);
-      doc.rect(M, ay - 2, 1.5, 12, 'F');
-      dark(); doc.setFontSize(12); doc.setFont('times','bold');
-    } else {
-      mid(); doc.setFontSize(9.5); doc.setFont('times','normal');
-    }
+      // ONE ACTION: calculate total box height, force to new page if it won't fit
+      const boxH = LABEL_H + 3 + cHeight + 10;
+      if (y + boxH > H - M) { doc.addPage(); bg(); y = M + 5; }
 
-    const cLines = doc.splitTextToSize(content, textWidth);
-    for (const cl of cLines) {
-      if (ay > H - M) { doc.addPage(); bg(); ay = M + 10; }
-      doc.text(cl, textIndent, ay);
-      ay += sec.prominent ? 6.5 : 5.2;
+      // Draw copper border rectangle
+      doc.setDrawColor(184, 115, 51);
+      doc.setLineWidth(0.5);
+      doc.rect(M - 3, y - 3, CW + 6, boxH, 'S');
+
+      y += 3;
+      cCopper(); doc.setFontSize(11); doc.setFont('helvetica', 'bold');
+      doc.text(sec.label, M + 2, y);
+      y += LABEL_H + 3;
+
+      cDark();
+      y = renderBold(content, M + 2, y, innerW, bodyFs, BODY_LH, 'times');
+      y += 10; // bottom padding inside box + gap after
+    } else {
+      // Regular section: page break BEFORE if not enough space
+      const needed = LABEL_H + 3 + cHeight + SEC_GAP;
+      if (y + needed > H - M) { doc.addPage(); bg(); y = M + 5; }
+
+      cCopper(); doc.setFontSize(11); doc.setFont('helvetica', 'bold');
+      doc.text(sec.label, M, y);
+      y += LABEL_H + 3;
+
+      cMid();
+      y = renderBold(content, M, y, innerW, bodyFs, BODY_LH, 'times');
+      y += SEC_GAP;
     }
-    ay += 8;
   }
 
-  // ── Reflections page ──
+  // ── REFLECTIONS: FRESH PAGE ──
   doc.addPage(); bg();
-  green(); doc.setFontSize(7); doc.setFont('helvetica','normal');
-  doc.text('YOUR REFLECTIONS', M, 38);
+  y = M + 5;
+
+  cCopper(); doc.setFontSize(11); doc.setFont('helvetica', 'bold');
+  doc.text('YOUR REFLECTIONS', M, y);
+  y += LABEL_H + 3;
 
   const qTexts = [
     "Who's in your story — and who isn't?",
     "What assumptions did you make about the world around you?",
     "What did you NOT write about — and what does that mean?"
   ];
-  let ry = 52;
-  for (let i = 0; i < 3; i++) {
-    if (ry > H - 50) { doc.addPage(); bg(); ry = 38; }
-    dim(); doc.setFontSize(8.5); doc.setFont('helvetica','bold');
-    const qLns = doc.splitTextToSize(qTexts[i], CW);
-    doc.text(qLns, M, ry);
-    ry += qLns.length * 4.8 + 4;
+  for (let qi = 0; qi < 3; qi++) {
+    const answer  = appState.questions[qi] || '—';
+    const qLns    = doc.splitTextToSize(qTexts[qi], CW);
+    const aLns    = doc.splitTextToSize(answer, CW);
+    const needed  = qLns.length * BODY_LH + 3 + aLns.length * BODY_LH + 12;
+    if (y + needed > H - M) { doc.addPage(); bg(); y = M + 5; }
 
-    dark(); doc.setFontSize(9.5); doc.setFont('times','normal');
-    const aLns = doc.splitTextToSize(appState.questions[i] || '', CW);
-    doc.text(aLns, M, ry);
-    ry += aLns.length * 5.2 + 12;
+    cDim(); doc.setFontSize(9); doc.setFont('helvetica', 'bold');
+    doc.text(qLns, M, y);
+    y += qLns.length * BODY_LH + 3;
+
+    cDark(); doc.setFontSize(9); doc.setFont('times', 'normal');
+    doc.text(aLns, M, y);
+    y += aLns.length * BODY_LH + 12;
   }
 
-  // ── Back page ──
+  // ── BACK COVER: FRESH PAGE, VERTICALLY CENTERED ──
   doc.addPage(); bg();
-  green(); doc.setFontSize(7); doc.setFont('helvetica','normal');
-  doc.text('MODERN MYTHS  |  THE EARLY WARNING SYSTEM', W / 2, 118, { align: 'center' });
+  const midY = H / 2;
 
-  dark(); doc.setFontSize(15); doc.setFont('times','bold');
-  doc.text('One session. 90 minutes. $500.', W / 2, 136, { align: 'center' });
+  cCopper(); doc.setFontSize(8); doc.setFont('helvetica', 'normal');
+  doc.text('MODERN MYTHS  |  THE EARLY WARNING SYSTEM', W / 2, midY - 18, { align: 'center' });
 
-  dim(); doc.setFontSize(9); doc.setFont('helvetica','normal');
-  doc.text('[BOOKING_URL]', W / 2, 152, { align: 'center' });
+  cDark(); doc.setFontSize(18); doc.setFont('times', 'bold');
+  doc.text('One session. 90 minutes. $500.', W / 2, midY - 5, { align: 'center' });
+
+  cDim(); doc.setFontSize(9); doc.setFont('helvetica', 'normal');
+  doc.text('[BOOKING_URL]', W / 2, midY + 8, { align: 'center' });
+
+  cDim(); doc.setFontSize(8);
+  doc.text('Modern Myths  |  Mohammad Khan', W / 2, H - 22, { align: 'center' });
 
   const filename = 'early-warning-system-' +
-    (appState.headline || 'report').toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'') +
+    (appState.headline || 'report').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') +
     '.pdf';
   doc.save(filename);
 }
@@ -1601,6 +1721,8 @@ function generatePDF() {
 
 // ─── RESTART ─────────────────────────────────────
 function restartApp() {
+  const adminMode = appState.adminMode; // preserve across restart
+
   // Reset state
   appState.signal = '';
   appState.headline = '';
@@ -1612,15 +1734,23 @@ function restartApp() {
   appState.email = '';
   appState.completionTime = null;
 
+  // Reset story timer vars
+  clearInterval(storyTimerInt);
+  storyStarted = false;
+  storyPaused  = false;
+  storyElapsed = 0;
+  storyStartTs = null;
+  clearNudges();
+
+  // Reset analysis timer
+  clearInterval(analysisTimerInt);
+  clearInterval(loadingInt);
+
   // Reset form fields
-  document.getElementById('signal-input').value = '';
-  document.getElementById('headline-input').value = '';
-  document.getElementById('email-input').value = '';
-  document.getElementById('q1-input').value = '';
-  document.getElementById('q2-input').value = '';
-  document.getElementById('q3-input').value = '';
-  document.getElementById('signal-continue').disabled = !appState.adminMode;
-  document.getElementById('headline-continue').disabled = !appState.adminMode;
+  document.querySelectorAll("textarea, input[type='text'], input[type='email']")
+    .forEach(el => el.value = '');
+  document.getElementById('signal-continue').disabled  = !adminMode;
+  document.getElementById('headline-continue').disabled = !adminMode;
   document.getElementById('cta-confirmation').style.display = 'none';
 
   // Reset timer toggle
@@ -1628,13 +1758,41 @@ function restartApp() {
     o.classList.toggle('selected', i === 0);
   });
 
+  // Reset analysis UI
+  document.getElementById('analysis-container').style.display = 'none';
+  document.getElementById('radar-loading').style.display = '';
+  document.getElementById('radar-loading').style.opacity = '1';
+  document.getElementById('analysis-progress-wrap').style.display = 'none';
+  document.getElementById('analysis-progress-bar').style.width = '0%';
+  document.getElementById('analysis-continue').classList.add('hidden');
+  document.querySelectorAll('.analysis-section').forEach(el => el.classList.remove('visible'));
+
+  // Reset question visibility
+  document.getElementById('q2-item').classList.add('hidden');
+  document.getElementById('q3-item').classList.add('hidden');
+  document.getElementById('questions-continue').classList.add('hidden');
+
   // Reset signal/headline placeholder cycles
   sigIdx = 0; sigFocused = false;
   hdlIdx = 0; hdlFocused = false;
   clearInterval(sigInterval); sigInterval = null;
   clearInterval(hdlInterval); hdlInterval = null;
 
-  goToStage('stage-1');
+  // CRITICAL: clear all inline opacity styles set by goToStage so stages
+  // can properly fade back in when revisited
+  document.querySelectorAll('.stage').forEach(el => {
+    el.classList.remove('active');
+    el.style.opacity = '';
+    el.style.pointerEvents = '';
+  });
+
+  // Reset currentStage so goToStage doesn't exit early
+  appState.currentStage = 'stage-1';
+
+  // Show stage-1 directly (no fade needed, all other stages already hidden)
+  const s1 = document.getElementById('stage-1');
+  s1.classList.add('active');
+  window.scrollTo(0, 0);
 }
 
 // ─── UTILITY ─────────────────────────────────────

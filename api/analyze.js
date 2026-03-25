@@ -13,13 +13,14 @@ export default async function handler(req, res) {
     apiKey: process.env.ANTHROPIC_API_KEY,
   });
 
-  const response = await client.messages.create({
-    model: "claude-sonnet-4-20250514",
-    max_tokens: 1500,
-    messages: [
-      {
-        role: "user",
-        content: `You are analyzing a future scenario written in a 15-minute free-write exercise by someone building their Early Warning System.
+  try {
+    const response = await client.messages.create({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 1500,
+      messages: [
+        {
+          role: "user",
+          content: `You are analyzing a future scenario written in a 15-minute free-write exercise by someone building their Early Warning System.
 
 Signal they noticed: ${signal}
 Scenario headline: ${headline}
@@ -47,9 +48,13 @@ What was conspicuously missing from this story given the signal? What does that 
 
 ONE ACTION
 One concrete action they could take THIS WEEK to test whether their assumptions are right. Under 2 hours. Under $50. Specific to their story, not generic advice.`,
-      },
-    ],
-  });
+        },
+      ],
+    });
 
-  res.json({ analysis: response.content[0].text });
+    res.json({ analysis: response.content[0].text });
+  } catch (err) {
+    console.error("Anthropic API error:", err);
+    res.status(500).json({ error: err.message || "Analysis failed" });
+  }
 }

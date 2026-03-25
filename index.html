@@ -85,8 +85,8 @@
       display: inline-block;
       padding: 13px 30px;
       background: transparent;
-      border: 1px solid #4a7c59;
-      color: #4a7c59;
+      border: 1px solid #b87333;
+      color: #b87333;
       font-family: system-ui, sans-serif;
       font-size: 0.9rem;
       letter-spacing: 0.04em;
@@ -94,9 +94,9 @@
       transition: background 0.2s ease, color 0.2s ease;
       text-decoration: none;
     }
-    .btn:hover:not(:disabled) { background: #4a7c59; color: #0a0a0a; }
+    .btn:hover:not(:disabled) { background: #b87333; color: #0a0a0a; }
     .btn:disabled { opacity: 0.25; cursor: not-allowed; pointer-events: none; }
-    .btn-primary { background: #4a7c59; color: #0a0a0a; font-weight: 600; }
+    .btn-primary { background: #b87333; color: #0a0a0a; font-weight: 600; }
     .btn-primary:hover:not(:disabled) { background: #5c9870; }
 
     /* ─── FILL-IN-BLANK ─── */
@@ -109,7 +109,7 @@
     .fill-blank-prefix {
       font-family: Georgia, serif;
       font-size: 1.05rem;
-      color: #4a7c59;
+      color: #b87333;
       white-space: nowrap;
       padding-top: 13px;
       flex-shrink: 0;
@@ -145,9 +145,9 @@
       resize: none;
       transition: border-color 0.2s ease;
       line-height: 1.55;
-      caret-color: #4a7c59;
+      caret-color: #b87333;
     }
-    textarea:focus, input:focus { border-bottom-color: #4a7c59; }
+    textarea:focus, input:focus { border-bottom-color: #b87333; }
     textarea { min-height: 70px; }
 
     /* ─── STAGE 1: INTRO ─── */
@@ -184,9 +184,9 @@
     }
     .timer-option:first-child { border-right: none; }
     .timer-option.selected {
-      border-color: #4a7c59;
-      color: #4a7c59;
-      background: rgba(74,124,89,0.07);
+      border-color: #b87333;
+      color: #b87333;
+      background: rgba(184,115,51,0.07);
     }
     .timer-note {
       font-size: 0.83rem;
@@ -219,13 +219,18 @@
     }
     .story-context-bar strong { color: #4a4a42; }
     .story-timer {
-      margin-left: auto;
-      font-family: Georgia, serif;
-      font-size: 0.82rem;
-      color: #4a7c59;
-      opacity: 0.65;
-      letter-spacing: 0.05em;
+      position: fixed;
+      top: 52px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 2.4rem;
+      color: #b87333;
+      opacity: 0.75;
+      letter-spacing: 0.06em;
       transition: opacity 0.3s ease;
+      pointer-events: none;
+      z-index: 9;
     }
     .story-area {
       position: relative;
@@ -266,7 +271,7 @@
       outline: none;
       resize: none;
       line-height: 1.9;
-      caret-color: #4a7c59;
+      caret-color: #b87333;
     }
     .story-bottom-bar {
       position: fixed;
@@ -367,7 +372,7 @@
       resize: none;
       min-height: 72px;
       line-height: 1.65;
-      caret-color: #4a7c59;
+      caret-color: #b87333;
       transition: border-color 0.2s ease;
     }
     .question-input:focus { border-bottom-color: #2a3c2e; }
@@ -383,13 +388,13 @@
     #radar-svg { width: 100%; height: 100%; }
     .radar-circle {
       fill: none;
-      stroke: #4a7c59;
+      stroke: #b87333;
       stroke-width: 0.6;
       opacity: 0.18;
     }
     .radar-circle-outer {
       fill: none;
-      stroke: #4a7c59;
+      stroke: #b87333;
       stroke-width: 0.6;
       opacity: 0.25;
       animation: radar-flash 4s linear infinite;
@@ -410,7 +415,7 @@
     .loading-message {
       font-family: Georgia, serif;
       font-size: 0.95rem;
-      color: #4a7c59;
+      color: #b87333;
       opacity: 0;
       transition: opacity 0.5s ease;
       min-height: 1.4em;
@@ -437,7 +442,7 @@
       font-size: 0.62rem;
       letter-spacing: 0.22em;
       text-transform: uppercase;
-      color: #4a7c59;
+      color: #b87333;
       margin-bottom: 10px;
     }
     .analysis-text {
@@ -448,7 +453,7 @@
       white-space: pre-wrap;
     }
     .analysis-section.one-action {
-      border-left: 2px solid #4a7c59;
+      border-left: 2px solid #b87333;
       padding-left: 22px;
     }
     .analysis-section.one-action .analysis-text {
@@ -467,7 +472,7 @@
     }
     .analysis-progress-bar {
       height: 100%;
-      background: #4a7c59;
+      background: #b87333;
       width: 0%;
       transition: width 0.8s linear;
     }
@@ -514,7 +519,7 @@
     .email-wrapper { margin: 28px 0; }
     .cta-confirmation {
       font-size: 0.85rem;
-      color: #4a7c59;
+      color: #b87333;
       margin-top: 10px;
       display: none;
     }
@@ -552,7 +557,7 @@
       font-size: 0.6rem;
       letter-spacing: 0.18em;
       text-transform: uppercase;
-      color: #4a7c59;
+      color: #b87333;
       margin-bottom: 10px;
     }
     .admin-stat { margin-bottom: 3px; }
@@ -568,7 +573,7 @@
       text-align: left;
       transition: all 0.15s ease;
     }
-    .admin-btn:hover { border-color: #4a7c59; color: #4a7c59; }
+    .admin-btn:hover { border-color: #b87333; color: #b87333; }
 
     /* ─── UTILITIES ─── */
     .hidden { display: none !important; }
@@ -681,8 +686,8 @@
     <div class="story-context-bar">
       <span><strong>Signal:</strong> <span id="context-signal"></span></span>
       <span><strong>Future:</strong> <span id="context-headline"></span></span>
-      <span class="story-timer" id="story-timer"></span>
     </div>
+    <div class="story-timer" id="story-timer"></div>
     <div class="story-area">
       <div class="story-instruction" id="story-instruction">
         <p id="story-instruction-text"></p>
@@ -753,16 +758,16 @@
           <!-- Rotating sweep -->
           <g class="radar-sweep-group">
             <!-- Trailing fade sectors -->
-            <path d="M 100 100 L 100 4 A 96 96 0 0 0 62 16 Z" fill="#4a7c59" opacity="0.04"/>
-            <path d="M 100 100 L 100 4 A 96 96 0 0 0 77 9 Z"  fill="#4a7c59" opacity="0.09"/>
+            <path d="M 100 100 L 100 4 A 96 96 0 0 0 62 16 Z" fill="#b87333" opacity="0.04"/>
+            <path d="M 100 100 L 100 4 A 96 96 0 0 0 77 9 Z"  fill="#b87333" opacity="0.09"/>
             <!-- Sweep line -->
-            <line x1="100" y1="100" x2="100" y2="4" stroke="#4a7c59" stroke-width="1.5" opacity="0.85"/>
+            <line x1="100" y1="100" x2="100" y2="4" stroke="#b87333" stroke-width="1.5" opacity="0.85"/>
             <!-- Pulse dot -->
-            <circle cx="100" cy="7" r="3.5" fill="#4a7c59" opacity="1"/>
-            <circle cx="100" cy="7" r="6"   fill="#4a7c59" opacity="0.18"/>
+            <circle cx="100" cy="7" r="3.5" fill="#b87333" opacity="1"/>
+            <circle cx="100" cy="7" r="6"   fill="#b87333" opacity="0.18"/>
           </g>
           <!-- Center point -->
-          <circle cx="100" cy="100" r="2" fill="#4a7c59" opacity="0.5"/>
+          <circle cx="100" cy="100" r="2" fill="#b87333" opacity="0.5"/>
         </svg>
       </div>
       <p class="loading-message" id="loading-message"></p>
@@ -849,6 +854,9 @@
     <p class="session-heading">Want to go deeper?</p>
     <p class="session-copy">You just found something you didn't plan to find. The session is where we go deeper into what your story actually revealed — and what to do about it.</p>
     <a href="[BOOKING_URL]" class="btn btn-primary">Book a session — $500</a>
+
+    <hr class="cta-divider" style="margin-top:52px;">
+    <button class="btn" style="opacity:0.4; font-size:0.8rem;" onclick="restartApp()">← Start over</button>
   </div>
 </div>
 
@@ -1459,14 +1467,14 @@ function generatePDF() {
 
   // Color helpers
   const dark  = () => doc.setTextColor(240, 236, 228);
-  const green = () => doc.setTextColor(74, 124, 89);
+  const green = () => doc.setTextColor(184, 115, 51);
   const dim   = () => doc.setTextColor(80, 80, 74);
   const mid   = () => doc.setTextColor(110, 106, 100);
   const bg    = () => { doc.setFillColor(10, 10, 10); doc.rect(0, 0, W, H, 'F'); };
 
   // ── Page 1: Cover ──
   bg();
-  doc.setFillColor(74, 124, 89);
+  doc.setFillColor(184, 115, 51);
   doc.rect(M, 38, 28, 0.4, 'F');
 
   dim(); doc.setFontSize(7); doc.setFont('helvetica','normal');
@@ -1533,7 +1541,7 @@ function generatePDF() {
     const textWidth  = sec.prominent ? CW - 5 : CW;
 
     if (sec.prominent) {
-      doc.setFillColor(74, 124, 89);
+      doc.setFillColor(184, 115, 51);
       doc.rect(M, ay - 2, 1.5, 12, 'F');
       dark(); doc.setFontSize(12); doc.setFont('times','bold');
     } else {
@@ -1590,6 +1598,44 @@ function generatePDF() {
   doc.save(filename);
 }
 
+
+// ─── RESTART ─────────────────────────────────────
+function restartApp() {
+  // Reset state
+  appState.signal = '';
+  appState.headline = '';
+  appState.timerDuration = 10;
+  appState.story = '';
+  appState.questions = ['', '', ''];
+  appState.analysis = null;
+  appState.analysisRaw = '';
+  appState.email = '';
+  appState.completionTime = null;
+
+  // Reset form fields
+  document.getElementById('signal-input').value = '';
+  document.getElementById('headline-input').value = '';
+  document.getElementById('email-input').value = '';
+  document.getElementById('q1-input').value = '';
+  document.getElementById('q2-input').value = '';
+  document.getElementById('q3-input').value = '';
+  document.getElementById('signal-continue').disabled = !appState.adminMode;
+  document.getElementById('headline-continue').disabled = !appState.adminMode;
+  document.getElementById('cta-confirmation').style.display = 'none';
+
+  // Reset timer toggle
+  document.querySelectorAll('.timer-option').forEach((o, i) => {
+    o.classList.toggle('selected', i === 0);
+  });
+
+  // Reset signal/headline placeholder cycles
+  sigIdx = 0; sigFocused = false;
+  hdlIdx = 0; hdlFocused = false;
+  clearInterval(sigInterval); sigInterval = null;
+  clearInterval(hdlInterval); hdlInterval = null;
+
+  goToStage('stage-1');
+}
 
 // ─── UTILITY ─────────────────────────────────────
 function wordCount(text) {

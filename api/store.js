@@ -1,4 +1,8 @@
 export default async function handler(req, res) {
+  console.log("AIRTABLE_BASE_ID present:", !!process.env.AIRTABLE_BASE_ID);
+  console.log("AIRTABLE_API_KEY present:", !!process.env.AIRTABLE_API_KEY);
+  console.log("BASE_ID value:", process.env.AIRTABLE_BASE_ID);
+
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }

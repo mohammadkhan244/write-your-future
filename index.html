@@ -1211,7 +1211,7 @@
   <div class="admin-stat">Words: <span id="adm-words">—</span></div>
   <div class="admin-stat">Elapsed: <span id="adm-elapsed">—</span></div>
   <div class="admin-stat">API: <span id="adm-api">—</span></div>
-  <div class="admin-stat">Airtable: <span id="adm-airtable">—</span></div>
+  <div class="admin-stat">Airtable: <span id="admin-airtable">—</span></div>
   <div class="admin-actions" id="adm-actions">
     <button class="admin-btn" onclick="adminSkip()">Skip to next stage →</button>
   </div>
@@ -1306,7 +1306,7 @@ function adminSkip() {
   const next = STAGES[idx + 1];
   if (next === 'stage-4') initStory();
   if (next === 'stage-5') initQuestions();
-  if (next === 'stage-6') initAnalysis();
+  if (next === 'stage-6') { savePartialRecord(); initAnalysis(); }
   if (next === 'stage-7') initReveal();
   goToStage(next);
 }
@@ -1667,33 +1667,53 @@ let loadingInt = null, loadingIdx = 0;
 let analysisTimerInt = null;
 
 async function savePartialRecord() {
-  try {
-    await fetch('/api/store', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        signal: appState.signal,
-        idea: appState.signal,
-        headline: appState.headline,
-        story: appState.story,
-        ideaType: appState.ideaType,
-        icp: appState.icp,
-        method: appState.method,
-        destination: appState.destination,
-        competition: appState.competition,
-        q1: appState.questions[0],
-        q2: appState.questions[1],
-        q3: appState.questions[2],
-        questions: appState.questions,
-        completionTime: appState.completionTime,
-        adminMode: appState.adminMode,
-        timestamp: new Date().toISOString(),
-        partial: true,
-      }),
-    });
-  } catch (e) {
-    // fire-and-forget — don't block on failure
-  }
+  const state = appState;
+  console.log("=== AIRTABLE STORE CALL ===");
+  console.log("URL:", "/api/store");
+  console.log("Body:", JSON.stringify({
+    idea: state.signal,
+    headline: state.headline,
+    storyLength: state.story?.length,
+    email: state.email,
+    ideaType: state.ideaType,
+    adminMode: state.adminMode
+  }, null, 2));
+  fetch('/api/store', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      idea:           state.signal || "",
+      signal:         state.signal || "",
+      headline:       state.headline || "",
+      story:          state.story || "",
+      ideaType:       state.ideaType || "",
+      icp:            state.icp || "",
+      method:         state.method || "",
+      destination:    state.destination || "",
+      competition:    state.competition || "",
+      q1:             state.questions?.[0] || "",
+      q2:             state.questions?.[1] || "",
+      q3:             state.questions?.[2] || "",
+      questions:      state.questions || [],
+      analysis:       state.analysisRaw || "",
+      email:          state.email || "",
+      completionTime: state.completionTime || 0,
+      adminMode:      state.adminMode || false,
+      timestamp:      new Date().toISOString(),
+      partial:        true
+    })
+  })
+  .then(r => r.json())
+  .then(data => {
+    console.log("=== AIRTABLE SUCCESS ===", data);
+    const el = document.getElementById('admin-airtable');
+    if (el) el.textContent = 'OK (partial)';
+  })
+  .catch(err => {
+    console.error("=== AIRTABLE FAILED ===", err);
+    const el = document.getElementById('admin-airtable');
+    if (el) el.textContent = 'FAILED';
+  });
 }
 
 async function handleQuestionsComplete() {
@@ -1921,46 +1941,53 @@ async function handleReport() {
   document.getElementById('cta-confirmation').style.display = 'block';
 
   // Store to Airtable — always fires, no conditions
-  if (appState.adminMode) document.getElementById('adm-airtable').textContent = 'Writing...';
-  console.log('Sending to Airtable:', {
-    idea: appState.signal,
-    headline: appState.headline,
-    storyLength: appState.story && appState.story.length,
-    email: appState.email,
-    ideaType: appState.ideaType
-  });
+  const adminAirtableEl = document.getElementById('admin-airtable');
+  if (adminAirtableEl) adminAirtableEl.textContent = 'Writing...';
+  const state = appState;
+  console.log("=== AIRTABLE STORE CALL ===");
+  console.log("URL:", "/api/store");
+  console.log("Body:", JSON.stringify({
+    idea: state.signal,
+    headline: state.headline,
+    storyLength: state.story?.length,
+    email: state.email,
+    ideaType: state.ideaType,
+    adminMode: state.adminMode
+  }, null, 2));
   fetch('/api/store', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      signal:         appState.signal,
-      idea:           appState.signal,
-      headline:       appState.headline,
-      story:          appState.story,
-      ideaType:       appState.ideaType,
-      icp:            appState.icp,
-      method:         appState.method,
-      destination:    appState.destination,
-      competition:    appState.competition,
-      q1:             appState.questions[0] || '',
-      q2:             appState.questions[1] || '',
-      q3:             appState.questions[2] || '',
-      questions:      appState.questions,
-      analysis:       appState.analysisRaw,
-      email:          appState.email,
-      completionTime: appState.completionTime,
+      idea:           state.signal || "",
+      signal:         state.signal || "",
+      headline:       state.headline || "",
+      story:          state.story || "",
+      ideaType:       state.ideaType || "",
+      icp:            state.icp || "",
+      method:         state.method || "",
+      destination:    state.destination || "",
+      competition:    state.competition || "",
+      q1:             state.questions?.[0] || "",
+      q2:             state.questions?.[1] || "",
+      q3:             state.questions?.[2] || "",
+      analysis:       state.analysisRaw || "",
+      email:          state.email || "",
+      completionTime: state.completionTime || 0,
+      adminMode:      state.adminMode || false,
       timestamp:      new Date().toISOString(),
-      adminMode:      appState.adminMode
+      partial:        false
     })
   })
   .then(r => r.json())
-  .then(d => {
-    console.log('Airtable store result:', d);
-    if (appState.adminMode) document.getElementById('adm-airtable').textContent = d.success ? 'OK' : 'Error';
+  .then(data => {
+    console.log("=== AIRTABLE SUCCESS ===", data);
+    const el = document.getElementById('admin-airtable');
+    if (el) el.textContent = 'OK';
   })
   .catch(err => {
-    console.error('Store error:', err);
-    if (appState.adminMode) document.getElementById('adm-airtable').textContent = 'Error';
+    console.error("=== AIRTABLE FAILED ===", err);
+    const el = document.getElementById('admin-airtable');
+    if (el) el.textContent = 'FAILED';
   });
 }
 
@@ -2053,7 +2080,7 @@ function generatePDF() {
   doc.rect(M, 40, 25, 0.4, 'F');
 
   cDim(); doc.setFontSize(8); doc.setFont('helvetica', 'normal');
-  doc.text('EARLY WARNING SYSTEM REPORT', M, 52);
+  doc.text('STRESS TEST REPORT', M, 52);
 
   cDark(); doc.setFontSize(24); doc.setFont('times', 'bold');
   const hlLines = doc.splitTextToSize(appState.headline || 'Your Future', CW);
@@ -2071,11 +2098,11 @@ function generatePDF() {
 
   // Signal label
   cCopper(); doc.setFontSize(11); doc.setFont('helvetica', 'bold');
-  doc.text('YOUR SIGNAL', M, y);
+  doc.text('YOUR IDEA', M, y);
   y += LABEL_H;
 
   cDim(); doc.setFontSize(9); doc.setFont('times', 'italic');
-  doc.text('I noticed...', M, y);
+  doc.text('My idea is...', M, y);
   y += BODY_LH + 1;
 
   cDark();
@@ -2188,7 +2215,7 @@ function generatePDF() {
   const midY = H / 2;
 
   cCopper(); doc.setFontSize(8); doc.setFont('helvetica', 'normal');
-  doc.text('MODERN MYTHS  |  THE EARLY WARNING SYSTEM', W / 2, midY - 18, { align: 'center' });
+  doc.text('STRESS TEST YOUR IDEAS BEFORE THEY BREAK', W / 2, midY - 18, { align: 'center' });
 
   cDark(); doc.setFontSize(18); doc.setFont('times', 'bold');
   doc.text('One session. 90 minutes. $500.', W / 2, midY - 5, { align: 'center' });

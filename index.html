@@ -1447,7 +1447,10 @@ async function initAnalysis() {
       body: JSON.stringify({
         signal:   appState.signal,
         headline: appState.headline,
-        story:    appState.story
+        story:    appState.story,
+        q1:       appState.questions[0] || '',
+        q2:       appState.questions[1] || '',
+        q3:       appState.questions[2] || ''
       })
     });
 

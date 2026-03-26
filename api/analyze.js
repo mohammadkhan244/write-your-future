@@ -3,7 +3,7 @@ import Anthropic from "@anthropic-ai/sdk";
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
 
-  const { signal, headline, story } = req.body;
+  const { signal, headline, story, q1 = '', q2 = '', q3 = '' } = req.body;
 
   if (!signal || !story) {
     return res.status(400).json({ error: "Missing required fields" });
@@ -47,7 +47,21 @@ ABSENCE
 What was conspicuously missing from this story given the signal? What does that absence reveal?
 
 ONE ACTION
-One concrete action they could take THIS WEEK to test whether their assumptions are right. Under 2 hours. Under $50. Specific to their story, not generic advice.`,
+One concrete action they could take THIS WEEK to test whether their assumptions are right. Under 2 hours. Under $50. Specific to their story, not generic advice.
+
+THE PERSON'S OWN REFLECTIONS
+They answered three questions before seeing any analysis. Use these to sharpen your findings — they are evidence too.
+
+Who's in the story and who isn't:
+${q1}
+
+What they assumed stayed the same:
+${q2}
+
+What they didn't write about:
+${q3}
+
+Where their reflections confirm your findings, note it. Where they contradict or add to your findings, note that too.`,
         },
       ],
     });

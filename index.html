@@ -1306,7 +1306,7 @@ function adminSkip() {
   const next = STAGES[idx + 1];
   if (next === 'stage-4') initStory();
   if (next === 'stage-5') initQuestions();
-  if (next === 'stage-6') { savePartialRecord(); initAnalysis(); }
+  if (next === 'stage-6' || next === 'analysis') { savePartialRecord(); initAnalysis(); }
   if (next === 'stage-7') initReveal();
   goToStage(next);
 }
@@ -1668,52 +1668,49 @@ let analysisTimerInt = null;
 
 async function savePartialRecord() {
   const state = appState;
-  console.log("=== AIRTABLE STORE CALL ===");
-  console.log("URL:", "/api/store");
-  console.log("Body:", JSON.stringify({
-    idea: state.signal,
-    headline: state.headline,
-    storyLength: state.story?.length,
-    email: state.email,
-    ideaType: state.ideaType,
-    adminMode: state.adminMode
-  }, null, 2));
-  fetch('/api/store', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      idea:           state.signal || "",
-      signal:         state.signal || "",
-      headline:       state.headline || "",
-      story:          state.story || "",
-      ideaType:       state.ideaType || "",
-      icp:            state.icp || "",
-      method:         state.method || "",
-      destination:    state.destination || "",
-      competition:    state.competition || "",
-      q1:             state.questions?.[0] || "",
-      q2:             state.questions?.[1] || "",
-      q3:             state.questions?.[2] || "",
-      questions:      state.questions || [],
-      analysis:       state.analysisRaw || "",
-      email:          state.email || "",
-      completionTime: state.completionTime || 0,
-      adminMode:      state.adminMode || false,
-      timestamp:      new Date().toISOString(),
-      partial:        true
-    })
-  })
-  .then(r => r.json())
-  .then(data => {
-    console.log("=== AIRTABLE SUCCESS ===", data);
+  console.log("=== PARTIAL SAVE TRIGGERED ===");
+  console.log("idea:", state.idea || state.signal);
+  console.log("headline:", state.headline);
+  console.log("storyLength:", state.story?.length);
+  console.log("ideaType:", state.ideaType);
+  console.log("adminMode:", state.adminMode);
+
+  try {
+    const response = await fetch('/api/store', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        idea:           state.idea || state.signal || "",
+        headline:       state.headline || "",
+        story:          state.story || "",
+        ideaType:       state.ideaType || "",
+        icp:            state.icp || "",
+        method:         state.method || "",
+        destination:    state.destination || "",
+        competition:    state.competition || "",
+        q1:             state.questions?.[0] || "",
+        q2:             state.questions?.[1] || "",
+        q3:             state.questions?.[2] || "",
+        analysis:       state.analysis || "",
+        email:          state.email || "",
+        completionTime: state.elapsedTime || 0,
+        adminMode:      state.adminMode || false,
+        timestamp:      new Date().toISOString(),
+        partial:        true
+      })
+    });
+
+    const data = await response.json();
+    console.log("=== PARTIAL SAVE RESPONSE ===", response.status, data);
+
     const el = document.getElementById('admin-airtable');
-    if (el) el.textContent = 'OK (partial)';
-  })
-  .catch(err => {
-    console.error("=== AIRTABLE FAILED ===", err);
+    if (el) el.textContent = response.ok ? 'OK (partial)' : 'FAILED';
+
+  } catch (err) {
+    console.error("=== PARTIAL SAVE FAILED ===", err);
     const el = document.getElementById('admin-airtable');
     if (el) el.textContent = 'FAILED';
-  });
+  }
 }
 
 async function handleQuestionsComplete() {
@@ -1958,8 +1955,7 @@ async function handleReport() {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      idea:           state.signal || "",
-      signal:         state.signal || "",
+      idea:           state.idea || state.signal || "",
       headline:       state.headline || "",
       story:          state.story || "",
       ideaType:       state.ideaType || "",
@@ -1970,9 +1966,9 @@ async function handleReport() {
       q1:             state.questions?.[0] || "",
       q2:             state.questions?.[1] || "",
       q3:             state.questions?.[2] || "",
-      analysis:       state.analysisRaw || "",
+      analysis:       state.analysis || "",
       email:          state.email || "",
-      completionTime: state.completionTime || 0,
+      completionTime: state.elapsedTime || 0,
       adminMode:      state.adminMode || false,
       timestamp:      new Date().toISOString(),
       partial:        false
@@ -1980,12 +1976,12 @@ async function handleReport() {
   })
   .then(r => r.json())
   .then(data => {
-    console.log("=== AIRTABLE SUCCESS ===", data);
+    console.log("=== FULL SAVE RESPONSE ===", data);
     const el = document.getElementById('admin-airtable');
     if (el) el.textContent = 'OK';
   })
   .catch(err => {
-    console.error("=== AIRTABLE FAILED ===", err);
+    console.error("=== FULL SAVE FAILED ===", err);
     const el = document.getElementById('admin-airtable');
     if (el) el.textContent = 'FAILED';
   });

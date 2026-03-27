@@ -1229,6 +1229,7 @@ const SHEETS_URL = "https://script.google.com/macros/s/AKfycbwtl4Z_Mlo2YPuG00ZUp
 
 // ─── STATE ───────────────────────────────────────
 const appState = {
+  sessionId: crypto.randomUUID(),
   signal: '',
   headline: '',
   timerDuration: 10,
@@ -1693,7 +1694,8 @@ async function savePartialRecord() {
       email: state.email || "",
       completionTime: state.elapsedTime || 0,
       adminMode: state.adminMode || false,
-      partial: true
+      partial: true,
+      sessionId: state.sessionId
     })
   })
   .then(() => {
@@ -1956,7 +1958,8 @@ async function handleReport() {
       email: state.email || "",
       completionTime: state.elapsedTime || 0,
       adminMode: state.adminMode || false,
-      partial: false
+      partial: false,
+      sessionId: state.sessionId
     })
   })
   .then(() => {

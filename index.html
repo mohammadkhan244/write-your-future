@@ -1217,7 +1217,7 @@
 
     <p class="session-heading">Want to go deeper?</p>
     <p class="session-copy">You just found the cracks. The session is where we figure out which ones matter — and what to do about them before they cost you.</p>
-    <a href="[BOOKING_URL]" class="btn btn-primary">Book a session — $500</a>
+    <a href="https://tidycal.com/mohammadukhan135/uncover-your-myth" class="btn btn-primary">Book a session — $500</a>
 
     <hr class="cta-divider" style="margin-top:52px;">
     <button onclick="restartApp()">← Start over</button>
@@ -1525,11 +1525,12 @@ function initStory() {
   initVoiceToText();
 
   // Reset timer vars
-  storyStarted = false;
-  storyPaused  = false;
-  storyElapsed = 0;
-  storyStartTs = null;
-  storyLastKey = null;
+  storyStarted      = false;
+  storyPaused       = false;
+  storyElapsed      = 0;
+  storyStartTs      = null;
+  storyLastKey      = null;
+  timerExpiredFired = false;
   clearInterval(storyTimerInt);
   clearNudges();
 
@@ -1597,9 +1598,62 @@ function tickStory() {
   }
 }
 
+let timerExpiredFired = false;
+
+function onTimerExpired() {
+  clearInterval(storyTimerInt);
+
+  // Flash the timer red 3 times
+  const timerDisplay = document.getElementById('story-timer');
+  let flashes = 0;
+  const flashInterval = setInterval(() => {
+    timerDisplay.style.color = flashes % 2 === 0 ? '#cc3333' : '#f0ece4';
+    flashes++;
+    if (flashes >= 6) {
+      clearInterval(flashInterval);
+      timerDisplay.style.color = '#b87333';
+    }
+  }, 300);
+
+  // Show time's up message in nudge area
+  const nudgeArea = document.getElementById('story-nudge');
+  if (nudgeArea) {
+    nudgeArea.textContent = "Time's up — but finish your thought. Click Finish when you're ready.";
+    nudgeArea.style.color = '#b87333';
+    nudgeArea.classList.add('visible');
+  }
+
+  // Play gentle chime sound
+  try {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    [523.25, 659.25, 783.99].forEach((freq, i) => {
+      const oscillator = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(freq, audioCtx.currentTime + i * 0.4);
+      gainNode.gain.setValueAtTime(0, audioCtx.currentTime + i * 0.4);
+      gainNode.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + i * 0.4 + 0.05);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + i * 0.4 + 1.2);
+      oscillator.start(audioCtx.currentTime + i * 0.4);
+      oscillator.stop(audioCtx.currentTime + i * 0.4 + 1.2);
+    });
+  } catch(err) {
+    console.log('Audio not supported:', err);
+  }
+
+  // Show Finish button
+  document.getElementById('finish-btn').classList.remove('hidden');
+}
+
 function checkFinish() {
   if (appState.adminMode) return; // always shown in admin
   const minElapsed = appState.timerDuration * 60;
+  if (storyElapsed >= minElapsed && !timerExpiredFired) {
+    timerExpiredFired = true;
+    onTimerExpired();
+  }
   if (storyElapsed >= minElapsed || wordCount(appState.story) >= 300) {
     document.getElementById('finish-btn').classList.remove('hidden');
   }
@@ -1994,6 +2048,25 @@ async function handleReport() {
     const el = document.getElementById('admin-airtable');
     if (el) el.textContent = 'FAILED';
   });
+
+  // Send email if address provided
+  if (state.email && state.email.includes('@')) {
+    console.log('=== SENDING EMAIL ===');
+    fetch('/api/email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: state.email,
+        headline: state.headline || "",
+        idea: state.idea || state.signal || "",
+        analysis: state.analysisRaw || "",
+        story: state.story || ""
+      })
+    })
+    .then(r => r.json())
+    .then(data => console.log('=== EMAIL RESPONSE ===', data))
+    .catch(err => console.error('=== EMAIL FAILED ===', err));
+  }
 }
 
 
@@ -2226,7 +2299,7 @@ function generatePDF() {
   doc.text('One session. 90 minutes. $500.', W / 2, midY - 5, { align: 'center' });
 
   cDim(); doc.setFontSize(9); doc.setFont('helvetica', 'normal');
-  doc.text('[BOOKING_URL]', W / 2, midY + 8, { align: 'center' });
+  doc.text('tidycal.com/mohammadukhan135/uncover-your-myth', W / 2, midY + 8, { align: 'center' });
 
   cDim(); doc.setFontSize(8);
   doc.text('Modern Myths  |  Mohammad Khan', W / 2, H - 22, { align: 'center' });

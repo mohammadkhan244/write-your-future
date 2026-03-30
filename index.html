@@ -235,20 +235,64 @@
     }
 
     /* ─── BUSINESS CONTEXT STAGE ─── */
-    .biz-fields { display: flex; flex-direction: column; gap: 20px; }
+    #stage-biz {
+      justify-content: flex-start;
+      padding-top: 48px;
+      overflow-y: auto;
+    }
+    #stage-biz .stage-content {
+      text-align: left;
+    }
+    .biz-fields {
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+      width: 100%;
+    }
+    .biz-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      width: 100%;
+    }
     .biz-label {
-      display: block;
-      font-size: 0.85rem;
+      font-size: clamp(15px, 2vw, 17px);
       font-weight: 600;
       color: #f0ece4;
-      margin-bottom: 4px;
-      letter-spacing: 0.02em;
+      font-family: Georgia, serif;
     }
     .biz-helper {
-      font-size: 0.8rem;
+      font-size: clamp(12px, 1.5vw, 14px);
       color: rgba(240, 236, 228, 0.65);
-      margin-bottom: 8px;
-      line-height: 1.55;
+      line-height: 1.5;
+      margin: 0;
+    }
+    .biz-input {
+      width: 100%;
+      background: rgba(240, 236, 228, 0.05);
+      border: 1px solid rgba(240, 236, 228, 0.15);
+      border-radius: 4px;
+      color: #f0ece4;
+      font-size: clamp(13px, 1.6vw, 15px);
+      font-family: Georgia, serif;
+      padding: 12px 14px;
+      resize: vertical;
+      min-height: 72px;
+      line-height: 1.6;
+      transition: border-color 0.2s;
+      caret-color: #f0ece4;
+    }
+    .biz-input:focus {
+      outline: none;
+      border-color: rgba(240, 236, 228, 0.4);
+    }
+    .biz-input::placeholder {
+      color: rgba(240, 236, 228, 0.25);
+    }
+    @media (max-width: 600px) {
+      #stage-biz { padding-top: 32px; }
+      .biz-fields { gap: 24px; }
+      .biz-input { min-height: 80px; }
     }
 
     /* ─── STAGE 3.5: TIMER SELECT ─── */
@@ -980,47 +1024,42 @@
 <!-- ═══════════════════════════════════════════════
      STAGE BIZ: BUSINESS CONTEXT
 ═══════════════════════════════════════════════ -->
-<div id="stage-biz" class="stage">
+<div class="stage" id="stage-biz">
   <div class="stage-content">
-    <h2>Tell me a little more about the idea.</h2>
-    <p class="stage-subtext">These four questions shape the story prompt and sharpen the analysis. Answer based on what you planned — not what the story shows.</p>
+
+    <h2 class="stage-heading">Tell me a little more about the idea.</h2>
+    <p class="stage-subtext">Answer based on what you planned — not what the story shows.</p>
 
     <div class="biz-fields">
-      <div class="fill-blank">
+
+      <div class="biz-field">
         <label class="biz-label">Who specifically is this for?</label>
         <p class="biz-helper">The person who needs this most — their job, situation, and what they're struggling with.</p>
-        <span class="fill-blank-prefix">My customer is...</span>
-        <div class="fill-blank-input-wrapper">
-          <textarea id="icp-input" rows="2" oninput="onBizInput()" placeholder="someone who..."></textarea>
-        </div>
+        <textarea class="biz-input" id="biz-icp" oninput="onBizInput()" placeholder="My customer is..."></textarea>
       </div>
-      <div class="fill-blank">
+
+      <div class="biz-field">
         <label class="biz-label">How does someone discover this?</label>
         <p class="biz-helper">Word of mouth? A post they read? A problem they Google? How does the right person find their way to you?</p>
-        <span class="fill-blank-prefix">They find out by...</span>
-        <div class="fill-blank-input-wrapper">
-          <textarea id="method-input" rows="2" oninput="onBizInput()" placeholder="searching for..."></textarea>
-        </div>
+        <textarea class="biz-input" id="biz-method" oninput="onBizInput()" placeholder="They find out by..."></textarea>
       </div>
-      <div class="fill-blank">
+
+      <div class="biz-field">
         <label class="biz-label">What does success look like for your customer?</label>
-        <p class="biz-helper">Not for you — for them. What's different about their life or work after they've worked with you?</p>
-        <span class="fill-blank-prefix">After working with me, they...</span>
-        <div class="fill-blank-input-wrapper">
-          <textarea id="destination-input" rows="2" oninput="onBizInput()" placeholder="become the..."></textarea>
-        </div>
+        <p class="biz-helper">Not for you — for them. What's different about their life or work after working with you?</p>
+        <textarea class="biz-input" id="biz-destination" oninput="onBizInput()" placeholder="After working with me, they..."></textarea>
       </div>
-      <div class="fill-blank">
+
+      <div class="biz-field">
         <label class="biz-label">What would they do if this didn't exist?</label>
         <p class="biz-helper">The alternative they'd settle for — another tool, another person, doing nothing, figuring it out alone.</p>
-        <span class="fill-blank-prefix">Without this, they'd...</span>
-        <div class="fill-blank-input-wrapper">
-          <textarea id="competition-input" rows="2" oninput="onBizInput()" placeholder="probably just..."></textarea>
-        </div>
+        <textarea class="biz-input" id="biz-competition" oninput="onBizInput()" placeholder="Without this, they'd..."></textarea>
       </div>
+
     </div>
 
-    <button id="biz-continue" class="btn" disabled onclick="goToStage('stage-3-5')" style="margin-top:24px;">Continue</button>
+    <button id="biz-continue" onclick="submitBizContext()" disabled>Continue</button>
+
   </div>
 </div>
 
@@ -1471,10 +1510,10 @@ function selectBranch(type) {
 }
 
 function onBizInput() {
-  appState.icp         = document.getElementById('icp-input').value;
-  appState.method      = document.getElementById('method-input').value;
-  appState.destination = document.getElementById('destination-input').value;
-  appState.competition = document.getElementById('competition-input').value;
+  appState.icp         = document.getElementById('biz-icp').value;
+  appState.method      = document.getElementById('biz-method').value;
+  appState.destination = document.getElementById('biz-destination').value;
+  appState.competition = document.getElementById('biz-competition').value;
   const btn = document.getElementById('biz-continue');
   if (appState.adminMode) {
     btn.disabled = false;
@@ -1486,6 +1525,11 @@ function onBizInput() {
       appState.competition.length > 10
     );
   }
+}
+
+function submitBizContext() {
+  onBizInput();
+  goToStage('stage-3-5');
 }
 
 // ─── TIMER SELECT ────────────────────────────────

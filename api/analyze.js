@@ -3,12 +3,8 @@ import Anthropic from "@anthropic-ai/sdk";
 export default async function handler(req, res) {
   console.log("=== ANALYZE START ===", new Date().toISOString());
   console.log("ANTHROPIC_API_KEY present:", !!process.env.ANTHROPIC_API_KEY);
-  console.log("ANTHROPIC_API_KEY length:", process.env.ANTHROPIC_API_KEY?.length);
-  console.log("Request body size:", JSON.stringify(req.body || {}).length);
   console.log("Story length:", req.body?.story?.length);
   console.log("IdeaType:", req.body?.ideaType);
-  console.log("Method:", req.method);
-  console.log("Body keys:", Object.keys(req.body || {}));
 
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -23,153 +19,163 @@ export default async function handler(req, res) {
   }
 
   const {
-    signal, idea, headline, story,
-    ideaType = "personal",
-    icp = "", method = "", destination = "", competition = "",
-    q1 = "", q2 = "", q3 = ""
+    idea, headline, story, ideaType,
+    icp, method, destination, competition,
+    q1, q2, q3
   } = req.body;
 
-  const ideaText = idea || signal || "";
-
   if (!story || story.trim().length < 10) {
-    console.error("Story too short:", story?.length);
     return res.status(400).json({
       error: "Story too short",
       detail: `Story length: ${story?.length || 0} characters`
     });
   }
 
-  try {
-    console.log("=== CALLING ANTHROPIC ===");
+  const isPersonal = ideaType !== "business";
 
-    const client = new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY
-    });
+  const personalPrompt = `You are analyzing a 10-minute clarity sprint. Someone has been circling a decision or idea and wrote a story where it resolved. Surface what their writing reveals that analytical thinking couldn't reach.
 
-    const isPersonal = ideaType !== "business";
+For every finding, quote their exact words as evidence. If something is absent from the story, name it — absence is information.
 
-    const sharedContext = `
-The thing they're circling: ${ideaText || "not specified"}
+What they're circling: ${idea || "not specified"}
 Headline they gave it: ${headline || "not specified"}
-Story they wrote: ${story}
+Story they wrote:
+${story}
+
 Their own reflections:
 - Who's in the story / who isn't: ${q1 || "not answered"}
 - What they assumed stayed the same: ${q2 || "not answered"}
 - What they didn't write about: ${q3 || "not answered"}
-`;
 
-    const personalPrompt = `You are analyzing a 10-minute clarity sprint. Someone has been circling a decision or idea and wrote a story where it resolved. Surface what their writing reveals that they couldn't see by thinking about it directly.
+Respond with exactly these 7 sections in exactly this order, using exactly these headers:
+
+## PART 0 — THE WORLDVIEW UNDERNEATH
+What does this story assume to be permanently true about how the world works — about people, systems, and what gets rewarded? What future does this worldview create if it's right? What falls through the cracks if it's wrong?
+
+## PART 1 — WHAT YOU DIDN'T PLAN TO WRITE
+Two or three things that surfaced in the writing that the person didn't consciously plan to include. Quote exact phrases. Explain why each feels unplanned rather than constructed.
+
+## PART 2 — THE EMOTIONAL FIELD UNDERNEATH
+Name 4-6 emotional states embedded in the story without being directly stated. For each: quote the exact phrase that carries the emotion, name the specific emotion, explain what it reveals about what this person actually values or fears. Be precise — not "sadness" but "grief at what was left behind."
+
+## PART 3 — THE ASSUMPTIONS RUNNING YOUR STORY
+The 5 most load-bearing assumptions in this story. Rank 1-5, most load-bearing first. Format each exactly as:
+[number]. "[exact quote from story]" — [why this assumption is load-bearing]
+
+## PART 4 — WHAT MUST BE TRUE FOR THIS FUTURE TO EXIST
+4 conditions — technological, social, relational, or systemic — that the world would need to meet for this story's version of success to be possible. These are not assumptions about the person. They are conditions about the world. Quote story evidence where relevant.
+
+## PART 5 — WHAT TO WATCH FOR RIGHT NOW
+3 signals classified exactly as:
+EYEWITNESS: [something they'd notice in daily life without trying — no research required]
+EXPLAINER: [something that connects this signal to other domains or industries]
+EXPERT: [something only people deep in this space would catch]
+
+## PART 6 — WHAT'S MISSING AND WHAT THAT MEANS
+What was conspicuously absent from the story given what they said they were circling? Name it directly. Reference their Q3 answer where relevant. Absence of evidence is evidence.
+
+## PART 7 — ONE THING TO DO THIS WEEK
+One specific action only. Under 2 hours. Under $50. Produces real signal from actual humans — not planning, not research, not more thinking. Make it specific to what this person actually wrote, not generic advice.`;
+
+  const businessPrompt = `You are analyzing a 10-minute clarity sprint about a business idea or career move. Someone has been circling this and wrote a story where it resolved. Surface what their writing reveals that analytical thinking couldn't reach.
 
 For every finding, quote their exact words as evidence. If something is absent, name it — absence is information.
 
-${sharedContext}
+What they're circling: ${idea || "not specified"}
+Headline they gave it: ${headline || "not specified"}
+Story they wrote:
+${story}
 
-PART 0 — THE WORLDVIEW UNDERNEATH
-What does this story assume to be permanently true about how the world works — about people, systems, what gets rewarded? What future does this worldview create if it's right? What falls through the cracks if it's wrong?
-
-PART 1 — HIDDEN ASSUMPTIONS
-The 5 most load-bearing assumptions. Rank 1-5, most load-bearing first. For each: quote the exact words, explain why it's load-bearing.
-
-PART 2 — SIGNALS TO WATCH
-3 signals classified:
-EYEWITNESS: something they'd notice without trying, in daily life
-EXPLAINER: connects this signal to other domains
-EXPERT: only people deep in this space would catch this
-Focus on the eyewitness signal most.
-
-PART 3 — THREE THINGS TO DO THIS WEEK
-3 actions. Each: under 2 hours, under $50, produces real signal — not motion, not planning. Specific to their situation.
-
-PART 4 — WHAT'S MISSING
-What was conspicuously absent? Name it directly. Absence of evidence is evidence.`;
-
-    const businessPrompt = `You are analyzing a 10-minute clarity sprint about a business idea or career move. Someone has been circling this and wrote a story where it resolved. Surface what their writing reveals that they couldn't see by thinking about it directly.
-
-For every finding, quote their exact words as evidence. If something is absent, name it — absence is information.
-
-${sharedContext}
 Their stated vision:
 - Who it's for: ${icp || "not specified"}
 - Method: ${method || "not specified"}
 - Transformation: ${destination || "not specified"}
 - What already exists: ${competition || "not specified"}
 
-PART 0 — THE WORLDVIEW UNDERNEATH
-What does this story assume to be permanently true about the market, customers, how value gets created? What future does this worldview create if right? What falls through the cracks if wrong?
+Their own reflections:
+- Who's in the story / who isn't: ${q1 || "not answered"}
+- What they assumed stayed the same: ${q2 || "not answered"}
+- What they didn't write about: ${q3 || "not answered"}
 
-PART 1 — HIDDEN ASSUMPTIONS
-5 most load-bearing assumptions. Rank 1-5. Include assumptions about market, customer, timing, capability. Quote exact words for each.
+Respond with exactly these 8 sections in exactly this order, using exactly these headers:
 
-PART 2 — STATED VISION VS WHAT THE STORY REVEALED
-Compare what they said they were building vs what the story showed.
+## PART 0 — THE WORLDVIEW UNDERNEATH
+What does this story assume to be permanently true about the market, customers, and how value gets created? What future does this worldview create if it's right? What falls through the cracks if it's wrong?
+
+## PART 1 — WHAT YOU DIDN'T PLAN TO WRITE
+Two or three things that surfaced in the writing that the person didn't consciously plan to include. Quote exact phrases. Explain why each feels unplanned.
+
+## PART 2 — THE EMOTIONAL FIELD UNDERNEATH
+Name 4-6 emotional states embedded in the story without being directly stated. For each: quote the exact phrase, name the specific emotion, explain what it reveals. Be precise.
+
+## PART 3 — THE ASSUMPTIONS RUNNING YOUR STORY
+The 5 most load-bearing assumptions. Rank 1-5. Include assumptions about market, customer, timing, and capability. Format each as:
+[number]. "[exact quote]" — [why load-bearing]
+
+## PART 4 — STATED VISION VS WHAT THE STORY REVEALED
+Compare what they said they were building against what the story actually showed. For each row quote evidence or note its absence.
 
 WHO IT'S FOR
 Stated: ${icp || "not specified"}
-Story revealed: [who actually appeared]
-Evidence: [direct quote or note absence]
+Story revealed: [who actually appeared in the story]
+Evidence: [direct quote or "absent from story"]
 
 METHOD
 Stated: ${method || "not specified"}
-Story revealed: [how work was actually described]
-Evidence: [direct quote or note absence]
+Story revealed: [how the work was actually described]
+Evidence: [direct quote or "absent from story"]
 
 DESTINATION
 Stated: ${destination || "not specified"}
-Story revealed: [where story actually ended up]
-Evidence: [direct quote or note absence]
+Story revealed: [where the story actually ended up]
+Evidence: [direct quote or "absent from story"]
 
 COMPETITION
 Stated: ${competition || "not specified"}
-Story revealed: [what story assumed didn't exist]
-Evidence: [direct quote or note absence]
+Story revealed: [what the story assumed didn't exist]
+Evidence: [direct quote or "absent from story — which is itself an assumption"]
 
-PART 3 — SIGNALS TO WATCH
+## PART 5 — WHAT TO WATCH FOR RIGHT NOW
 3 signals:
-EYEWITNESS: something they'd notice in daily life without trying
-EXPLAINER: connects to other domains
-EXPERT: only people deep in this market would catch
-Then: who else is watching the same signals for different reasons?
+EYEWITNESS: [something they'd notice in daily life without trying]
+EXPLAINER: [connects this signal to other domains]
+EXPERT: [only people deep in this market would catch]
+Then: who else is watching the same signals for completely different reasons?
 
-PART 4 — THREE THINGS TO DO BEFORE ANNOUNCING
-3 actions this week. Each: under 2 hours, under $50, produces signal from actual humans.
+## PART 6 — WHAT'S MISSING AND WHAT THAT MEANS
+What was conspicuously absent given what they said they were circling? Name it directly. Reference their Q3 answer. Absence is evidence.
 
-PART 5 — MARKET REALITY CHECK
-Given what already exists, what would have to be true for this version to win? Most honest interpretation of differentiation.`;
+## PART 7 — ONE THING TO DO THIS WEEK
+One specific action. Under 2 hours. Under $50. Produces signal from actual humans. Specific to their ICP and method.`;
 
-    const prompt = isPersonal ? personalPrompt : businessPrompt;
+  const prompt = isPersonal ? personalPrompt : businessPrompt;
 
-    console.log("=== CALLING ANTHROPIC API ===");
-    console.log("Prompt length:", prompt.length);
-    console.log("Model: claude-sonnet-4-20250514");
+  console.log("=== PROMPT SECTION HEADERS ===");
+  const headers = prompt.match(/## PART \d+ —.+/g);
+  console.log(headers);
 
-    let response;
-    try {
-      response = await client.messages.create({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 2000,
-        messages: [{ role: "user", content: prompt }]
-      });
-      console.log("=== ANTHROPIC SUCCESS ===");
-      console.log("Stop reason:", response.stop_reason);
-      console.log("Input tokens:", response.usage?.input_tokens);
-      console.log("Output tokens:", response.usage?.output_tokens);
-    } catch (err) {
-      console.error("=== ANTHROPIC CALL FAILED ===");
-      console.error("Name:", err.name);
-      console.error("Message:", err.message);
-      console.error("Status:", err.status);
-      console.error("Error body:", JSON.stringify(err.error || err, null, 2));
-      return res.status(500).json({
-        error: "Anthropic API call failed",
-        name: err.name,
-        message: err.message,
-        status: err.status,
-        detail: err.error || null
-      });
-    }
+  try {
+    const client = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY
+    });
+
+    console.log("=== CALLING ANTHROPIC ===");
+
+    const response = await client.messages.create({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 2500,
+      messages: [{ role: "user", content: prompt }]
+    });
+
+    console.log("=== ANTHROPIC SUCCESS ===");
+    console.log("Stop reason:", response.stop_reason);
+    console.log("Output tokens:", response.usage?.output_tokens);
 
     const analysisText = response.content[0].text;
-    console.log("Analysis length:", analysisText.length);
+
+    console.log("=== RETURNED SECTION HEADERS ===");
+    const returnedHeaders = analysisText.match(/## PART \d+ —.+/g);
+    console.log(returnedHeaders);
 
     return res.json({
       success: true,
@@ -177,16 +183,18 @@ Given what already exists, what would have to be true for this version to win? M
     });
 
   } catch (err) {
-    console.error("=== OUTER ERROR ===");
-    console.error("Error type:", err.constructor.name);
-    console.error("Error message:", err.message);
-    console.error("Full error:", JSON.stringify(err, null, 2));
+    console.error("=== ANTHROPIC ERROR ===");
+    console.error("Name:", err.name);
+    console.error("Message:", err.message);
+    console.error("Status:", err.status);
+    console.error("Detail:", JSON.stringify(err.error || {}, null, 2));
 
     return res.status(500).json({
-      error: "Handler failed",
-      type: err.constructor.name,
+      error: "Anthropic API call failed",
+      name: err.name,
       message: err.message,
-      status: err.status || null
+      status: err.status || null,
+      detail: err.error || null
     });
   }
 }

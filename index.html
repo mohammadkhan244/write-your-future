@@ -2070,68 +2070,49 @@ function retryAnalysis() {
 }
 
 function parseAnalysisSections(text) {
+  console.log("=== PARSING ANALYSIS ===");
+  console.log("Raw text length:", text?.length);
+
   const sections = {};
 
-  const sectionMap = [
-    { key: 'worldview',   patterns: ["THE WORLDVIEW UNDERNEATH", "WORLDVIEW UNDERNEATH", "WORLDVIEW"] },
-    { key: 'unplanned',   patterns: ["WHAT YOU DIDN'T PLAN TO WRITE", "WHAT YOU DIDN'T PLAN", "UNPLANNED"] },
-    { key: 'emotional',   patterns: ["THE EMOTIONAL FIELD UNDERNEATH", "EMOTIONAL FIELD", "EMOTIONAL"] },
-    { key: 'assumptions', patterns: ["THE ASSUMPTIONS RUNNING YOUR STORY", "HIDDEN ASSUMPTIONS", "ASSUMPTIONS RUNNING", "ASSUMPTIONS"] },
-    { key: 'mustBeTrue',  patterns: ["WHAT MUST BE TRUE", "MUST BE TRUE", "PREREQUISITES"] },
-    { key: 'signals',     patterns: ["WHAT TO WATCH FOR", "SIGNALS TO WATCH", "EARLY WARNINGS", "SIGNALS"] },
-    { key: 'missing',     patterns: ["WHAT'S MISSING", "WHATS MISSING", "MISSING", "ABSENCE"] },
-    { key: 'action',      patterns: ["THREE THINGS TO DO THIS WEEK", "THREE THINGS TO DO BEFORE", "ONE THING TO DO", "ONE ACTION", "THIS WEEK"] },
-    { key: 'comparison',  patterns: ["STATED VISION VS", "WHAT THE STORY REVEALED", "COMPARISON"] },
-    { key: 'market',      patterns: ["MARKET REALITY CHECK", "MARKET REALITY"] },
-  ];
+  // Split on ## PART N — headers
+  const parts = text.split(/\n?## PART (\d+) — ([^\n]+)\n/);
 
-  const lines = text.split('\n');
-  let currentKey = null;
-  let currentLines = [];
+  // parts array after split:
+  // [before_first_match, partNum, partLabel, content, partNum, partLabel, content, ...]
+  for (let i = 1; i < parts.length; i += 3) {
+    const partNum = parts[i].trim();
+    const partLabel = parts[i + 1].trim().toUpperCase();
+    const content = (parts[i + 2] || "").trim();
 
-  function saveSection() {
-    if (currentKey && currentLines.length > 0) {
-      sections[currentKey] = currentLines.join('\n').trim();
+    console.log(`PART ${partNum} — ${partLabel}: ${content.length} chars`);
+
+    const keyMap = {
+      "0": "worldview",
+      "1": "unplanned",
+      "2": "emotional",
+      "3": "assumptions",
+      "4": "mustBeTrue",
+      "5": "signals",
+      "6": "missing",
+      "7": "action",
+    };
+
+    // Business path: PART 4 is comparison, PART 5 is signals etc
+    if (partLabel.includes("STATED VISION")) {
+      sections["comparison"] = content;
+    } else if (partLabel.includes("MARKET REALITY")) {
+      sections["market"] = content;
+    } else {
+      const key = keyMap[partNum];
+      if (key) sections[key] = content;
     }
   }
 
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    const normalized = line
-      .replace(/^#+\s*/, '')
-      .replace(/^\d+\.\s*/, '')
-      .replace(/^[-*]\s*/, '')
-      .replace(/\*\*/g, '')
-      .replace(/PART \d+ —\s*/i, '')
-      .replace(/PART \d+:\s*/i, '')
-      .trim()
-      .toUpperCase();
-
-    let matched = false;
-    for (const section of sectionMap) {
-      for (const pattern of section.patterns) {
-        if (normalized.includes(pattern)) {
-          saveSection();
-          currentKey = section.key;
-          currentLines = [];
-          matched = true;
-          break;
-        }
-      }
-      if (matched) break;
-    }
-
-    if (!matched && currentKey) {
-      currentLines.push(line);
-    }
-  }
-
-  saveSection();
-
-  console.log("=== PARSED SECTIONS ===", Object.keys(sections));
-  console.log("Section lengths:", Object.fromEntries(
-    Object.entries(sections).map(([k, v]) => [k, v.length])
-  ));
+  console.log("=== PARSED SECTION KEYS ===", Object.keys(sections));
+  console.log("=== SECTION LENGTHS ===",
+    Object.fromEntries(Object.entries(sections).map(([k, v]) => [k, v.length]))
+  );
 
   return sections;
 }

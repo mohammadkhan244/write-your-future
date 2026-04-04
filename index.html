@@ -1237,6 +1237,9 @@
         <div class="analysis-text" id="txt-action"></div>
       </div>
 
+      <!-- Fallback if section parsing fails -->
+      <div id="analysis-fallback" style="display:none;font-size:14px;line-height:1.7;color:rgba(240,236,228,0.8);white-space:pre-wrap;font-family:Georgia,serif;"></div>
+
       <div class="analysis-continue-container">
         <button id="analysis-continue" class="hidden" onclick="goToStage('stage-7'); initReveal()">Continue</button>
       </div>
@@ -2011,12 +2014,12 @@ async function initAnalysis() {
     }
 
     appState.analysisRaw = data.analysis;
-    appState.analysis    = parseAnalysis(data.analysis);
+    appState.analysis    = parseAnalysisSections(data.analysis);
 
     if (apiEl) { apiEl.textContent = 'OK'; apiEl.style.color = '#4a9b6f'; }
 
     clearInterval(loadingInt);
-    renderAnalysis();
+    renderAnalysis(data.analysis);
   })
   .catch(err => {
     console.error("=== FRONTEND: FETCH FAILED ENTIRELY ===");
@@ -2066,22 +2069,75 @@ function retryAnalysis() {
   initAnalysis();
 }
 
-function parseAnalysis(text) {
-  const keys = ['UNPLANNED','EMOTIONAL FIELD','ASSUMPTIONS','PREREQUISITES','EARLY WARNINGS','ABSENCE','ONE ACTION'];
-  const result = {};
-  for (let i = 0; i < keys.length; i++) {
-    const k    = keys[i];
-    const from = text.indexOf(k);
-    if (from === -1) continue;
-    let to = text.length;
-    for (let j = i + 1; j < keys.length; j++) {
-      const nxt = text.indexOf(keys[j], from + k.length);
-      if (nxt !== -1) { to = nxt; break; }
+function parseAnalysisSections(text) {
+  const sections = {};
+
+  const sectionMap = [
+    { key: 'worldview',   patterns: ["THE WORLDVIEW UNDERNEATH", "WORLDVIEW UNDERNEATH", "WORLDVIEW"] },
+    { key: 'unplanned',   patterns: ["WHAT YOU DIDN'T PLAN TO WRITE", "WHAT YOU DIDN'T PLAN", "UNPLANNED"] },
+    { key: 'emotional',   patterns: ["THE EMOTIONAL FIELD UNDERNEATH", "EMOTIONAL FIELD", "EMOTIONAL"] },
+    { key: 'assumptions', patterns: ["THE ASSUMPTIONS RUNNING YOUR STORY", "HIDDEN ASSUMPTIONS", "ASSUMPTIONS RUNNING", "ASSUMPTIONS"] },
+    { key: 'mustBeTrue',  patterns: ["WHAT MUST BE TRUE", "MUST BE TRUE", "PREREQUISITES"] },
+    { key: 'signals',     patterns: ["WHAT TO WATCH FOR", "SIGNALS TO WATCH", "EARLY WARNINGS", "SIGNALS"] },
+    { key: 'missing',     patterns: ["WHAT'S MISSING", "WHATS MISSING", "MISSING", "ABSENCE"] },
+    { key: 'action',      patterns: ["THREE THINGS TO DO THIS WEEK", "THREE THINGS TO DO BEFORE", "ONE THING TO DO", "ONE ACTION", "THIS WEEK"] },
+    { key: 'comparison',  patterns: ["STATED VISION VS", "WHAT THE STORY REVEALED", "COMPARISON"] },
+    { key: 'market',      patterns: ["MARKET REALITY CHECK", "MARKET REALITY"] },
+  ];
+
+  const lines = text.split('\n');
+  let currentKey = null;
+  let currentLines = [];
+
+  function saveSection() {
+    if (currentKey && currentLines.length > 0) {
+      sections[currentKey] = currentLines.join('\n').trim();
     }
-    result[k] = text.slice(from + k.length, to).trim();
   }
-  return result;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const normalized = line
+      .replace(/^#+\s*/, '')
+      .replace(/^\d+\.\s*/, '')
+      .replace(/^[-*]\s*/, '')
+      .replace(/\*\*/g, '')
+      .replace(/PART \d+ —\s*/i, '')
+      .replace(/PART \d+:\s*/i, '')
+      .trim()
+      .toUpperCase();
+
+    let matched = false;
+    for (const section of sectionMap) {
+      for (const pattern of section.patterns) {
+        if (normalized.includes(pattern)) {
+          saveSection();
+          currentKey = section.key;
+          currentLines = [];
+          matched = true;
+          break;
+        }
+      }
+      if (matched) break;
+    }
+
+    if (!matched && currentKey) {
+      currentLines.push(line);
+    }
+  }
+
+  saveSection();
+
+  console.log("=== PARSED SECTIONS ===", Object.keys(sections));
+  console.log("Section lengths:", Object.fromEntries(
+    Object.entries(sections).map(([k, v]) => [k, v.length])
+  ));
+
+  return sections;
 }
+
+// Keep legacy alias used elsewhere
+function parseAnalysis(text) { return parseAnalysisSections(text); }
 
 // ─── ANALYSIS TEXT FORMATTING ────────────────────
 
@@ -2104,35 +2160,27 @@ function formatInlineBold(text) {
   return escHtml(text).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
 }
 
-function renderSectionContent(raw) {
-  if (!raw) return '';
-
-  // Strip ## section markers and leading/trailing whitespace
-  let text = raw.replace(/^##\s*/gm, '').trim();
-
-  const lines = text.split('\n');
+function formatSectionContent(text) {
+  if (!text) return '';
   let html = '';
   let i = 0;
+  const lines = text.replace(/^##\s*/gm, '').trim().split('\n');
 
   while (i < lines.length) {
     const line = lines[i].trim();
     if (!line) { i++; continue; }
 
     if (/^-\s+/.test(line)) {
-      // Bullet list — collect consecutive bullet lines
       html += '<ul class="analysis-bullet-list">';
       while (i < lines.length && /^-\s+/.test(lines[i].trim())) {
-        const content = lines[i].trim().replace(/^-\s+/, '');
-        html += '<li>' + formatInlineBold(content) + '</li>';
+        html += '<li>' + formatInlineBold(lines[i].trim().replace(/^-\s+/, '')) + '</li>';
         i++;
       }
       html += '</ul>';
     } else if (/^\d+\.\s+/.test(line)) {
-      // Numbered list — collect consecutive numbered lines
       html += '<ol class="analysis-numbered-list">';
       while (i < lines.length && /^\d+\.\s+/.test(lines[i].trim())) {
-        const content = lines[i].trim().replace(/^\d+\.\s+/, '');
-        html += '<li>' + formatInlineBold(content) + '</li>';
+        html += '<li>' + formatInlineBold(lines[i].trim().replace(/^\d+\.\s+/, '')) + '</li>';
         i++;
       }
       html += '</ol>';
@@ -2141,26 +2189,63 @@ function renderSectionContent(raw) {
       i++;
     }
   }
-
   return html;
 }
 
-function renderAnalysis() {
+// Legacy alias
+function renderSectionContent(raw) { return formatSectionContent(raw); }
+
+function renderAnalysis(analysisText) {
+  const text = analysisText || appState.analysisRaw || '';
+  console.log("=== RENDERING ANALYSIS ===");
+  console.log("Analysis text length:", text.length);
+  console.log("First 200 chars:", text.slice(0, 200));
+
+  const sections = parseAnalysisSections(text);
+  console.log("Parsed sections:", Object.keys(sections));
+
+  // Map section keys to existing txt-* element IDs
+  const elementMap = {
+    worldview:   'txt-unplanned',
+    unplanned:   'txt-unplanned',
+    emotional:   'txt-emotional',
+    assumptions: 'txt-assumptions',
+    mustBeTrue:  'txt-prerequisites',
+    signals:     'txt-warnings',
+    missing:     'txt-absence',
+    action:      'txt-action',
+  };
+
   const radarEl = document.getElementById('radar-loading');
   radarEl.style.transition = 'opacity 0.5s ease';
-  radarEl.style.opacity    = '0';
+  radarEl.style.opacity = '0';
 
   setTimeout(() => {
     radarEl.style.display = 'none';
 
-    const a = appState.analysis || {};
-    document.getElementById('txt-unplanned').innerHTML    = renderSectionContent(a['UNPLANNED']);
-    document.getElementById('txt-emotional').innerHTML    = renderSectionContent(a['EMOTIONAL FIELD']);
-    document.getElementById('txt-assumptions').innerHTML  = renderSectionContent(a['ASSUMPTIONS']);
-    document.getElementById('txt-prerequisites').innerHTML= renderSectionContent(a['PREREQUISITES']);
-    document.getElementById('txt-warnings').innerHTML     = renderSectionContent(a['EARLY WARNINGS']);
-    document.getElementById('txt-absence').innerHTML      = renderSectionContent(a['ABSENCE']);
-    document.getElementById('txt-action').innerHTML       = renderSectionContent(a['ONE ACTION']);
+    let renderedCount = 0;
+
+    for (const [key, elId] of Object.entries(elementMap)) {
+      const el = document.getElementById(elId);
+      if (!el) continue;
+      const content = sections[key];
+      if (content && !el.innerHTML) {  // don't overwrite if already set by earlier key
+        el.innerHTML = formatSectionContent(content);
+        renderedCount++;
+      }
+    }
+
+    console.log(`Rendered ${renderedCount} sections`);
+
+    // Fallback: show raw text if nothing rendered
+    if (renderedCount === 0) {
+      console.error("NO SECTIONS RENDERED — showing raw fallback");
+      const fallback = document.getElementById('analysis-fallback');
+      if (fallback) {
+        fallback.style.display = 'block';
+        fallback.textContent = text;
+      }
+    }
 
     const container = document.getElementById('analysis-container');
     container.style.display = 'block';

@@ -964,6 +964,220 @@
       .stage { padding: 24px 20px; }
       .stage-content { width: 100%; }
     }
+
+    /* ============================================
+       RESPONSIVE LAYOUT — GLOBAL OVERRIDES
+       ============================================ */
+
+    html, body {
+      overflow-x: hidden;
+      width: 100%;
+    }
+
+    /* Stage panels — scrollable, full-height */
+    .stage {
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    /* Stage content — centered column */
+    .stage-content {
+      max-width: 640px;
+      width: 100%;
+      padding: 0 16px;
+      box-sizing: border-box;
+    }
+
+    /* Long stages: top-aligned */
+    #stage-biz,
+    #stage-5,
+    #stage-6,
+    #stage-8 {
+      justify-content: flex-start;
+      padding-top: clamp(32px, 6vh, 64px);
+    }
+
+    /* ─── TYPOGRAPHY ─── */
+    h1 {
+      font-size: clamp(22px, 5vw, 48px);
+    }
+    h2 {
+      font-size: clamp(20px, 3.5vw, 32px);
+    }
+    .stage-subtext {
+      font-size: clamp(13px, 1.8vw, 15px);
+      margin-bottom: 28px;
+    }
+    .intro-body p {
+      font-size: clamp(13px, 1.6vw, 15px);
+    }
+    .pull-quote {
+      font-size: clamp(15px, 2vw, 18px);
+      font-style: italic;
+      color: #f0ece4;
+      text-align: center;
+    }
+    .instruction {
+      font-size: clamp(12px, 1.5vw, 14px);
+      color: rgba(240, 236, 228, 0.5);
+      font-style: italic;
+      text-align: center;
+    }
+
+    /* ─── BUTTONS — responsive ─── */
+    button:not(#mic-button):not(.admin-btn):not(.timer-option):not(#mic-approve):not(#mic-cancel) {
+      min-height: 48px;
+      font-size: clamp(14px, 1.8vw, 16px);
+      width: 100%;
+      max-width: 420px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .btn {
+      min-height: 48px;
+      font-size: clamp(14px, 1.8vw, 16px);
+      width: 100%;
+      max-width: 420px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: center;
+    }
+
+    /* ─── BRANCH STAGE ─── */
+    #stage-branch .branch-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    #stage-branch .branch-buttons button,
+    #stage-branch .branch-buttons .btn {
+      max-width: 100%;
+      line-height: 1.4;
+      padding: 16px 20px;
+      font-size: clamp(13px, 1.6vw, 15px);
+      white-space: normal;
+      height: auto;
+      min-height: 52px;
+    }
+
+    /* ─── FILL-BLANK — wraps on mobile ─── */
+    .fill-blank {
+      flex-wrap: wrap;
+    }
+    .fill-blank-prefix {
+      white-space: normal;
+      word-break: break-word;
+    }
+    .fill-blank-input-wrapper {
+      min-width: 0;
+      width: 100%;
+    }
+
+    /* ─── STORY STAGE ─── */
+    #story-textarea {
+      min-height: clamp(200px, 40vh, 400px);
+      font-size: clamp(14px, 1.8vw, 17px);
+      box-sizing: border-box;
+    }
+
+    /* ─── QUESTIONS STAGE — mobile: stack panels ─── */
+    @media (max-width: 680px) {
+      .questions-layout { flex-direction: column; }
+      .questions-story-panel {
+        width: 100%;
+        max-height: 160px;
+        position: relative;
+        top: auto;
+        border-right: none;
+        border-bottom: 1px solid #111108;
+        padding: 20px 20px;
+      }
+      .questions-panel {
+        width: 100%;
+        padding: 28px 20px;
+      }
+    }
+
+    /* ─── ANALYSIS STAGE ─── */
+    .analysis-text {
+      font-size: clamp(13px, 1.6vw, 15px);
+    }
+    .analysis-body {
+      font-size: clamp(13px, 1.6vw, 15px);
+      line-height: 1.7;
+      color: rgba(240, 236, 228, 0.85);
+    }
+    .analysis-body p { margin: 0 0 8px; }
+    .analysis-body p:last-child { margin-bottom: 0; }
+
+    /* ─── REVEAL STAGE ─── */
+    .reveal-line {
+      font-size: clamp(16px, 3.5vw, 34px);
+    }
+    .reveal-paragraph {
+      font-size: clamp(13px, 1.6vw, 15px);
+    }
+
+    /* ─── CTA STAGE ─── */
+    .session-copy {
+      font-size: clamp(13px, 1.5vw, 15px);
+    }
+    #email-input {
+      box-sizing: border-box;
+      width: 100%;
+    }
+
+    /* ─── ADMIN OVERLAY ─── */
+    #admin-overlay {
+      max-width: calc(100vw - 32px);
+    }
+    #admin-overlay button {
+      min-height: auto;
+      width: auto;
+      max-width: none;
+      margin: 0;
+      display: inline-block;
+    }
+
+    /* ─── MOBILE OVERRIDES — max-width: 600px ─── */
+    @media (max-width: 600px) {
+      #stage-1 { padding: 24px 16px 60px; overflow-y: auto; justify-content: flex-start; padding-top: 40px; }
+      #stage-biz { padding: 28px 16px 60px; }
+      #stage-5 .questions-panel { padding: 24px 16px; }
+      #stage-6 .stage-content { padding: 24px 16px; }
+      #stage-8 .stage-content { padding: 24px 16px 60px; }
+
+      h1 { font-size: clamp(22px, 7vw, 30px); }
+      h2 { font-size: clamp(20px, 6vw, 26px); }
+
+      #story-textarea {
+        min-height: 220px;
+        font-size: 15px;
+        padding: 32px 20px;
+      }
+      .biz-input,
+      .question-input {
+        font-size: 15px;
+      }
+      .story-timer { font-size: 2rem; }
+      .analysis-text { font-size: 14px; }
+      .analysis-body { font-size: 14px; }
+      #admin-overlay { bottom: 8px; right: 8px; font-size: 10px; padding: 8px 12px; }
+    }
+
+    /* ─── SHORT VIEWPORT (landscape mobile) ─── */
+    @media (max-height: 600px) {
+      .stage { justify-content: flex-start; padding-top: 20px; }
+      .intro-content { gap: 8px; }
+      .biz-input { min-height: 48px; max-height: 80px; }
+      .question-input { min-height: 56px; }
+      #story-textarea { min-height: 160px; max-height: 40vh; }
+    }
   </style>
 </head>
 <body>
@@ -2201,6 +2415,10 @@ function renderAnalysis(analysisText) {
   const sections = parseAnalysisSections(text);
   console.log("Parsed sections:", Object.keys(sections));
 
+  // Save parsed sections and raw text to state so PDF can use them
+  appState.analysisSections = sections;
+  appState.analysisRaw = text;
+
   // Map section keys to existing txt-* element IDs
   const elementMap = {
     worldview:        'txt-unplanned',
@@ -2501,6 +2719,13 @@ function generatePDF() {
   }
 
   // ── ANALYSIS: FRESH PAGE ──
+  console.log("=== PDF GENERATION ===");
+  console.log("analysisRaw length:", appState.analysisRaw?.length);
+  console.log("analysisSections keys:", Object.keys(appState.analysisSections || {}));
+  console.log("sections content lengths:", Object.fromEntries(
+    Object.entries(appState.analysisSections || {}).map(([k, v]) => [k, v?.length || 0])
+  ));
+
   doc.addPage(); bg();
   y = M + 5;
 
@@ -2508,28 +2733,32 @@ function generatePDF() {
   doc.text('This is built from your words, not generic advice.', M, y);
   y += 10;
 
-  const analysisSections = [
-    { key: 'UNPLANNED',       label: "WHAT YOU DIDN'T PLAN TO WRITE" },
-    { key: 'EMOTIONAL FIELD', label: 'THE EMOTIONAL FIELD UNDERNEATH' },
-    { key: 'ASSUMPTIONS',     label: 'THE ASSUMPTIONS RUNNING YOUR STORY' },
-    { key: 'PREREQUISITES',   label: 'WHAT MUST BE TRUE FOR THIS FUTURE TO EXIST' },
-    { key: 'EARLY WARNINGS',  label: 'WHAT TO WATCH FOR RIGHT NOW' },
-    { key: 'ABSENCE',         label: "WHAT'S MISSING — AND WHAT THAT MEANS" },
-    { key: 'ONE ACTION',      label: 'ONE THING TO DO THIS WEEK', prominent: true }
+  // Parse sections from saved state (populated by renderAnalysis)
+  const sections = appState.analysisSections || parseAnalysisSections(appState.analysisRaw || appState.analysis || '');
+
+  const sectionLabels = [
+    { key: 'unplanned',        label: "WHAT YOU DIDN'T PLAN TO WRITE" },
+    { key: 'emotional',        label: 'THE EMOTIONAL FIELD UNDERNEATH' },
+    { key: 'assumptions',      label: 'THE ASSUMPTIONS RUNNING YOUR STORY' },
+    { key: 'mustBeTrue',       label: 'WHAT MUST BE TRUE FOR THIS FUTURE TO EXIST' },
+    { key: 'signals',          label: 'WHAT TO WATCH FOR RIGHT NOW' },
+    { key: 'missing',          label: "WHAT'S MISSING — AND WHAT THAT MEANS" },
+    { key: 'action',           label: 'ONE THING TO DO THIS WEEK', prominent: true },
+    { key: 'defaultNarrative', label: 'YOUR DEFAULT NARRATIVE' },
   ];
 
-  for (const sec of analysisSections) {
-    const content = (appState.analysis && appState.analysis[sec.key]) || '';
-    const bodyFs  = sec.prominent ? 10 : 9;
-    const innerW  = sec.prominent ? CW - 10 : CW;
+  for (const sec of sectionLabels) {
+    const content = sections[sec.key];
+    if (!content || content.trim().length === 0) continue; // skip empty sections
+
+    const bodyFs = sec.prominent ? 10 : 9;
+    const innerW = sec.prominent ? CW - 10 : CW;
     const cHeight = textH(content, innerW, BODY_LH);
 
     if (sec.prominent) {
-      // ONE ACTION: calculate total box height, force to new page if it won't fit
       const boxH = LABEL_H + 3 + cHeight + 10;
       if (y + boxH > H - M) { doc.addPage(); bg(); y = M + 5; }
 
-      // Draw copper border rectangle
       doc.setDrawColor(184, 115, 51);
       doc.setLineWidth(0.5);
       doc.rect(M - 3, y - 3, CW + 6, boxH, 'S');
@@ -2541,9 +2770,8 @@ function generatePDF() {
 
       cDark();
       y = renderBold(content, M + 2, y, innerW, bodyFs, BODY_LH, 'times');
-      y += 10; // bottom padding inside box + gap after
+      y += 10;
     } else {
-      // Regular section: page break BEFORE if not enough space
       const needed = LABEL_H + 3 + cHeight + SEC_GAP;
       if (y + needed > H - M) { doc.addPage(); bg(); y = M + 5; }
 
@@ -2624,6 +2852,7 @@ function restartApp() {
   appState.questions = ['', '', ''];
   appState.analysis = null;
   appState.analysisRaw = '';
+  appState.analysisSections = null;
   appState.email = '';
   appState.completionTime = null;
   appState.ideaType = '';

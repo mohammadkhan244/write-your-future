@@ -1047,8 +1047,8 @@
     <h2>One question before you write.</h2>
     <p class="stage-subtext">It changes what the story needs to surface.</p>
     <div class="branch-buttons">
-      <button class="btn btn-primary" onclick="selectBranch('business')">This is a business idea or career move</button>
-      <button class="btn btn-primary" onclick="selectBranch('personal')">This is a personal decision or question</button>
+      <button class="btn btn-primary" onclick="selectBranch('business')">This is a business idea</button>
+      <button class="btn btn-primary" onclick="selectBranch('personal')">This is a personal decision (career moves, life direction, relationships, big choices)</button>
     </div>
   </div>
 </div>
@@ -1247,6 +1247,11 @@
         <div class="analysis-text" id="txt-action"></div>
       </div>
 
+      <div class="analysis-section">
+        <h3 class="analysis-label">Your Default Narrative</h3>
+        <div id="section-defaultNarrative" class="analysis-body"></div>
+      </div>
+
       <!-- Fallback if section parsing fails -->
       <div id="analysis-fallback" style="display:none;font-size:14px;line-height:1.7;color:rgba(240,236,228,0.8);white-space:pre-wrap;font-family:Georgia,serif;"></div>
 
@@ -1271,6 +1276,7 @@
     <div class="reveal-line" id="reveal-2">You found what you couldn't see from inside your own thinking.</div>
     <div class="reveal-line" id="reveal-3">You found what you hadn't let yourself write.</div>
     <p class="reveal-paragraph" id="reveal-para">Whatever you found: you found it because you wrote it before you could think about whether to write it.</p>
+    <p class="reveal-paragraph" id="reveal-default-narrative">What all of it has in common: there was a story running underneath it. Not the idea you were testing. Not the decision you were circling. The story about who you are and what's available to you that was making decisions before you could examine it. That's your Default Narrative. You just found evidence of yours.</p>
     <div class="reveal-btn" id="reveal-btn">
       <button class="btn btn-primary" onclick="goToStage('stage-8')">Get your clarity report</button>
     </div>
@@ -1296,7 +1302,7 @@
     <hr class="cta-divider">
 
     <p class="session-heading">Want to go deeper?</p>
-    <p class="session-copy">The sprint surfaces what you're carrying. The session is where you examine what to do about it. Not more analysis — you bring the story, we find the one assumption underneath it that's actually running everything, and we figure out what to do about it while you still have options.</p>
+    <p class="session-copy">The sprint finds the Default Narrative. The session is where we examine what it's been building — and whether you want to keep building it.</p>
     <a href="https://tidycal.com/mohammadukhan135/uncover-your-myth" class="btn btn-primary">Book a session — $500</a>
 
     <hr class="cta-divider" style="margin-top:52px;">
@@ -2105,6 +2111,7 @@ function parseAnalysisSections(text) {
       "5": "signals",
       "6": "missing",
       "7": "action",
+      "8": "defaultNarrative",
     };
 
     // Business path: PART 4 is comparison, PART 5 is signals etc
@@ -2196,14 +2203,15 @@ function renderAnalysis(analysisText) {
 
   // Map section keys to existing txt-* element IDs
   const elementMap = {
-    worldview:   'txt-unplanned',
-    unplanned:   'txt-unplanned',
-    emotional:   'txt-emotional',
-    assumptions: 'txt-assumptions',
-    mustBeTrue:  'txt-prerequisites',
-    signals:     'txt-warnings',
-    missing:     'txt-absence',
-    action:      'txt-action',
+    worldview:        'txt-unplanned',
+    unplanned:        'txt-unplanned',
+    emotional:        'txt-emotional',
+    assumptions:      'txt-assumptions',
+    mustBeTrue:       'txt-prerequisites',
+    signals:          'txt-warnings',
+    missing:          'txt-absence',
+    action:           'txt-action',
+    defaultNarrative: 'section-defaultNarrative',
   };
 
   const radarEl = document.getElementById('radar-loading');
@@ -2273,16 +2281,17 @@ function startAnalysisTimer() {
 
 // ─── REVEAL STAGE ────────────────────────────────
 function initReveal() {
-  ['reveal-1','reveal-2','reveal-3','reveal-para','reveal-btn'].forEach(id => {
+  ['reveal-1','reveal-2','reveal-3','reveal-para','reveal-default-narrative','reveal-btn'].forEach(id => {
     document.getElementById(id).classList.remove('visible');
   });
 
   const base = 500; // wait for transition
-  setTimeout(() => document.getElementById('reveal-1').classList.add('visible'),   base);
-  setTimeout(() => document.getElementById('reveal-2').classList.add('visible'),   base + 2200);
-  setTimeout(() => document.getElementById('reveal-3').classList.add('visible'),   base + 4400);
-  setTimeout(() => document.getElementById('reveal-para').classList.add('visible'),base + 6800);
-  setTimeout(() => document.getElementById('reveal-btn').classList.add('visible'), base + 8000);
+  setTimeout(() => document.getElementById('reveal-1').classList.add('visible'),                  base);
+  setTimeout(() => document.getElementById('reveal-2').classList.add('visible'),                  base + 2200);
+  setTimeout(() => document.getElementById('reveal-3').classList.add('visible'),                  base + 4400);
+  setTimeout(() => document.getElementById('reveal-para').classList.add('visible'),               base + 6800);
+  setTimeout(() => document.getElementById('reveal-default-narrative').classList.add('visible'),  base + 8400);
+  setTimeout(() => document.getElementById('reveal-btn').classList.add('visible'),                base + 9600);
 }
 
 

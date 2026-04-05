@@ -75,7 +75,34 @@ EXPERT: [something only people deep in this space would catch]
 What was conspicuously absent from the story given what they said they were circling? Name it directly. Reference their Q3 answer where relevant. Absence of evidence is evidence.
 
 ## PART 7 — ONE THING TO DO THIS WEEK
-One specific action only. Under 2 hours. Under $50. Produces real signal from actual humans — not planning, not research, not more thinking. Make it specific to what this person actually wrote, not generic advice.`;
+One specific action only. Under 2 hours. Under $50. Produces real signal from actual humans — not planning, not research, not more thinking. Make it specific to what this person actually wrote, not generic advice.
+
+## PART 8 — YOUR DEFAULT NARRATIVE
+
+A Default Narrative is the story running underneath your decisions that you didn't write, never examined, and forgot was there — until it started building a future you didn't choose.
+
+It is not the same as your assumptions. Assumptions are beliefs about the world. The Default Narrative is the story about yourself — who you are, what you deserve, what's available to you, what kind of person does this kind of thing — that was making decisions before you could examine it.
+
+Do three things:
+
+1. NAME IT
+In one sentence, state the Default Narrative running underneath this story. Not what they believe about the world. The story they've been living inside about themselves.
+
+Format: "The Default Narrative running this story: [one sentence]"
+
+Examples of what this looks like:
+- "My expertise is real but invisible until someone else names it."
+- "The work is the point. The market is a constraint to navigate around it."
+- "I can want this, but I shouldn't expect it."
+- "I'll be taken seriously when I have the credential I don't have yet."
+
+2. FIND THE EVIDENCE
+Quote two or three specific moments from the story that show the Default Narrative operating — places where it shaped what they wrote without being stated. These are not assumptions. They are the story acting.
+
+3. NAME THE ALTERNATIVE
+What would this person's story look like if they were living inside a different narrative? Not a better one — just a different one. State it in one sentence. This is not advice. It is the question the Default Narrative makes invisible.
+
+Format: "The story this narrative makes impossible to write: [one sentence]"`;
 
   const businessPrompt = `You are analyzing a 10-minute clarity sprint about a business idea or career move. Someone has been circling this and wrote a story where it resolved. Surface what their writing reveals that analytical thinking couldn't reach.
 
@@ -146,7 +173,34 @@ Then: who else is watching the same signals for completely different reasons?
 What was conspicuously absent given what they said they were circling? Name it directly. Reference their Q3 answer. Absence is evidence.
 
 ## PART 7 — ONE THING TO DO THIS WEEK
-One specific action. Under 2 hours. Under $50. Produces signal from actual humans. Specific to their ICP and method.`;
+One specific action. Under 2 hours. Under $50. Produces signal from actual humans. Specific to their ICP and method.
+
+## PART 8 — YOUR DEFAULT NARRATIVE
+
+A Default Narrative is the story running underneath your decisions that you didn't write, never examined, and forgot was there — until it started building a future you didn't choose.
+
+It is not the same as your assumptions. Assumptions are beliefs about the world. The Default Narrative is the story about yourself — who you are, what you deserve, what's available to you, what kind of person does this kind of thing — that was making decisions before you could examine it.
+
+Do three things:
+
+1. NAME IT
+In one sentence, state the Default Narrative running underneath this story. Not what they believe about the world. The story they've been living inside about themselves.
+
+Format: "The Default Narrative running this story: [one sentence]"
+
+Examples of what this looks like:
+- "My expertise is real but invisible until someone else names it."
+- "The work is the point. The market is a constraint to navigate around it."
+- "I can want this, but I shouldn't expect it."
+- "I'll be taken seriously when I have the credential I don't have yet."
+
+2. FIND THE EVIDENCE
+Quote two or three specific moments from the story that show the Default Narrative operating — places where it shaped what they wrote without being stated. These are not assumptions. They are the story acting.
+
+3. NAME THE ALTERNATIVE
+What would this person's story look like if they were living inside a different narrative? Not a better one — just a different one. State it in one sentence. This is not advice. It is the question the Default Narrative makes invisible.
+
+Format: "The story this narrative makes impossible to write: [one sentence]"`;
 
   const prompt = isPersonal ? personalPrompt : businessPrompt;
 

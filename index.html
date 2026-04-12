@@ -172,9 +172,8 @@
 
     /* ─── STAGE 1: INTRO ─── */
     #stage-1 {
-      height: 100vh;
-      overflow: hidden;
-      padding: 40px 24px;
+      overflow-y: auto;
+      padding: clamp(40px, 8vh, 80px) clamp(16px, 4vw, 40px);
       text-align: center;
       justify-content: center;
     }
@@ -1187,21 +1186,12 @@
 ═══════════════════════════════════════════════ -->
 <div id="stage-1" class="stage">
   <div class="intro-content">
-    <h1>10-Minute Clarity Sprint</h1>
-    <p class="subhead">The unexamined life isn't a philosophy problem. It's a ten-minute problem.</p>
+    <h1>You already know. You just can't see it.</h1>
+    <p class="subhead">Ten minutes of unguarded writing surfaces what you've been circling — before it quietly makes the decision for you.</p>
 
     <div class="intro-body">
-      <p>Socrates said the unexamined life is not worth living.</p>
-      <p>He meant it as a practice, not a profession.</p>
-      <p>This is the practice.</p>
-      <p>Ten minutes of writing that surfaces what you're already carrying — before it quietly makes the decision for you.</p>
-      <p>The thing you keep circling is already deciding. You just don't know what it's deciding yet.</p>
-      <p>I spent six months trying to name what I was building. Couldn't get there by thinking about it. Then I wrote a story — and the thing I'd been circling showed up in the second paragraph.</p>
-      <p>Your brain can't lie in a story the way it can in a plan. The analytical mind performs. The story reveals.</p>
-      <p>Every person who has gone through this says the same thing afterward:</p>
       <p class="pull-quote">"I didn't plan to write that."</p>
-      <p>That's the point.</p>
-      <p class="instruction">Set a timer. Follow the steps in order. Don't skip ahead.</p>
+      <p class="instruction">Follow the steps in order. Don't think ahead.</p>
     </div>
     <button class="btn btn-primary intro-cta-button" onclick="goToStage('stage-2')">Start the sprint</button>
   </div>
@@ -1487,9 +1477,9 @@
 <div id="stage-7" class="stage">
   <div class="stage-content">
     <div class="reveal-line" id="reveal-1">You just did what Socrates couldn't scale.</div>
-    <div class="reveal-line" id="reveal-2">You found what you couldn't see from inside your own thinking.</div>
-    <div class="reveal-line" id="reveal-3">You found what you hadn't let yourself write.</div>
-    <p class="reveal-paragraph" id="reveal-para">Whatever you found: you found it because you wrote it before you could think about whether to write it.</p>
+    <div class="reveal-line" id="reveal-2">The unexamined life isn't a philosophy problem. It's a ten-minute problem.</div>
+    <div class="reveal-line" id="reveal-3">You found what you couldn't see from inside your own thinking.</div>
+    <p class="reveal-paragraph" id="reveal-para">Whatever you found — you found it because you wrote it before you could think about whether to write it. The analytical mind performs. The story reveals.</p>
     <p class="reveal-paragraph" id="reveal-default-narrative">What all of it has in common: there was a story running underneath it. Not the idea you were testing. Not the decision you were circling. The story about who you are and what's available to you that was making decisions before you could examine it. That's your Default Narrative. You just found evidence of yours.</p>
     <div class="reveal-btn" id="reveal-btn">
       <button class="btn btn-primary" onclick="goToStage('stage-8')">Get your clarity report</button>

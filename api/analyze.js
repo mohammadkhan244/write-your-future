@@ -38,7 +38,7 @@ ${story}
 
 What surprised them when writing it: ${q1 || "not answered"}
 
-Respond with exactly these 8 sections in exactly this order, using exactly these headers:
+Respond with exactly these 7 sections in exactly this order, using exactly these headers:
 
 ## PART 0 — THE WORLDVIEW UNDERNEATH
 What does this story assume to be permanently true about how the world works — about people, systems, and what gets rewarded? What future does this worldview create if it's right? What falls through the cracks if it's wrong?
@@ -65,9 +65,6 @@ EXPERT: [something only people deep in this space would catch]
 ## PART 6 — WHAT'S MISSING AND WHAT THAT MEANS
 What was conspicuously absent from the story given what they said they were circling? Name it directly. Reference their surprise answer where relevant. Absence of evidence is evidence.
 
-## PART 7 — ONE THING TO DO THIS WEEK
-One specific action only. Under 2 hours. Under $50. Produces real signal from actual humans — not planning, not research, not more thinking. Make it specific to what this person actually wrote, not generic advice.
-
 ## PART 8 — DEFAULT NARRATIVE
 
 NAME IT
@@ -83,7 +80,7 @@ WHAT IT COSTS
 One to two sentences. Not what's wrong with the narrative — what it makes impossible to see or do while it stays invisible. This is the reason naming it matters.
 
 ONE MOVE
-One specific, concrete action this person can take this week to test whether this narrative is load-bearing or optional. Not "reflect on it." Something that produces actual signal.
+One specific action that addresses both what the analysis revealed and what the Default Narrative has been building. Under 2 hours. Under $50. Produces real signal from actual humans — not planning, not research, not more thinking. It must be specific to what this person actually wrote and it must test whether the narrative is load-bearing or optional. Not "reflect on it." Something that produces actual signal.
 
 The tone throughout should feel like discovery, not diagnosis. The person should read this and think "how did it know that" — not "I'm being analyzed."`;
 

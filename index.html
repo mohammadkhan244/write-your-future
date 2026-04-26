@@ -1381,11 +1381,6 @@
         <div class="analysis-label">What's missing — and what that means</div>
         <div class="analysis-text" id="txt-absence"></div>
       </div>
-      <div class="analysis-section one-action" id="sec-action">
-        <div class="analysis-label">One thing to do this week</div>
-        <div class="analysis-text" id="txt-action"></div>
-      </div>
-
       <div class="analysis-section">
         <h3 class="analysis-label">Your Default Narrative</h3>
         <div id="section-defaultNarrative" class="analysis-body"></div>
@@ -2246,7 +2241,6 @@ function parseAnalysisSections(text) {
       "4": "mustBeTrue",
       "5": "signals",
       "6": "missing",
-      "7": "action",
       "8": "defaultNarrative",
     };
 
@@ -2350,7 +2344,6 @@ function renderAnalysis(analysisText) {
     mustBeTrue:       'txt-prerequisites',
     signals:          'txt-warnings',
     missing:          'txt-absence',
-    action:           'txt-action',
     defaultNarrative: 'section-defaultNarrative',
   };
 
@@ -2671,7 +2664,6 @@ function generatePDF() {
     { key: 'mustBeTrue',       label: 'WHAT MUST BE TRUE FOR THIS FUTURE TO EXIST' },
     { key: 'signals',          label: 'WHAT TO WATCH FOR RIGHT NOW' },
     { key: 'missing',          label: "WHAT'S MISSING — AND WHAT THAT MEANS" },
-    { key: 'action',           label: 'ONE THING TO DO THIS WEEK', prominent: true },
     { key: 'defaultNarrative', label: 'YOUR DEFAULT NARRATIVE' },
   ];
 

@@ -41,7 +41,13 @@ What surprised them when writing it: ${q1 || "not answered"}
 Respond with exactly these sections in exactly this order, using exactly these headers:
 
 ## YOUR OWN WORDS
-Find the single most unplanned line in this story — the one that reads like it slipped past the writer's conscious control. Not the most dramatic line, not the most poetic line — the one that was written before the writer could decide whether to write it. Return only that line, in quotes. Nothing before it. Nothing after it.
+Find the single most unplanned line in this story — the one that reads like it slipped past the writer's conscious control. Not the most dramatic line, not the most poetic line — the one that was written before the writer could decide whether to write it.
+
+Return it in exactly this format with nothing before or after:
+
+"[the line]"
+[Why this line stood out — what makes it feel unplanned rather than constructed. 2-3 sentences. Reference specific words or details from the line itself, not general observations about the story.]
+Before you read further, consider: [One question specific to this line and this person only. Not a clarifying question — a deepening one. It must be answerable only by this specific person about this specific line. It must open something rather than explain something. It cannot apply to any other story or any other writer.]
 
 ## PART 0 — THE WORLDVIEW UNDERNEATH
 What does this story assume to be permanently true about how the world works — about people, systems, and what gets rewarded? What future does this worldview create if it's right? What falls through the cracks if it's wrong?

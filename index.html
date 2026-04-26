@@ -1188,12 +1188,32 @@
       padding-bottom: 0;
       border-bottom: none;
     }
-    .analysis-section.own-words .analysis-text {
+    .own-words-line {
       font-family: Georgia, serif;
       font-size: clamp(16px, 2.2vw, 22px);
       color: #f0ece4;
       line-height: 1.6;
       font-style: italic;
+      margin-bottom: 16px;
+    }
+    .own-words-why {
+      font-family: Georgia, serif;
+      font-size: clamp(13px, 1.6vw, 15px);
+      color: rgba(240, 236, 228, 0.65);
+      line-height: 1.75;
+      margin-bottom: 28px;
+    }
+    .own-words-question {
+      font-family: Georgia, serif;
+      font-size: clamp(15px, 1.9vw, 18px);
+      color: #b87333;
+      line-height: 1.6;
+      font-style: italic;
+      text-align: center;
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 20px 0 4px;
+      border-top: 1px solid rgba(184, 115, 51, 0.25);
     }
 
     #scroll-indicator {
@@ -2421,7 +2441,6 @@ function renderAnalysis(analysisText) {
 
   // Map section keys to existing txt-* element IDs
   const elementMap = {
-    ownWords:         'txt-own-words',
     worldview:        'txt-worldview',
     unplanned:        'txt-unplanned',
     emotional:        'txt-emotional',
@@ -2444,6 +2463,8 @@ function renderAnalysis(analysisText) {
       const el = document.getElementById(elId);
       if (el) el.innerHTML = '';
     }
+    const ownWordsReset = document.getElementById('txt-own-words');
+    if (ownWordsReset) ownWordsReset.innerHTML = '';
 
     let renderedCount = 0;
 
@@ -2453,6 +2474,29 @@ function renderAnalysis(analysisText) {
       const content = sections[key];
       if (content) {
         el.innerHTML = formatSectionContent(content);
+        renderedCount++;
+      }
+    }
+
+    // Custom render for own-words section
+    if (sections.ownWords) {
+      const raw = sections.ownWords;
+
+      const lineMatch = raw.match(/^"([^"]+)"/);
+      const questionMatch = raw.match(/Before you read further, consider:\s*(.+?)$/ms);
+
+      let why = raw;
+      if (lineMatch) why = why.replace(lineMatch[0], '').trim();
+      if (questionMatch) why = why.replace(questionMatch[0], '').trim();
+      why = why.replace(/^[-–]\s*/, '').trim();
+
+      const ownWordsEl = document.getElementById('txt-own-words');
+      if (ownWordsEl) {
+        ownWordsEl.innerHTML = `
+          ${lineMatch ? `<div class="own-words-line">"${escHtml(lineMatch[1])}"</div>` : ''}
+          ${why ? `<div class="own-words-why">${escHtml(why)}</div>` : ''}
+          ${questionMatch ? `<div class="own-words-question">${escHtml(questionMatch[1].trim())}</div>` : ''}
+        `;
         renderedCount++;
       }
     }

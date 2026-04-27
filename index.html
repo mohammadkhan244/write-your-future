@@ -445,10 +445,10 @@
       left: 50%;
       transform: translateX(-50%);
       background: rgba(10,10,10,0.97);
-      border: 1px solid #181814;
+      border: 1px solid rgba(184, 115, 51, 0.35);
       padding: 11px 22px;
       font-size: 0.82rem;
-      color: #4a4a42;
+      color: rgba(240, 236, 228, 0.85);
       font-style: italic;
       opacity: 0;
       transition: opacity 0.5s ease;
@@ -458,6 +458,44 @@
       text-align: center;
     }
     .story-nudge.visible { opacity: 1; }
+
+    .back-link {
+      background: transparent;
+      border: none;
+      color: rgba(240, 236, 228, 0.28);
+      font-size: 0.78rem;
+      padding: 0;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      margin-bottom: 28px;
+      display: inline-block;
+    }
+    .back-link:hover:not(:disabled) { color: rgba(240, 236, 228, 0.65); background: transparent; }
+
+    .story-subbar {
+      padding: 5px 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #0a0a0a;
+      position: sticky;
+      top: 52px;
+      z-index: 9;
+    }
+    .story-pov-hint {
+      font-size: 0.7rem;
+      color: rgba(184, 115, 51, 0.5);
+      letter-spacing: 0.06em;
+      font-style: italic;
+    }
+    .story-encourage {
+      font-size: 0.7rem;
+      color: rgba(184, 115, 51, 0.75);
+      letter-spacing: 0.08em;
+      transition: opacity 0.4s ease;
+      min-width: 80px;
+      text-align: right;
+    }
 
     /* ─── STAGE 5: QUESTIONS ─── */
     #stage-5 { align-items: flex-start; }
@@ -1302,6 +1340,7 @@
 ═══════════════════════════════════════════════ -->
 <div id="stage-2" class="stage">
   <div class="stage-content">
+    <button class="back-link" onclick="goBack()">← back</button>
     <h2>What's the thing you keep coming back to?</h2>
     <p class="stage-subtext">Not a goal. Not a plan. The thing that's been taking up space — a decision that won't resolve, an idea that won't leave, a question you keep turning over without landing anywhere. The rougher it is, the more honest the story tends to be.</p>
 
@@ -1325,6 +1364,7 @@
 ═══════════════════════════════════════════════ -->
 <div id="stage-3" class="stage">
   <div class="stage-content">
+    <button class="back-link" onclick="goBack()">← back</button>
     <h2>Give it a name.</h2>
     <p class="stage-subtext">Three to five words. The version of this where it's already resolved. Not a tagline — a shorthand for what you'd call it on the other side.</p>
 
@@ -1348,6 +1388,7 @@
 ═══════════════════════════════════════════════ -->
 <div id="stage-3-5" class="stage">
   <div class="stage-content">
+    <button class="back-link" onclick="goBack()">← back</button>
     <h2>How long do you want to write?</h2>
     <div class="timer-toggle">
       <button class="timer-option selected" onclick="selectTimer(10, this)">10 minutes</button>
@@ -1364,9 +1405,16 @@
 <div id="stage-4" class="stage">
   <div class="story-container">
     <div class="story-context-bar">
-      <span id="context-signal-display"></span>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button class="back-link" style="margin-bottom:0;" onclick="goBack()">← back</button>
+        <span id="context-signal-display"></span>
+      </div>
       <div class="story-timer" id="story-timer"></div>
       <button id="mic-button" onclick="micButtonClick()">🎤 Speak your story</button>
+    </div>
+    <div class="story-subbar">
+      <span class="story-pov-hint">Write in 1st person — you, five years from now</span>
+      <span class="story-encourage" id="story-encourage"></span>
     </div>
     <div class="story-area">
       <div class="story-instruction" id="story-instruction">
@@ -1398,6 +1446,7 @@
     </div>
     <div class="questions-panel">
 
+      <button class="back-link" onclick="goBack()">← back</button>
       <h2>One question before you see the analysis.</h2>
       <p class="stage-subtext">Don't think about it. Write your first answer.</p>
 
@@ -1578,6 +1627,7 @@ const appState = {
   timerDuration: 10,
   story: '',
   questions: [''],
+  headlineExamples: null,
   analysis: null,
   analysisRaw: '',
   email: '',
@@ -1596,6 +1646,51 @@ if (appState.adminMode) {
 const STAGES = ['stage-1','stage-2','stage-3-5','stage-4','stage-3','stage-5','stage-6','stage-7','stage-8'];
 
 // ─── NAVIGATION ──────────────────────────────────
+function goBack() {
+  const idx = STAGES.indexOf(appState.currentStage);
+  if (idx <= 0) return;
+  const prev = STAGES[idx - 1];
+
+  // Pause story timer if leaving story stage
+  if (appState.currentStage === 'stage-4' && storyStarted) {
+    storyPaused = true;
+    clearInterval(storyTimerInt);
+    clearNudges();
+    clearInterval(encourageInt);
+  }
+
+  goToStage(prev);
+
+  // Re-enable buttons and restore inputs after transition
+  setTimeout(() => {
+    if (prev === 'stage-2') {
+      document.getElementById('signal-continue').disabled =
+        appState.adminMode ? false : appState.signal.trim().length === 0;
+    }
+    if (prev === 'stage-4' && appState.story) {
+      const el = document.getElementById('story-textarea');
+      if (el) el.value = appState.story;
+      const wc = wordCount(appState.story);
+      document.getElementById('word-count').textContent = wc + ' word' + (wc !== 1 ? 's' : '');
+      document.getElementById('finish-btn').classList.remove('hidden');
+      updateTimerDisplay();
+      if (storyStarted) {
+        const instr = document.getElementById('story-instruction');
+        instr.style.display = 'none';
+        instr.style.opacity = '0';
+      }
+      document.getElementById('story-nudge').classList.remove('visible');
+    }
+    if (prev === 'stage-3') {
+      document.getElementById('headline-continue').disabled =
+        appState.adminMode ? false : appState.headline.length < 3;
+    }
+    if (prev === 'stage-5' && appState.questions[0]) {
+      document.getElementById('questions-continue').classList.remove('hidden');
+    }
+  }, 400);
+}
+
 function goToStage(id) {
   const current = document.getElementById(appState.currentStage);
   const next    = document.getElementById(id);
@@ -1776,7 +1871,7 @@ function onSignalBlur() {
 function onSignalInput() {
   appState.signal = document.getElementById('signal-input').value;
   const btn = document.getElementById('signal-continue');
-  btn.disabled = appState.adminMode ? false : appState.signal.length < 20;
+  btn.disabled = appState.adminMode ? false : appState.signal.trim().length === 0;
 }
 
 
@@ -1842,12 +1937,17 @@ function buildHeadlineExamples() {
 }
 
 function startHeadlineCycle() {
-  if (appState.headline) return; // user already typed — leave it alone
   const el = document.getElementById('headline-placeholder');
-  const examples = buildHeadlineExamples();
+  if (appState.headline) {
+    el.style.opacity = '0';
+    return;
+  }
+  clearInterval(hdlInterval);
+  hdlInterval = null;
+  hdlIdx = 0;
+  const examples = appState.headlineExamples || buildHeadlineExamples();
   el.style.opacity = hdlFocused ? '0' : '1';
-  el.textContent = examples[hdlIdx % examples.length];
-  if (hdlInterval) return;
+  el.textContent = examples[0];
   hdlInterval = setInterval(() => {
     if (hdlFocused || appState.headline) return;
     el.style.opacity = '0';
@@ -1857,6 +1957,29 @@ function startHeadlineCycle() {
       el.style.opacity = '1';
     }, 500);
   }, 3000);
+}
+
+async function fetchHeadlineExamples() {
+  if (!appState.story || appState.story.length < 50) return;
+  if (appState.headlineExamples) {
+    if (!appState.headline) startHeadlineCycle();
+    return;
+  }
+  try {
+    const r = await fetch('/api/headline', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ story: appState.story, signal: appState.signal })
+    });
+    if (!r.ok) return;
+    const data = await r.json();
+    if (data.success && Array.isArray(data.examples) && data.examples.length > 0) {
+      appState.headlineExamples = data.examples;
+      if (!appState.headline) startHeadlineCycle();
+    }
+  } catch (err) {
+    console.log('Headline fetch failed:', err.message);
+  }
 }
 
 function onHeadlineFocus() {
@@ -1873,6 +1996,11 @@ function onHeadlineInput() {
   appState.headline = document.getElementById('headline-input').value;
   const btn = document.getElementById('headline-continue');
   btn.disabled = appState.adminMode ? false : appState.headline.length < 3;
+  if (appState.headline) {
+    clearInterval(hdlInterval);
+    hdlInterval = null;
+    document.getElementById('headline-placeholder').style.opacity = '0';
+  }
 }
 
 
@@ -1892,6 +2020,33 @@ let storyStartTs   = null;
 let storyTimerInt  = null;
 let storyLastKey   = null;
 let nudgeTimeouts  = [];
+
+let encourageInt = null;
+let encourageIdx = 0;
+const encourageMsgs = ['keep going.', "you're doing it.", 'stay in it.', "don't stop.", 'keep writing.', 'let it come.'];
+
+function startEncouragement() {
+  const el = document.getElementById('story-encourage');
+  if (!el) return;
+  encourageIdx = 0;
+  el.textContent = encourageMsgs[0];
+  el.style.opacity = '1';
+  clearInterval(encourageInt);
+  encourageInt = setInterval(() => {
+    el.style.opacity = '0';
+    setTimeout(() => {
+      encourageIdx = (encourageIdx + 1) % encourageMsgs.length;
+      el.textContent = encourageMsgs[encourageIdx];
+      el.style.opacity = '1';
+    }, 400);
+  }, 4000);
+}
+
+function stopEncouragement() {
+  clearInterval(encourageInt);
+  const el = document.getElementById('story-encourage');
+  if (el) { el.textContent = ''; el.style.opacity = '0'; }
+}
 
 function initStory() {
   document.getElementById('context-signal-display').textContent = appState.signal || '(your idea)';
@@ -1914,6 +2069,7 @@ function initStory() {
   timerExpiredFired = false;
   clearInterval(storyTimerInt);
   clearNudges();
+  stopEncouragement();
 
   // Reset UI
   document.getElementById('story-textarea').value = '';
@@ -1947,6 +2103,9 @@ function onStoryKeydown() {
 
     // Start timer
     storyTimerInt = setInterval(tickStory, 1000);
+
+    // Start encouragement
+    startEncouragement();
   }
 
   // Resume if paused
@@ -2074,17 +2233,17 @@ function scheduleNudges() {
 
   nudgeTimeouts.push(setTimeout(() => {
     if (!storyStarted) return;
-    storyPaused = true;
-    document.getElementById('story-timer').style.opacity = '0.2';
-    nudge.textContent = "Stuck? Think about what's different about your morning. Start there and walk through the entire day.";
+    nudge.textContent = "Keep going — describe what you see, what you feel. Don't stop.";
     nudge.classList.add('visible');
-  }, 20000));
+  }, 18000));
 
   nudgeTimeouts.push(setTimeout(() => {
     if (!storyStarted) return;
-    nudge.textContent = "Feels like you're distracted. That's ok. I'll wait.";
+    storyPaused = true;
+    document.getElementById('story-timer').style.opacity = '0.2';
+    nudge.textContent = "Ok, looks like you're distracted. I'll wait.";
     nudge.classList.add('visible');
-  }, 45000));
+  }, 30000));
 }
 
 
@@ -2108,9 +2267,7 @@ function initQuestions() {
 
 function onQInput(n) {
   appState.questions[n - 1] = document.getElementById('q' + n + '-input').value;
-  const len = appState.questions[n - 1].length;
-
-  if (n === 1 && (appState.adminMode || len > 20)) {
+  if (n === 1) {
     document.getElementById('questions-continue').classList.remove('hidden');
   }
 }
@@ -2949,6 +3106,9 @@ function restartApp() {
   if (tp) tp.remove();
   _micFinal = '';
 
+  // Reset headline examples
+  appState.headlineExamples = null;
+
   // Reset story timer vars
   clearInterval(storyTimerInt);
   storyStarted = false;
@@ -2956,6 +3116,7 @@ function restartApp() {
   storyElapsed = 0;
   storyStartTs = null;
   clearNudges();
+  stopEncouragement();
 
   // Reset analysis timer
   clearInterval(analysisTimerInt);
@@ -3159,7 +3320,7 @@ const stageObs = new MutationObserver(mutations => {
     if (m.type !== 'attributes') continue;
     const el = m.target;
     if (el.id === 'stage-2' && el.classList.contains('active')) startSignalCycle();
-    if (el.id === 'stage-3' && el.classList.contains('active')) startHeadlineCycle();
+    if (el.id === 'stage-3' && el.classList.contains('active')) { startHeadlineCycle(); fetchHeadlineExamples(); }
   }
 });
 document.querySelectorAll('.stage').forEach(s => {

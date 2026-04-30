@@ -2970,7 +2970,13 @@ async function handleReport() {
       })
     })
     .then(r => r.json())
-    .then(data => console.log('=== EMAIL RESPONSE ===', data))
+    .then(data => {
+      if (data.success) {
+        console.log('=== EMAIL SENT ===', data.id);
+      } else {
+        console.error('=== EMAIL FAILED ===', data);
+      }
+    })
     .catch(err => console.error('=== EMAIL FAILED ===', err));
   }
 }

@@ -2235,7 +2235,7 @@ function checkFinish() {
     timerExpiredFired = true;
     onTimerExpired();
   }
-  if (storyElapsed >= minElapsed || wordCount(appState.story) >= 300) {
+  if (storyElapsed >= minElapsed) {
     document.getElementById('finish-btn').classList.remove('hidden');
   }
 }

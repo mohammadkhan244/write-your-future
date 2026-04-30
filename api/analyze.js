@@ -19,13 +19,6 @@ export default async function handler(req, res) {
 
   const { idea, headline, story, narrativeName, q1 } = req.body;
 
-  if (!story || story.trim().length < 10) {
-    return res.status(400).json({
-      error: "Story too short",
-      detail: `Story length: ${story?.length || 0} characters`
-    });
-  }
-
   const analysisPrompt = `You are analyzing a 10-minute clarity sprint. Someone has been circling a decision, idea, or question and wrote a story where it resolved. Surface what their writing reveals that analytical thinking couldn't reach.
 
 For every finding, quote their exact words as evidence. If something is absent from the story, name it — absence is information.

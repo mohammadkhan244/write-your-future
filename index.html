@@ -471,16 +471,27 @@
 
     .back-link {
       background: transparent;
-      border: none;
-      color: rgba(240, 236, 228, 0.28);
+      border: 1px solid rgba(240, 236, 228, 0.18);
+      border-radius: 6px;
+      color: rgba(240, 236, 228, 0.45);
       font-size: 0.78rem;
-      padding: 0;
+      padding: 5px 12px;
       cursor: pointer;
       letter-spacing: 0.04em;
       margin-bottom: 28px;
       display: inline-block;
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
     }
-    .back-link:hover:not(:disabled) { color: rgba(240, 236, 228, 0.65); background: transparent; }
+    .back-link:hover:not(:disabled) {
+      color: rgba(240, 236, 228, 0.9);
+      border-color: rgba(240, 236, 228, 0.45);
+      background: rgba(240, 236, 228, 0.06);
+    }
+    .back-link:active {
+      color: #b87333;
+      border-color: #b87333;
+      background: rgba(184, 115, 51, 0.1);
+    }
 
     .story-subbar {
       padding: 5px 60px;

@@ -450,21 +450,22 @@
     }
     .story-nudge {
       position: fixed;
-      bottom: 68px;
+      top: 100px;
       left: 50%;
       transform: translateX(-50%);
       background: rgba(10,10,10,0.97);
       border: 1px solid rgba(184, 115, 51, 0.35);
-      padding: 11px 22px;
+      padding: 9px 20px;
       font-size: 0.82rem;
-      color: rgba(240, 236, 228, 0.85);
+      color: rgba(240, 236, 228, 0.9);
       font-style: italic;
       opacity: 0;
       transition: opacity 0.5s ease;
       pointer-events: none;
       z-index: 20;
-      max-width: 480px;
+      max-width: 440px;
       text-align: center;
+      white-space: nowrap;
     }
     .story-nudge.visible { opacity: 1; }
 
@@ -1013,9 +1014,11 @@
     @media (max-width: 700px) {
       .story-context-bar { padding: 12px 16px; gap: 10px; }
       .story-subbar { padding: 5px 16px; }
+      .pov-context { display: none; }
       #story-textarea { padding: 40px 24px; }
       .story-instruction { padding: 40px 24px; }
       .story-bottom-bar { padding: 16px 24px; }
+      .story-nudge { top: 88px; white-space: normal; max-width: calc(100vw - 32px); padding: 8px 14px; }
       .questions-layout { flex-direction: column; }
       .questions-story-panel {
         width: 100%;
@@ -2369,12 +2372,14 @@ function scheduleNudges() {
     if (!storyStarted) return;
     nudge.textContent = "Don't think. Just type.";
     nudge.classList.add('visible');
+    nudgeTimeouts.push(setTimeout(() => nudge.classList.remove('visible'), 3000));
   }, 8000));
 
   nudgeTimeouts.push(setTimeout(() => {
     if (!storyStarted) return;
     nudge.textContent = "Keep going — describe what you see, what you feel. Don't stop.";
     nudge.classList.add('visible');
+    nudgeTimeouts.push(setTimeout(() => nudge.classList.remove('visible'), 3000));
   }, 18000));
 
   nudgeTimeouts.push(setTimeout(() => {

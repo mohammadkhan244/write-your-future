@@ -1707,6 +1707,7 @@
 ═══════════════════════════════════════════════ -->
 <div id="stage-7" class="stage">
   <div class="stage-content">
+    <button class="back-link" onclick="goBack()">← back</button>
     <div class="reveal-line" id="reveal-1">You just did what Socrates couldn't scale.</div>
     <div class="reveal-line" id="reveal-2">The unexamined life isn't a philosophy problem. It's a ten-minute problem.</div>
     <div class="reveal-line" id="reveal-3">You found what you couldn't see from inside your own thinking.</div>
@@ -1723,6 +1724,7 @@
 ═══════════════════════════════════════════════ -->
 <div id="stage-8" class="stage">
   <div class="stage-content">
+    <button class="back-link" onclick="goToStage('stage-6')">← back to analysis</button>
     <h2>Your clarity report is ready.</h2>
     <p class="stage-subtext">What you wrote. What it revealed. What to do about it. All in one document.</p>
 
@@ -3392,15 +3394,28 @@ function initVoiceToText() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) {
     const btn = document.getElementById('mic-button');
-    if (btn) btn.style.display = 'none';
-    return;
+    if (btn) btn.style.opacity = '0.45';
   }
   // Ready — button click handler already wired via micButtonClick()
 }
 
 function micButtonClick() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) return;
+  if (!SR) {
+    const existing = document.getElementById('mic-test-prompt');
+    if (existing) existing.remove();
+    const msg = document.createElement('div');
+    msg.id = 'mic-test-prompt';
+    msg.innerHTML = `<div style="position:fixed;inset:0;background:rgba(10,10,10,0.85);display:flex;align-items:center;justify-content:center;z-index:9999;" onclick="this.parentElement.remove()">
+      <div style="background:#111;border:1px solid rgba(184,115,51,0.35);border-radius:8px;padding:32px 28px;max-width:380px;text-align:center;">
+        <p style="font-family:Georgia,serif;font-size:16px;color:#f0ece4;margin:0 0 12px;">Voice input requires Chrome</p>
+        <p style="font-size:13px;color:rgba(240,236,228,0.6);margin:0 0 20px;line-height:1.6;">This browser doesn't support Web Speech API. Open this page in Chrome for voice input, or use the keyboard to type your story.</p>
+        <button onclick="document.getElementById('mic-test-prompt').remove()" style="min-height:auto;width:auto;padding:8px 20px;font-size:13px;">Got it</button>
+      </div>
+    </div>`;
+    document.body.appendChild(msg);
+    return;
+  }
 
   if (_micListening) {
     micStopListening();

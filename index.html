@@ -3414,7 +3414,16 @@ function micShowTestPrompt(SR) {
   };
   testRec.onerror = (e) => {
     const el = document.getElementById('mic-test-output');
-    if (el) el.textContent = 'Microphone error: ' + e.error;
+    if (!el) return;
+    if (e.error === 'network') {
+      el.innerHTML = 'Speech recognition couldn\'t reach Google\'s servers.<br><span style="font-size:12px;opacity:0.6">This is a Chrome/network issue — try a different network, disable VPN, or use the keyboard instead.</span>';
+    } else if (e.error === 'not-allowed' || e.error === 'permission-denied') {
+      el.textContent = 'Microphone access denied — check your browser permissions and reload.';
+    } else if (e.error === 'audio-capture') {
+      el.textContent = 'No microphone found — check it\'s connected and not in use by another app.';
+    } else {
+      el.textContent = 'Microphone error: ' + e.error;
+    }
   };
   testRec.start();
 
@@ -3462,6 +3471,7 @@ function micStartListening(SR) {
   };
   _micRecognition.onerror = (e) => {
     if (e.error === 'no-speech') return;
+    if (e.error === 'network') return; // onend will auto-restart
     console.error('Speech error:', e.error);
     micStopListening();
   };

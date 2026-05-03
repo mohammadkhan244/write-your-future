@@ -1951,6 +1951,7 @@ function buildAdminActions() {
   }
   if (appState.currentStage === 'stage-6') {
     html += '<button class="admin-btn" onclick="adminSkipAnalysis()">Skip Analysis Timer</button>';
+    html += '<button class="admin-btn" onclick="generateNarrativeReport()">Generate Report (free)</button>';
   }
   document.getElementById('adm-actions').innerHTML = html;
 }
@@ -2024,6 +2025,7 @@ function adminSkipAnalysis() {
   clearInterval(analysisTimerInt);
   document.getElementById('analysis-progress-bar').style.width = '100%';
   document.getElementById('analysis-continue').classList.remove('hidden');
+  generateNarrativeReport();
 }
 
 function adminPrefill() {
@@ -2973,7 +2975,11 @@ function startAnalysisTimer() {
     if (elapsed >= duration) {
       clearInterval(analysisTimerInt);
       document.getElementById('analysis-continue').classList.remove('hidden');
-      document.getElementById('report-locked').style.display = 'block';
+      if (appState.adminMode) {
+        generateNarrativeReport();
+      } else {
+        document.getElementById('report-locked').style.display = 'block';
+      }
     }
   }, 1000);
 }

@@ -1720,6 +1720,7 @@
         <a href="https://buy.stripe.com/3cI5kD3EofwM4N41e14wM04"
            id="report-stripe-btn"
            target="_blank"
+           onclick="if(appState.adminMode){event.preventDefault();generateNarrativeReport();}"
            style="display:inline-block; background:#b87333; color:#fff; padding:14px 32px; border-radius:4px; text-decoration:none; font-size:15px; font-family:system-ui,sans-serif; letter-spacing:0.03em;">
           Get the full report — $30
         </a>
@@ -1800,6 +1801,7 @@
       <p style="font-size:13px; color:rgba(240,236,228,0.4); margin:0 0 16px; font-style:italic;">See where this leads if nothing interrupts it.</p>
       <a href="https://buy.stripe.com/3cI5kD3EofwM4N41e14wM04"
          target="_blank"
+         onclick="if(appState.adminMode){event.preventDefault();generateNarrativeReport();}"
          style="display:inline-block; background:#b87333; color:#fff; padding:13px 28px; border-radius:4px; text-decoration:none; font-size:14px; font-family:system-ui,sans-serif; letter-spacing:0.03em;">
         Get the full report — $30
       </a>
@@ -2050,7 +2052,7 @@ function adminSkipAnalysis() {
   clearInterval(analysisTimerInt);
   document.getElementById('analysis-progress-bar').style.width = '100%';
   document.getElementById('analysis-continue').classList.remove('hidden');
-  generateNarrativeReport();
+  document.getElementById('report-locked').style.display = 'block';
 }
 
 function adminPrefill() {
@@ -3001,11 +3003,7 @@ function startAnalysisTimer() {
     if (elapsed >= duration) {
       clearInterval(analysisTimerInt);
       document.getElementById('analysis-continue').classList.remove('hidden');
-      if (appState.adminMode) {
-        generateNarrativeReport();
-      } else {
-        document.getElementById('report-locked').style.display = 'block';
-      }
+      document.getElementById('report-locked').style.display = 'block';
     }
   }, 1000);
 }

@@ -1708,15 +1708,22 @@
 
     <div id="report-locked" style="display:none;">
       <div style="border-top:1px solid rgba(184,115,51,0.2); margin-top:48px; padding-top:40px; text-align:center;">
-        <p style="font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:#b87333; margin-bottom:12px;">Default Narrative Report</p>
-        <p style="font-family:Georgia,serif; font-size:clamp(16px,2.2vw,20px); color:#f0ece4; line-height:1.5; margin-bottom:8px;">See where this narrative takes you.</p>
-        <p style="font-size:14px; color:rgba(240,236,228,0.5); line-height:1.7; max-width:440px; margin:0 auto 28px;">The analysis above shows what's there. The report runs it forward — 1, 3, 5, and 10 years — written in the style of the fiction writers who understood that the scariest stories are the ones that are already true.</p>
+        <p style="font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:#b87333; margin-bottom:20px;">Default Narrative Report</p>
+        <!-- Teaser page preview -->
+        <div style="position:relative; background:#0d0d0a; border:1px solid rgba(184,115,51,0.25); border-radius:6px; padding:24px 24px 0; max-width:440px; margin:0 auto 20px; overflow:hidden; text-align:left;">
+          <p style="font-size:10px; letter-spacing:0.15em; text-transform:uppercase; color:rgba(184,115,51,0.45); margin:0 0 14px;">page 3 — default narrative</p>
+          <p class="teaser-name" style="font-family:Georgia,serif; font-size:clamp(16px,2.4vw,20px); font-weight:700; color:#f0ece4; line-height:1.4; margin:0 0 12px;"></p>
+          <p class="teaser-body" style="font-family:Georgia,serif; font-size:13px; color:rgba(240,236,228,0.65); line-height:1.75; margin:0; padding-bottom:56px;"></p>
+          <div style="position:absolute; bottom:0; left:0; right:0; height:72px; background:linear-gradient(to bottom, transparent, #0d0d0a); pointer-events:none;"></div>
+        </div>
+        <p style="font-size:13px; color:rgba(240,236,228,0.4); margin:0 0 20px; font-style:italic;">See where this leads if nothing interrupts it.</p>
         <a href="https://buy.stripe.com/3cI5kD3EofwM4N41e14wM04"
            id="report-stripe-btn"
+           target="_blank"
            style="display:inline-block; background:#b87333; color:#fff; padding:14px 32px; border-radius:4px; text-decoration:none; font-size:15px; font-family:system-ui,sans-serif; letter-spacing:0.03em;">
           Get the full report — $30
         </a>
-        <p style="font-size:11px; color:rgba(240,236,228,0.25); margin-top:16px; font-style:italic;">One-time. PDF delivered to your email.</p>
+        <p style="font-size:11px; color:rgba(240,236,228,0.25); margin-top:14px; font-style:italic;">One-time. Opens in a new tab — your data stays here.</p>
       </div>
     </div>
 
@@ -1757,7 +1764,7 @@
     <p class="reveal-paragraph" id="reveal-para">Whatever you found — you found it because you wrote it before you could think about whether to write it. The analytical mind performs. The story reveals.</p>
     <p class="reveal-paragraph" id="reveal-default-narrative">What all of it has in common: there was a story running underneath it. Not the idea you were testing. Not the decision you were circling. The story about who you are and what's available to you that was making decisions before you could examine it. That's your Default Narrative. You just found evidence of yours.</p>
     <div class="reveal-btn" id="reveal-btn">
-      <button class="btn btn-primary" onclick="goToStage('stage-8')">Get your clarity report</button>
+      <button class="btn btn-primary" onclick="goToStage('stage-8'); buildReportTeaser()">Get your clarity report</button>
     </div>
   </div>
 </div>
@@ -1767,7 +1774,6 @@
 ═══════════════════════════════════════════════ -->
 <div id="stage-8" class="stage">
   <div class="stage-content">
-    <button class="back-link" onclick="goToStage('stage-6')">← back to analysis</button>
     <h2>Your clarity report is ready.</h2>
     <p class="stage-subtext">What you wrote. What it revealed. What to do about it. All in one document.</p>
 
@@ -1777,9 +1783,28 @@
     </div>
 
     <button class="btn btn-primary" onclick="handleReport()">Send my report</button>
+    <button class="back-link" onclick="goToStage('stage-6')" style="margin-top:12px; margin-bottom:4px; display:block;">← back to analysis</button>
     <p class="cta-confirmation" id="cta-confirmation">
       Your report is downloading. Check your inbox — and your spam folder if you don't see it within a few minutes. Subject line: <em>Your Write Your Future report is here</em>
     </p>
+
+    <!-- Narrative report teaser -->
+    <div id="report-teaser-s8" style="display:none; margin-top:32px; text-align:center;">
+      <p style="font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:#b87333; margin-bottom:16px;">Default Narrative Report</p>
+      <div style="position:relative; background:#0d0d0a; border:1px solid rgba(184,115,51,0.25); border-radius:6px; padding:24px 24px 0; max-width:440px; margin:0 auto 16px; overflow:hidden; text-align:left;">
+        <p style="font-size:10px; letter-spacing:0.15em; text-transform:uppercase; color:rgba(184,115,51,0.45); margin:0 0 14px;">page 3 — default narrative</p>
+        <p class="teaser-name" style="font-family:Georgia,serif; font-size:clamp(16px,2.4vw,20px); font-weight:700; color:#f0ece4; line-height:1.4; margin:0 0 12px;"></p>
+        <p class="teaser-body" style="font-family:Georgia,serif; font-size:13px; color:rgba(240,236,228,0.65); line-height:1.75; margin:0; padding-bottom:56px;"></p>
+        <div style="position:absolute; bottom:0; left:0; right:0; height:72px; background:linear-gradient(to bottom, transparent, #0d0d0a); pointer-events:none;"></div>
+      </div>
+      <p style="font-size:13px; color:rgba(240,236,228,0.4); margin:0 0 16px; font-style:italic;">See where this leads if nothing interrupts it.</p>
+      <a href="https://buy.stripe.com/3cI5kD3EofwM4N41e14wM04"
+         target="_blank"
+         style="display:inline-block; background:#b87333; color:#fff; padding:13px 28px; border-radius:4px; text-decoration:none; font-size:14px; font-family:system-ui,sans-serif; letter-spacing:0.03em;">
+        Get the full report — $30
+      </a>
+      <p style="font-size:11px; color:rgba(240,236,228,0.22); margin-top:10px; font-style:italic;">One-time. Opens in a new tab — your data stays here.</p>
+    </div>
 
     <hr class="cta-divider">
 
@@ -2832,6 +2857,7 @@ function renderAnalysis(analysisText) {
   // Save parsed sections and raw text to state so PDF can use them
   appState.analysisSections = sections;
   appState.analysisRaw = text;
+  buildReportTeaser();
 
   // Map section keys to existing txt-* element IDs
   const elementMap = {
@@ -3438,6 +3464,8 @@ function restartApp() {
   document.getElementById('report-generating').style.display = 'none';
   document.getElementById('report-content').style.display   = 'none';
   document.getElementById('report-text').innerHTML = '';
+  document.getElementById('report-teaser-s8').style.display = 'none';
+  document.querySelectorAll('.teaser-name, .teaser-body').forEach(el => el.textContent = '');
   try { localStorage.removeItem('wyfSession'); } catch(e) {}
 
   renderCookieJar();
@@ -3479,6 +3507,29 @@ function restoreSessionFromStorage() {
     console.warn('localStorage restore failed:', err);
     return false;
   }
+}
+
+// ─── REPORT TEASER ───────────────────────────────
+function buildReportTeaser() {
+  const raw = appState.analysisRaw || '';
+
+  const nameMatch = raw.match(/NAME IT\s*\n+([^\n]+)/i);
+  const narrativeName = nameMatch ? nameMatch[1].trim() : '';
+
+  const whyMatch = raw.match(/WHY IT MATTERS\s*\n+([\s\S]*?)(?=\n\n(?:THE EVIDENCE|WHAT IT COSTS|ONE MOVE|\s*##)|$)/i);
+  let teaserBody = '';
+  if (whyMatch) {
+    const sentences = (whyMatch[1].trim().match(/[^.!?]*[.!?]+/g) || []).filter(s => s.trim().length > 3);
+    teaserBody = sentences.slice(0, 2).join(' ').trim();
+  }
+
+  if (!narrativeName) return;
+
+  document.querySelectorAll('.teaser-name').forEach(el => el.textContent = narrativeName);
+  document.querySelectorAll('.teaser-body').forEach(el => { if (teaserBody) el.textContent = teaserBody; });
+
+  const s8 = document.getElementById('report-teaser-s8');
+  if (s8) s8.style.display = 'block';
 }
 
 // ─── NARRATIVE REPORT ────────────────────────────

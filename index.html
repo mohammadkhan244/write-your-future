@@ -1389,9 +1389,23 @@
     #stage-8 .cta-divider { margin: clamp(8px, 1.2vh, 14px) 0; }
     #stage-8 .session-heading { font-size: 1.05rem; margin-bottom: 4px; }
     #stage-8 .session-copy { margin-bottom: 10px; font-size: 13px; line-height: 1.55; }
-    #stage-8 #cookie-section { margin-top: 20px; padding-top: 16px; }
+    #stage-8 #cookie-section { margin-top: 0; padding-top: 0; border-top: none; }
     #stage-8 .cookie-jar-sublabel { margin-bottom: 12px; font-size: 12px; }
     #stage-8 .cookie-jar-count { margin-bottom: 12px; }
+    .stage-8-bottom {
+      display: flex;
+      align-items: flex-start;
+      gap: 40px;
+      margin-top: 32px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(184,115,51,0.12);
+    }
+    .stage-8-main { flex: 1 1 auto; min-width: 0; }
+    .stage-8-sidebar { flex: 0 0 auto; text-align: center; }
+    @media (max-width: 700px) {
+      .stage-8-bottom { flex-direction: column; gap: 24px; }
+      .stage-8-sidebar { width: 100%; }
+    }
 
     /* ─── COOKIE JAR ─── */
     #cookie-section {
@@ -1706,45 +1720,6 @@
       </div>
     </div>
 
-    <div id="report-locked" style="display:none;">
-      <div style="border-top:1px solid rgba(184,115,51,0.2); margin-top:48px; padding-top:40px; text-align:center;">
-        <p style="font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:#b87333; margin-bottom:20px;">Default Narrative Report</p>
-        <!-- Teaser page preview -->
-        <div style="position:relative; background:#0d0d0a; border:1px solid rgba(184,115,51,0.25); border-radius:6px; padding:24px 24px 0; max-width:440px; margin:0 auto 20px; overflow:hidden; text-align:left;">
-          <p style="font-size:10px; letter-spacing:0.15em; text-transform:uppercase; color:rgba(184,115,51,0.45); margin:0 0 14px;">page 3 — default narrative</p>
-          <p class="teaser-name" style="font-family:Georgia,serif; font-size:clamp(16px,2.4vw,20px); font-weight:700; color:#f0ece4; line-height:1.4; margin:0 0 12px;"></p>
-          <p class="teaser-body" style="font-family:Georgia,serif; font-size:13px; color:rgba(240,236,228,0.65); line-height:1.75; margin:0; padding-bottom:56px;"></p>
-          <div style="position:absolute; bottom:0; left:0; right:0; height:72px; background:linear-gradient(to bottom, transparent, #0d0d0a); pointer-events:none;"></div>
-        </div>
-        <p style="font-size:13px; color:rgba(240,236,228,0.4); margin:0 0 20px; font-style:italic;">See where this leads if nothing interrupts it.</p>
-        <a href="https://buy.stripe.com/3cI5kD3EofwM4N41e14wM04"
-           id="report-stripe-btn"
-           target="_blank"
-           onclick="if(appState.adminMode){event.preventDefault();generateNarrativeReport();}"
-           style="display:inline-block; background:#b87333; color:#fff; padding:14px 32px; border-radius:4px; text-decoration:none; font-size:15px; font-family:system-ui,sans-serif; letter-spacing:0.03em;">
-          Get the full report — $30
-        </a>
-        <p style="font-size:11px; color:rgba(240,236,228,0.25); margin-top:14px; font-style:italic;">One-time. Opens in a new tab — your data stays here.</p>
-      </div>
-    </div>
-
-    <div id="report-generating" style="display:none; text-align:center; padding:40px 0;">
-      <p style="font-family:Georgia,serif; font-size:15px; color:#b87333; font-style:italic;">Reading your story...</p>
-    </div>
-
-    <div id="report-content" style="display:none;">
-      <div style="border-top:1px solid rgba(184,115,51,0.2); margin-top:48px; padding-top:40px;">
-        <p style="font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:#b87333; margin-bottom:32px; text-align:center;">Your Default Narrative Report</p>
-        <div id="report-text" style="font-family:Georgia,serif; font-size:15px; color:rgba(240,236,228,0.85); line-height:1.8;"></div>
-        <div style="margin-top:48px; padding-top:32px; border-top:1px solid rgba(184,115,51,0.15); text-align:center;">
-          <p style="font-size:13px; color:rgba(240,236,228,0.4); margin-bottom:16px;">One session. 90 minutes. $500.</p>
-          <a href="https://tidycal.com/mohammadukhan135/uncover-your-myth"
-             style="display:inline-block; background:transparent; border:1px solid rgba(184,115,51,0.4); color:#b87333; padding:12px 24px; border-radius:4px; text-decoration:none; font-size:14px;">
-            Book a session
-          </a>
-        </div>
-      </div>
-    </div>
 
   </div><!-- /stage-content -->
 
@@ -1789,9 +1764,16 @@
       Your report is downloading. Check your inbox — and your spam folder if you don't see it within a few minutes. Subject line: <em>Your Write Your Future report is here</em>
     </p>
 
-    <!-- Narrative report teaser -->
-    <div id="report-teaser-s8" style="display:none; margin-top:32px; text-align:center;">
-      <p style="font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:#b87333; margin-bottom:16px;">Default Narrative Report</p>
+    <hr class="cta-divider">
+
+    <p class="session-heading">Want to go deeper?</p>
+    <p class="session-copy">The sprint finds the Default Narrative. The session is where we examine what it's been building — and whether you want to keep building it.</p>
+    <a href="https://tidycal.com/mohammadukhan135/uncover-your-myth" class="btn btn-primary">Book a session — $500</a>
+
+    <!-- Default Narrative Report — teaser + purchase gate -->
+    <div id="report-locked" style="display:none; margin-top:32px; text-align:center;">
+      <p style="font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:#b87333; margin-bottom:4px;">Default Narrative Report</p>
+      <p style="height:20px; font-size:13px; color:rgba(240,236,228,0.5); margin:0 0 12px;"></p>
       <div style="position:relative; background:#0d0d0a; border:1px solid rgba(184,115,51,0.25); border-radius:6px; padding:24px 24px 0; max-width:440px; margin:0 auto 16px; overflow:hidden; text-align:left;">
         <p style="font-size:10px; letter-spacing:0.15em; text-transform:uppercase; color:rgba(184,115,51,0.45); margin:0 0 14px;">page 3 — default narrative</p>
         <p class="teaser-name" style="font-family:Georgia,serif; font-size:clamp(16px,2.4vw,20px); font-weight:700; color:#f0ece4; line-height:1.4; margin:0 0 12px;"></p>
@@ -1808,29 +1790,35 @@
       <p style="font-size:11px; color:rgba(240,236,228,0.22); margin-top:10px; font-style:italic;">One-time. Opens in a new tab — your data stays here.</p>
     </div>
 
-    <hr class="cta-divider">
+    <div id="report-generating" style="display:none; margin-top:32px; text-align:center; padding:24px 0;">
+      <p style="font-size:13px; color:rgba(240,236,228,0.5); font-style:italic;">Generating your report — this takes about a minute…</p>
+    </div>
 
-    <p class="session-heading">Want to go deeper?</p>
-    <p class="session-copy">The sprint finds the Default Narrative. The session is where we examine what it's been building — and whether you want to keep building it.</p>
-    <a href="https://tidycal.com/mohammadukhan135/uncover-your-myth" class="btn btn-primary">Book a session — $500</a>
+    <div id="report-content" style="display:none; margin-top:32px; text-align:left; font-family:Georgia,serif;">
+      <div id="report-text"></div>
+    </div>
 
-    <hr class="cta-divider">
-    <button onclick="restartApp()">← Start over</button>
+    <div class="stage-8-bottom">
+      <div class="stage-8-main">
+        <button onclick="restartApp()">← Start over</button>
+      </div>
+      <div class="stage-8-sidebar">
+        <div id="cookie-section">
+          <p class="cookie-jar-label">Support this project</p>
+          <p class="cookie-jar-sublabel">If this sprint was worth something to you,<br>add a cookie to the jar.</p>
 
-    <div id="cookie-section">
-      <p class="cookie-jar-label">Support this project</p>
-      <p class="cookie-jar-sublabel">If this sprint was worth something to you,<br>add a cookie to the jar.</p>
+          <canvas id="cookie-jar-canvas" width="80" height="96"></canvas>
+          <div class="shelf-row" id="shelf-row"></div>
+          <p class="cookie-jar-count" id="cookie-jar-count"></p>
 
-      <canvas id="cookie-jar-canvas" width="80" height="96"></canvas>
-      <div class="shelf-row" id="shelf-row"></div>
-      <p class="cookie-jar-count" id="cookie-jar-count"></p>
-
-      <a href="https://buy.stripe.com/4gM28rcaU98odjA5uh4wM02"
-         target="_blank"
-         id="cookie-btn"
-         onclick="handleCookieClick()">
-        🍪 Add a cookie to this jar
-      </a>
+          <a href="https://buy.stripe.com/4gM28rcaU98odjA5uh4wM02"
+             target="_blank"
+             id="cookie-btn"
+             onclick="handleCookieClick()">
+            🍪 Add a cookie to this jar
+          </a>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -3462,7 +3450,6 @@ function restartApp() {
   document.getElementById('report-generating').style.display = 'none';
   document.getElementById('report-content').style.display   = 'none';
   document.getElementById('report-text').innerHTML = '';
-  document.getElementById('report-teaser-s8').style.display = 'none';
   document.querySelectorAll('.teaser-name, .teaser-body').forEach(el => el.textContent = '');
   try { localStorage.removeItem('wyfSession'); } catch(e) {}
 
@@ -3526,8 +3513,8 @@ function buildReportTeaser() {
   document.querySelectorAll('.teaser-name').forEach(el => el.textContent = narrativeName);
   document.querySelectorAll('.teaser-body').forEach(el => { if (teaserBody) el.textContent = teaserBody; });
 
-  const s8 = document.getElementById('report-teaser-s8');
-  if (s8) s8.style.display = 'block';
+  const locked = document.getElementById('report-locked');
+  if (locked) locked.style.display = 'block';
 }
 
 // ─── NARRATIVE REPORT ────────────────────────────
@@ -3977,12 +3964,7 @@ document.querySelectorAll('.stage').forEach(s => {
     const restored = restoreSessionFromStorage();
     if (restored) {
       appState.currentStage = 'stage-1';
-      goToStage('stage-6');
-      document.getElementById('radar-loading').style.display = 'none';
-      document.getElementById('analysis-container').style.display = 'block';
-      document.querySelectorAll('.analysis-section').forEach(el => el.classList.add('visible'));
-      document.getElementById('analysis-continue').classList.remove('hidden');
-      document.getElementById('report-locked').style.display = 'none';
+      goToStage('stage-8');
       setTimeout(generateNarrativeReport, 600);
     } else {
       const subhead = document.getElementById('stage-1').querySelector('.intro-subhead');

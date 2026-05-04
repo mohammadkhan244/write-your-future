@@ -1087,13 +1087,15 @@
       box-sizing: border-box;
     }
 
-    /* Long stages: top-aligned */
+    /* Long stages: top-aligned (align-items fixes the flex overflow bug where
+       centered content starts above the scroll origin) */
     #stage-biz,
     #stage-5,
     #stage-6,
     #stage-7,
     #stage-8 {
-      justify-content: flex-start;
+      align-items: flex-start;
+      justify-content: center;
       padding-top: clamp(24px, 5vh, 56px);
     }
 
@@ -1949,6 +1951,7 @@ function goToStage(id) {
       document.getElementById('analysis-progress-wrap').style.display = 'none';
     }
     if (id === 'stage-8') buildReportTeaser();
+    saveSessionToStorage();
     updateAdmin();
     buildAdminActions();
   }, 350);
@@ -2660,6 +2663,7 @@ async function initAnalysis() {
 
     appState.analysisRaw = data.analysis;
     appState.analysis    = parseAnalysisSections(data.analysis);
+    saveSessionToStorage();
 
     if (apiEl) { apiEl.textContent = 'OK'; apiEl.style.color = '#4a9b6f'; }
 
@@ -3507,7 +3511,7 @@ function generateNarrativePDF(reportText) {
   doc.text('Modern Myths  |  Mohammad Khan', W / 2, H - 22, { align: 'center' });
 
   const filename = 'default-narrative-' +
-    (appState.headline || 'report').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') + '.pdf';
+    (appState.headline || 'your-story-idea').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') + '.pdf';
   doc.save(filename);
 }
 
@@ -3618,10 +3622,12 @@ function saveSessionToStorage() {
     localStorage.setItem('wyfSession', JSON.stringify({
       signal:        appState.signal,
       headline:      appState.headline,
-      narrativeName: appState.headline,
       story:         appState.story,
       analysisRaw:   appState.analysisRaw,
       timerDuration: appState.timerDuration,
+      questions:     appState.questions,
+      email:         appState.email,
+      currentStage:  appState.currentStage,
       ts:            Date.now()
     }));
   } catch(err) {
@@ -3647,6 +3653,58 @@ function restoreSessionFromStorage() {
   } catch(err) {
     console.warn('localStorage restore failed:', err);
     return false;
+  }
+}
+
+function restoreSessionOnLoad() {
+  try {
+    const raw = localStorage.getItem('wyfSession');
+    if (!raw) return;
+    const saved = JSON.parse(raw);
+    // 24-hour window for accidental refresh protection
+    if (Date.now() - saved.ts > 24 * 60 * 60 * 1000) {
+      localStorage.removeItem('wyfSession');
+      return;
+    }
+    // Only restore if meaningful progress was made
+    if (!saved.story && !saved.analysisRaw) return;
+
+    appState.signal        = saved.signal        || '';
+    appState.headline      = saved.headline      || '';
+    appState.story         = saved.story         || '';
+    appState.analysisRaw   = saved.analysisRaw   || '';
+    appState.timerDuration = saved.timerDuration || 10;
+    appState.questions     = saved.questions     || [''];
+    appState.email         = saved.email         || '';
+
+    const stage = saved.currentStage || 'stage-1';
+
+    if (saved.analysisRaw) {
+      // Restore to analysis stage — make all sections immediately visible
+      goToStage('stage-6');
+      setTimeout(() => {
+        document.getElementById('radar-loading').style.display = 'none';
+        document.getElementById('analysis-container').style.display = 'block';
+        renderAnalysis(saved.analysisRaw);
+        document.querySelectorAll('.analysis-section').forEach(el => el.classList.add('visible'));
+        clearInterval(analysisTimerInt);
+        document.getElementById('analysis-continue').classList.remove('hidden');
+        document.getElementById('report-locked').style.display = 'block';
+        // If they had reached stage 7 or 8, take them there
+        if (stage === 'stage-7' || stage === 'stage-8') {
+          setTimeout(() => goToStage(stage), 100);
+        }
+      }, 450);
+    } else if (saved.story) {
+      // Restore to story stage
+      goToStage('stage-4');
+      setTimeout(() => {
+        const ta = document.getElementById('story-textarea');
+        if (ta) { ta.value = saved.story; ta.dispatchEvent(new Event('input')); }
+      }, 450);
+    }
+  } catch(err) {
+    console.warn('Session restore failed:', err);
   }
 }
 
@@ -4119,7 +4177,12 @@ document.querySelectorAll('.stage').forEach(s => {
   }
 
   // Check for ?report=true from Stripe redirect
-  if (new URLSearchParams(location.search).get('report') === 'true') {
+  const urlParams = new URLSearchParams(location.search);
+  if (!urlParams.get('report') && !appState.adminMode) {
+    restoreSessionOnLoad();
+  }
+
+  if (urlParams.get('report') === 'true') {
     history.replaceState({}, '', location.pathname + (appState.adminMode ? '?admin=true' : ''));
     const restored = restoreSessionFromStorage();
     if (restored) {

@@ -1,7 +1,7 @@
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
-  const { headline, signal, analysisRaw } = req.body || {};
+  const { headline, signal, story, analysisRaw } = req.body || {};
   if (!analysisRaw) return res.status(400).json({ error: 'Missing analysisRaw' });
 
   if (!process.env.KV_REST_API_URL || !process.env.KV_REST_API_TOKEN) {
@@ -9,8 +9,8 @@ export default async function handler(req, res) {
   }
 
   const id = Math.random().toString(36).slice(2, 9);
-  const payload = JSON.stringify({ headline: headline || '', signal: signal || '', analysisRaw });
-  const ttl = 60 * 60 * 24 * 30; // 30 days
+  const payload = JSON.stringify({ headline: headline || '', signal: signal || '', story: story || '', analysisRaw });
+  const ttl = 60 * 60 * 24 * 90; // 90 days
 
   const kvRes = await fetch(`${process.env.KV_REST_API_URL}/set/${id}/${encodeURIComponent(payload)}?ex=${ttl}`, {
     method: 'GET',

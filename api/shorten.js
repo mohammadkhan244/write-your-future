@@ -10,9 +10,8 @@ export default async function handler(req, res) {
 
   const id = Math.random().toString(36).slice(2, 9);
   const payload = JSON.stringify({ headline: headline || '', signal: signal || '', story: story || '', analysisRaw });
-  const ttl = 60 * 60 * 24 * 90; // 90 days
 
-  const kvRes = await fetch(`${process.env.KV_REST_API_URL}/set/${id}/${encodeURIComponent(payload)}?ex=${ttl}`, {
+  const kvRes = await fetch(`${process.env.KV_REST_API_URL}/set/${id}/${encodeURIComponent(payload)}`, {
     method: 'GET',
     headers: { Authorization: `Bearer ${process.env.KV_REST_API_TOKEN}` }
   });

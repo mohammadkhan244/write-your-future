@@ -1,0 +1,70 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bgGlow" cx="50%" cy="38%" r="60%">
+      <stop offset="0%" stop-color="#161210"/>
+      <stop offset="100%" stop-color="#0a0a0a"/>
+    </radialGradient>
+    <linearGradient id="sweep" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#b87333" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#b87333" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="dotGlow" x="-200%" y="-200%" width="500%" height="500%">
+      <feGaussianBlur stdDeviation="2.2" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bgGlow)"/>
+
+  <!-- Faint outer radar rings, centered on the mark -->
+  <g transform="translate(600,232)" fill="none" stroke="#b87333">
+    <circle r="300" stroke-opacity="0.04"/>
+    <circle r="230" stroke-opacity="0.05"/>
+    <circle r="160" stroke-opacity="0.07"/>
+  </g>
+
+  <!-- Radar mark -->
+  <g transform="translate(600,232)">
+    <!-- rings -->
+    <g fill="none" stroke="#b87333">
+      <circle r="92" stroke-opacity="0.22" stroke-width="1.4"/>
+      <circle r="60" stroke-opacity="0.30" stroke-width="1.4"/>
+      <circle r="28" stroke-opacity="0.40" stroke-width="1.4"/>
+    </g>
+    <!-- crosshairs -->
+    <g stroke="#b87333" stroke-opacity="0.14" stroke-width="1">
+      <line x1="0" y1="-92" x2="0" y2="92"/>
+      <line x1="-92" y1="0" x2="92" y2="0"/>
+    </g>
+    <!-- sweep wedge -->
+    <path d="M0 0 L92 0 A92 92 0 0 0 65 -65 Z" fill="#b87333" fill-opacity="0.07"/>
+    <!-- sweep line -->
+    <line x1="0" y1="0" x2="92" y2="0" stroke="url(#sweep)" stroke-width="2.4"
+          transform="rotate(-35)"/>
+    <!-- phosphor dots -->
+    <circle cx="48" cy="-30" r="3.4" fill="#b87333" fill-opacity="0.95" filter="url(#dotGlow)"/>
+    <circle cx="-38" cy="44" r="3" fill="#b87333" fill-opacity="0.55" filter="url(#dotGlow)"/>
+    <circle cx="22" cy="58" r="2.6" fill="#b87333" fill-opacity="0.30" filter="url(#dotGlow)"/>
+    <!-- center -->
+    <circle r="4" fill="#b87333"/>
+  </g>
+
+  <!-- Title -->
+  <text x="600" y="428" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif" font-size="76"
+        letter-spacing="6" fill="#b87333">WRITE YOUR FUTURE</text>
+
+  <!-- Tagline -->
+  <text x="600" y="492" text-anchor="middle"
+        font-family="'Courier New', monospace" font-size="30"
+        letter-spacing="2" fill="#f0ece4" fill-opacity="0.82">See the story running your decisions</text>
+
+  <!-- Divider -->
+  <line x1="470" y1="538" x2="730" y2="538" stroke="#b87333" stroke-opacity="0.45" stroke-width="1"/>
+
+  <!-- Brand label -->
+  <text x="600" y="576" text-anchor="middle"
+        font-family="'Courier New', monospace" font-size="18"
+        letter-spacing="8" fill="#b87333" fill-opacity="0.7">MODERN MYTHS</text>
+</svg>

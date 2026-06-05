@@ -5,6 +5,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "latest",
     "@vercel/kv": "latest",
-    "airtable": "latest"
+    "airtable": "latest",
+    "resend": "latest"
   }
 }

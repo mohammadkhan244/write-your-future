@@ -1713,6 +1713,161 @@
     @media (max-width: 600px) {
       .ews-context-blurb .blurb-text { font-size: 0.78rem; }
     }
+
+    /* ─── FEEDBACK MODAL ─── */
+    #feedback-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 9998;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    #feedback-modal-overlay.open { display: flex; }
+    #feedback-modal {
+      background: #111;
+      border: 1px solid rgba(184,115,51,0.25);
+      border-radius: 6px;
+      padding: clamp(24px, 4vw, 40px);
+      width: 100%;
+      max-width: 480px;
+      position: relative;
+    }
+    #feedback-modal .modal-label {
+      font-size: 0.62rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #b87333;
+      font-family: 'Courier Prime', monospace;
+      margin-bottom: 16px;
+      display: block;
+    }
+    #feedback-modal h3 {
+      font-family: Georgia, serif;
+      font-size: 1.2rem;
+      font-weight: normal;
+      color: #f0ece4;
+      margin: 0 0 24px;
+    }
+    #feedback-modal .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: transparent;
+      border: none;
+      color: rgba(240,236,228,0.4);
+      font-size: 1.2rem;
+      cursor: pointer;
+      line-height: 1;
+      padding: 4px 8px;
+    }
+    #feedback-modal .modal-close:hover { color: #f0ece4; }
+    #feedback-modal .type-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    #feedback-modal .type-btn {
+      flex: 1;
+      padding: 8px;
+      border: 1px solid rgba(240,236,228,0.12);
+      background: transparent;
+      color: rgba(240,236,228,0.55);
+      font-size: 0.78rem;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      border-radius: 3px;
+      transition: all 0.15s;
+    }
+    #feedback-modal .type-btn.active {
+      border-color: #b87333;
+      color: #b87333;
+      background: rgba(184,115,51,0.08);
+    }
+    #feedback-modal .modal-field { margin-bottom: 16px; }
+    #feedback-modal .modal-field label {
+      display: block;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(240,236,228,0.5);
+      margin-bottom: 6px;
+    }
+    #feedback-modal .modal-field input,
+    #feedback-modal .modal-field textarea {
+      width: 100%;
+      background: rgba(240,236,228,0.04);
+      border: 1px solid rgba(240,236,228,0.12);
+      border-radius: 3px;
+      padding: 10px 12px;
+      color: #f0ece4;
+      font-size: 0.88rem;
+      font-family: Georgia, serif;
+      box-sizing: border-box;
+      resize: vertical;
+    }
+    #feedback-modal .modal-field input:focus,
+    #feedback-modal .modal-field textarea:focus {
+      outline: none;
+      border-color: rgba(184,115,51,0.5);
+    }
+    #feedback-modal .modal-stage-note {
+      font-size: 0.72rem;
+      color: rgba(240,236,228,0.3);
+      margin-bottom: 20px;
+      font-style: italic;
+    }
+    #feedback-modal .modal-submit {
+      width: 100%;
+      padding: 12px;
+      background: #b87333;
+      border: none;
+      border-radius: 3px;
+      color: #fff;
+      font-size: 0.88rem;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      transition: opacity 0.15s;
+    }
+    #feedback-modal .modal-submit:hover { opacity: 0.88; }
+    #feedback-modal .modal-submit:disabled { opacity: 0.45; cursor: default; }
+    #feedback-modal .modal-success {
+      display: none;
+      text-align: center;
+      padding: 24px 0;
+    }
+    #feedback-modal .modal-success p {
+      font-family: Georgia, serif;
+      color: #f0ece4;
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+    #feedback-modal .modal-success span {
+      display: block;
+      font-size: 0.72rem;
+      color: rgba(240,236,228,0.4);
+      margin-top: 8px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    /* ─── ADMIN SECTIONS ─── */
+    .admin-section { margin-bottom: 8px; }
+    .admin-section-heading {
+      font-size: 0.62rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #b87333;
+      cursor: pointer;
+      padding: 4px 0;
+      user-select: none;
+      border-bottom: 1px solid rgba(184,115,51,0.15);
+      margin-bottom: 8px;
+    }
+    .admin-section-heading:hover { color: #f0ece4; }
+    .admin-section-body { font-size: 0.78rem; }
   </style>
 </head>
 <body>
@@ -2165,15 +2320,51 @@
 ═══════════════════════════════════════════════ -->
 <div id="admin-overlay">
   <div class="admin-title">Admin Mode</div>
-  <div class="admin-stat">Stage: <span id="adm-stage">1</span></div>
-  <div class="admin-stat">Words: <span id="adm-words">—</span></div>
-  <div class="admin-stat">Elapsed: <span id="adm-elapsed">—</span></div>
-  <div class="admin-stat">API: <span id="adm-api">—</span></div>
-  <div class="admin-stat">Sheets: <span id="admin-airtable">—</span></div>
-  <div class="admin-actions" id="adm-actions">
-    <button class="admin-btn" onclick="adminSkip()">Skip to next stage →</button>
+
+  <select id="admin-section-nav" onchange="navigateAdminSection(this.value)"
+    style="width:100%;background:#111;border:1px solid rgba(184,115,51,0.3);color:#b87333;font-size:0.72rem;letter-spacing:0.08em;padding:6px 8px;margin-bottom:12px;border-radius:3px;cursor:pointer;">
+    <option value="all">All sections</option>
+    <option value="admin-sec-status">Status</option>
+    <option value="admin-sec-actions">Actions</option>
+    <option value="admin-sec-api">API</option>
+    <option value="admin-sec-feedback">Feedback Log</option>
+  </select>
+
+  <div class="admin-section" id="admin-sec-status">
+    <div class="admin-section-heading" onclick="toggleAdminSection('admin-sec-status-body')">STATUS</div>
+    <div class="admin-section-body" id="admin-sec-status-body">
+      <div class="admin-stat">Stage: <span id="adm-stage">1</span></div>
+      <div class="admin-stat">Words: <span id="adm-words">—</span></div>
+      <div class="admin-stat">Elapsed: <span id="adm-elapsed">—</span></div>
+    </div>
   </div>
-  <button onclick="testAnalyzeEndpoint()" style="margin-top:4px;font-size:10px;padding:4px 8px;background:rgba(184,115,51,0.2);border:1px solid #b87333;color:#b87333;border-radius:3px;cursor:pointer;width:100%;">Test API →</button>
+
+  <div class="admin-section" id="admin-sec-actions">
+    <div class="admin-section-heading" onclick="toggleAdminSection('admin-sec-actions-body')">ACTIONS</div>
+    <div class="admin-section-body" id="admin-sec-actions-body">
+      <div class="admin-actions" id="adm-actions">
+        <button class="admin-btn" onclick="adminSkip()">Skip to next stage →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="admin-section" id="admin-sec-api">
+    <div class="admin-section-heading" onclick="toggleAdminSection('admin-sec-api-body')">API</div>
+    <div class="admin-section-body" id="admin-sec-api-body">
+      <div class="admin-stat">API: <span id="adm-api">—</span></div>
+      <div class="admin-stat">Sheets: <span id="admin-airtable">—</span></div>
+      <button onclick="testAnalyzeEndpoint()" style="margin-top:4px;font-size:10px;padding:4px 8px;background:rgba(184,115,51,0.2);border:1px solid #b87333;color:#b87333;border-radius:3px;cursor:pointer;width:100%;">Test API →</button>
+    </div>
+  </div>
+
+  <div class="admin-section" id="admin-sec-feedback">
+    <div class="admin-section-heading" onclick="toggleAdminSection('admin-feedback-log-wrap')">FEEDBACK LOG</div>
+    <div id="admin-feedback-log-wrap" class="admin-section-body">
+      <div id="admin-feedback-log" style="max-height:220px;overflow-y:auto;">
+        <p style="font-size:0.72rem;color:rgba(240,236,228,0.3);font-style:italic;">Loading...</p>
+      </div>
+    </div>
+  </div>
 </div>
 
 
@@ -2313,6 +2504,7 @@ const appState = {
 appState.adminMode = new URLSearchParams(location.search).get('admin') === 'true';
 if (appState.adminMode) {
   document.getElementById('admin-overlay').classList.add('visible');
+  loadAdminFeedbackLog();
 }
 
 // ─── STAGE ORDER ─────────────────────────────────
@@ -4974,18 +5166,108 @@ document.querySelectorAll('.stage').forEach(s => {
   loadCookieCount();
 })();
 
-document.getElementById('feedback-btn').addEventListener('click', function() {
-  navigator.clipboard.writeText('mohammadkhan@themohammadkhan.com').then(() => {
-    const btn = document.getElementById('feedback-btn');
-    const original = btn.textContent;
-    btn.textContent = 'Copied!';
-    btn.classList.add('copied');
-    setTimeout(() => {
-      btn.textContent = original;
-      btn.classList.remove('copied');
-    }, 2000);
-  });
-});
+document.getElementById('feedback-btn').addEventListener('click', openFeedbackModal);
+
+// ─── FEEDBACK MODAL ──────────────────────────────
+let feedbackType = 'Feedback';
+
+function openFeedbackModal() {
+  const overlay = document.getElementById('feedback-modal-overlay');
+  overlay.classList.add('open');
+  document.getElementById('modal-success').style.display = 'none';
+  document.getElementById('modal-submit-btn').style.display = 'block';
+  const stageNote = document.getElementById('modal-stage-note');
+  const currentStage = (typeof appState !== 'undefined' && appState.currentStage)
+    ? appState.currentStage
+    : document.querySelector('.stage.active')?.id || 'unknown';
+  stageNote.textContent = `Currently on: ${currentStage.replace('stage-', 'Stage ')}`;
+}
+
+function closeFeedbackModal(e, force) {
+  if (force || (e && e.target.id === 'feedback-modal-overlay')) {
+    document.getElementById('feedback-modal-overlay').classList.remove('open');
+  }
+}
+
+function setFeedbackType(btn) {
+  feedbackType = btn.dataset.type;
+  document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('feature-request-field').style.display =
+    feedbackType === 'Feature Request' ? 'block' : 'none';
+}
+
+async function submitFeedback() {
+  const message = document.getElementById('modal-message').value.trim();
+  if (!message) { document.getElementById('modal-message').focus(); return; }
+  const btn = document.getElementById('modal-submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+  const currentStage = (typeof appState !== 'undefined' && appState.currentStage)
+    ? appState.currentStage
+    : document.querySelector('.stage.active')?.id || 'unknown';
+  try {
+    await fetch('/api/feedback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: document.getElementById('modal-name').value.trim(),
+        email: document.getElementById('modal-email').value.trim(),
+        stage: currentStage.replace('stage-', 'Stage '),
+        type: feedbackType,
+        message,
+        featureRequest: document.getElementById('modal-feature').value.trim()
+      })
+    });
+    btn.style.display = 'none';
+    document.getElementById('modal-success').style.display = 'block';
+    setTimeout(() => closeFeedbackModal(null, true), 2500);
+  } catch {
+    btn.disabled = false;
+    btn.textContent = 'Send';
+  }
+}
+
+// ─── ADMIN FEEDBACK LOG ──────────────────────────
+async function loadAdminFeedbackLog() {
+  try {
+    const res = await fetch('/api/feedback-log');
+    const data = await res.json();
+    if (!data.log?.length) return;
+    const container = document.getElementById('admin-feedback-log');
+    if (!container) return;
+    container.innerHTML = data.log.map(entry => `
+      <div style="border-top:1px solid rgba(184,115,51,0.12);padding:10px 0;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+          <span style="font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:#b87333;">${entry.type}</span>
+          <span style="font-size:0.65rem;color:rgba(240,236,228,0.3);">${entry.stage} · ${new Date(entry.submittedAt).toLocaleDateString()}</span>
+        </div>
+        <p style="margin:0 0 4px;font-size:0.78rem;color:rgba(240,236,228,0.8);line-height:1.5;">${entry.message}</p>
+        ${entry.featureRequest ? `<p style="margin:0;font-size:0.72rem;color:rgba(240,236,228,0.5);font-style:italic;">Feature: ${entry.featureRequest}</p>` : ''}
+        <p style="margin:4px 0 0;font-size:0.65rem;color:rgba(240,236,228,0.3);">${entry.name}${entry.email ? ' · ' + entry.email : ''}</p>
+      </div>
+    `).join('');
+  } catch {}
+}
+
+// ─── ADMIN SECTIONS ──────────────────────────────
+function toggleAdminSection(bodyId) {
+  const body = document.getElementById(bodyId);
+  if (!body) return;
+  body.style.display = body.style.display === 'none' ? 'block' : 'none';
+}
+
+function navigateAdminSection(value) {
+  const sections = document.querySelectorAll('.admin-section');
+  if (value === 'all') {
+    sections.forEach(s => s.style.display = 'block');
+    document.querySelectorAll('.admin-section-body').forEach(b => b.style.display = 'block');
+  } else {
+    sections.forEach(s => { s.style.display = s.id === value ? 'block' : 'none'; });
+    const target = document.getElementById(value);
+    if (target) target.querySelectorAll('.admin-section-body').forEach(b => b.style.display = 'block');
+  }
+}
 </script>
 
 <div id="share-toast" class="share-toast"></div>
@@ -5007,5 +5289,45 @@ document.getElementById('feedback-btn').addEventListener('click', function() {
 </nav>
 
 <button id="feedback-btn">Feedback</button>
+
+<div id="feedback-modal-overlay" onclick="closeFeedbackModal(event)">
+  <div id="feedback-modal">
+    <button class="modal-close" onclick="closeFeedbackModal(null, true)">×</button>
+    <span class="modal-label">Write Your Future</span>
+    <h3>Share your thoughts</h3>
+
+    <div class="type-row">
+      <button class="type-btn active" data-type="Feedback" onclick="setFeedbackType(this)">Feedback</button>
+      <button class="type-btn" data-type="Feature Request" onclick="setFeedbackType(this)">Feature Request</button>
+      <button class="type-btn" data-type="Bug" onclick="setFeedbackType(this)">Bug</button>
+    </div>
+
+    <div class="modal-stage-note" id="modal-stage-note"></div>
+
+    <div class="modal-field">
+      <label>Name (optional)</label>
+      <input type="text" id="modal-name" placeholder="Your name">
+    </div>
+    <div class="modal-field">
+      <label>Email (optional)</label>
+      <input type="email" id="modal-email" placeholder="your@email.com">
+    </div>
+    <div class="modal-field">
+      <label>Message *</label>
+      <textarea id="modal-message" rows="4" placeholder="What's on your mind?"></textarea>
+    </div>
+    <div class="modal-field" id="feature-request-field" style="display:none;">
+      <label>Feature Request</label>
+      <textarea id="modal-feature" rows="3" placeholder="Describe the feature you'd like..."></textarea>
+    </div>
+
+    <button class="modal-submit" id="modal-submit-btn" onclick="submitFeedback()">Send</button>
+
+    <div class="modal-success" id="modal-success">
+      <p>Got it. Thank you.</p>
+      <span>Your feedback has been sent</span>
+    </div>
+  </div>
+</div>
 </body>
 </html>

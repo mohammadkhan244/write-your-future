@@ -11,6 +11,7 @@
     { "src": "/app.html", "dest": "/app.html" },
     { "src": "/report.html", "dest": "/report.html" },
     { "src": "/report.js", "dest": "/report.js" },
+    { "src": "/admin", "dest": "/admin.html" },
     { "src": "/(.*\\?.*)", "dest": "/app.html" },
     { "src": "/", "dest": "/landing.html" }
   ],

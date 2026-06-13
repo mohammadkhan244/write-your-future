@@ -2,6 +2,7 @@
 // All changes to this file must be checked against the system contract before implementation.
 // If a proposed change cannot be mapped to one of the six primitives, it does not belong in EWS.
 import Anthropic from "@anthropic-ai/sdk";
+import { kv } from '@vercel/kv';
 
 export default async function handler(req, res) {
   console.log("=== ANALYZE START ===", new Date().toISOString());
@@ -20,7 +21,7 @@ export default async function handler(req, res) {
     });
   }
 
-  const { idea, headline, story, narrativeName, q1, stage = 'early', lens = '', questionVariant = 'standard' } = req.body;
+  const { idea, headline, story, narrativeName, q1, stage = 'early', lens = '', questionVariant = 'standard', sessionId } = req.body;
 
   const calibrationBlock = `---
 Calibration instruction (runs before all sections)
@@ -140,6 +141,26 @@ The tone throughout should feel like discovery, not diagnosis. The person should
     console.log("=== RETURNED SECTION HEADERS ===");
     const returnedHeaders = analysisText.match(/## PART \d+ —.+/g);
     console.log(returnedHeaders);
+
+    // Log narrative name to KV (non-blocking — failure does not affect analysis response)
+    const nameMatch = analysisText.match(/NAME IT[^\n]*\n+\*?\*?([^\n*]+)/);
+    const extractedNarrativeName = nameMatch ? nameMatch[1].trim() : '';
+    if (extractedNarrativeName && sessionId) {
+      try {
+        const entry = {
+          sessionId,
+          narrativeName: extractedNarrativeName,
+          stage: stage || 'early',
+          lens: lens || '',
+          timestamp: new Date().toISOString()
+        };
+        const existing = await kv.get('narrative:log') || [];
+        const updated = [entry, ...existing].slice(0, 100);
+        await kv.set('narrative:log', updated, { ex: 60 * 60 * 24 * 90 });
+      } catch (kvErr) {
+        console.error('KV narrative log error:', kvErr.message);
+      }
+    }
 
     return res.json({
       success: true,

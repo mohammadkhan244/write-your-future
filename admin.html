@@ -47,6 +47,18 @@
     </button>
   </div>
 
+  <!-- Import Strip -->
+  <div style="background:#0d0d0d;border-bottom:1px solid rgba(184,115,51,0.1);padding:8px 24px;display:flex;align-items:center;gap:12px;flex-shrink:0;">
+    <span style="font-family:'Courier Prime',monospace;font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(184,115,51,0.5);white-space:nowrap;">Import CSV</span>
+    <input type="file" id="csv-file-input" accept=".csv"
+      style="font-size:0.72rem;color:rgba(240,236,228,0.45);background:transparent;border:none;cursor:pointer;flex:1;min-width:0;">
+    <button onclick="importCSV()"
+      style="background:transparent;border:1px solid rgba(184,115,51,0.3);color:#b87333;font-size:0.72rem;padding:4px 12px;cursor:pointer;border-radius:3px;font-family:'DM Sans',system-ui,sans-serif;white-space:nowrap;">
+      Import
+    </button>
+    <span id="import-status" style="font-size:0.7rem;color:rgba(240,236,228,0.35);white-space:nowrap;"></span>
+  </div>
+
   <!-- Sprint iframe -->
   <div style="height:55vh;border-bottom:1px solid rgba(184,115,51,0.15);flex-shrink:0;">
     <iframe src="/app?admin=true&embedded=true" style="width:100%;height:100%;border:none;"></iframe>
@@ -189,6 +201,101 @@
   function filterNarratives(stage) {
     const filtered = stage === 'all' ? allNarratives : allNarratives.filter(n => n.stage === stage);
     renderNarratives(filtered);
+  }
+
+  // ── CSV IMPORT ─────────────────────────────────────
+  function parseCSV(text) {
+    const rows = [];
+    let row = [], field = '', inQuotes = false;
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i], next = text[i + 1];
+      if (inQuotes) {
+        if (ch === '"' && next === '"') { field += '"'; i++; }
+        else if (ch === '"') { inQuotes = false; }
+        else { field += ch; }
+      } else {
+        if (ch === '"') { inQuotes = true; }
+        else if (ch === ',') { row.push(field); field = ''; }
+        else if (ch === '\n' || (ch === '\r' && next === '\n')) {
+          if (ch === '\r') i++;
+          row.push(field); rows.push(row); row = []; field = '';
+        } else { field += ch; }
+      }
+    }
+    if (field !== '' || row.length) { row.push(field); rows.push(row); }
+    return rows;
+  }
+
+  async function importCSV() {
+    const fileInput = document.getElementById('csv-file-input');
+    const statusEl = document.getElementById('import-status');
+    const file = fileInput.files[0];
+    if (!file) { statusEl.textContent = 'No file selected.'; return; }
+
+    statusEl.textContent = 'Parsing…';
+    const text = await file.text();
+    const rows = parseCSV(text);
+
+    // Skip header row; require at least 13 columns (through stage)
+    const dataRows = rows.slice(1).filter(r => r.length >= 12 && r[10]);
+
+    const narratives = [];
+    const feedback = [];
+
+    for (const r of dataRows) {
+      const timestamp  = r[0]  || new Date().toISOString();
+      const analysis   = r[5]  || '';
+      const sessionId  = r[10] || '';
+      const stage      = r[11] || 'early';
+      const liked      = r[13] || '';
+      const wishThis   = r[14] || '';
+
+      if (analysis && sessionId) {
+        const m = analysis.match(/NAME IT[^\n]*\n+\*?\*?([^\n*]+)/);
+        const narrativeName = m ? m[1].trim() : '';
+        if (narrativeName) narratives.push({ sessionId, narrativeName, stage, lens: '', timestamp });
+      }
+
+      if ((liked || wishThis) && sessionId) {
+        const parts = [];
+        if (liked)     parts.push('Avoiding action: ' + liked);
+        if (wishThis)  parts.push('Already know: ' + wishThis);
+        feedback.push({
+          id: 'csv-' + sessionId,
+          type: 'Session Reflection',
+          name: 'Anonymous',
+          email: r[6] || '',
+          stage: stage,
+          message: parts.join(' · '),
+          featureRequest: '',
+          submittedAt: timestamp
+        });
+      }
+    }
+
+    if (!narratives.length && !feedback.length) {
+      statusEl.textContent = 'Nothing importable found (no narrative names or reflections).';
+      return;
+    }
+
+    statusEl.textContent = 'Uploading…';
+    const tok = sessionStorage.getItem('adminToken');
+    try {
+      const res = await fetch('/api/admin-import', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: tok, narratives, feedback })
+      });
+      const data = await res.json();
+      if (!data.success) { statusEl.textContent = 'Error: ' + (data.error || 'unknown'); return; }
+      const n = data.narrativesImported || 0;
+      const f = data.feedbackImported   || 0;
+      const ns = data.narrativesSkipped || 0;
+      statusEl.textContent = `Done — ${n} narratives, ${f} reflections imported${ns ? ` (${ns} dupes skipped)` : ''}.`;
+      await loadData();
+    } catch {
+      statusEl.textContent = 'Network error.';
+    }
   }
 
   // On load

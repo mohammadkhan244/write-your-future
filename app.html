@@ -2501,10 +2501,23 @@ const appState = {
 };
 
 // ─── ADMIN DETECTION ─────────────────────────────
-appState.adminMode = new URLSearchParams(location.search).get('admin') === 'true';
+const params = new URLSearchParams(window.location.search);
+const isAdmin = params.get('admin') === 'true';
+const isEmbedded = params.get('embedded') === 'true';
+
+if (isAdmin && !isEmbedded) {
+  window.location.replace('/admin');
+}
+
+appState.adminMode = isAdmin;
 if (appState.adminMode) {
   document.getElementById('admin-overlay').classList.add('visible');
   loadAdminFeedbackLog();
+}
+
+if (isEmbedded) {
+  const overlay = document.getElementById('admin-overlay');
+  if (overlay) overlay.style.display = 'none';
 }
 
 // ─── STAGE ORDER ─────────────────────────────────

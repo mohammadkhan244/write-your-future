@@ -109,6 +109,31 @@
     </div>
 
   </div>
+
+  <!-- Reports Panel -->
+  <div style="padding:28px;border-top:1px solid rgba(184,115,51,0.12);overflow-y:auto;max-height:50vh;">
+    <p style="font-family:'Courier Prime',monospace;font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:#b87333;margin:0 0 16px;">Reports</p>
+
+    <!-- Share link lookup -->
+    <div style="display:flex;gap:8px;margin-bottom:20px;">
+      <input id="report-link-input" placeholder="Paste report link or session ID"
+        style="flex:1;background:rgba(240,236,228,0.04);border:1px solid rgba(240,236,228,0.12);border-radius:3px;padding:8px 12px;color:#f0ece4;font-size:0.82rem;font-family:Georgia,serif;">
+      <button onclick="lookupReport()"
+        style="padding:8px 16px;background:#b87333;border:none;border-radius:3px;color:#fff;font-size:0.78rem;cursor:pointer;white-space:nowrap;">
+        Fetch
+      </button>
+    </div>
+
+    <!-- Lookup result -->
+    <div id="report-lookup-result" style="display:none;border:1px solid rgba(184,115,51,0.2);border-radius:4px;padding:16px;margin-bottom:24px;background:rgba(184,115,51,0.04);max-height:320px;overflow-y:auto;">
+    </div>
+
+    <!-- Report index list -->
+    <div id="report-index-list">
+      <p style="font-size:0.78rem;color:rgba(240,236,228,0.3);font-style:italic;">Loading...</p>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -154,6 +179,7 @@
     allNarratives = data.narratives;
     renderFeedback(allFeedback);
     renderNarratives(allNarratives);
+    renderReportIndex(data.reports || []);
   }
 
   function renderFeedback(items) {
@@ -201,6 +227,61 @@
   function filterNarratives(stage) {
     const filtered = stage === 'all' ? allNarratives : allNarratives.filter(n => n.stage === stage);
     renderNarratives(filtered);
+  }
+
+  async function lookupReport() {
+    const input = document.getElementById('report-link-input').value.trim();
+    const result = document.getElementById('report-lookup-result');
+    if (!input) return;
+
+    let sessionId = input;
+    const urlMatch = input.match(/session=([a-f0-9-]{36})/);
+    if (urlMatch) sessionId = urlMatch[1];
+
+    result.style.display = 'block';
+    result.innerHTML = '<p style="font-size:0.78rem;color:rgba(240,236,228,0.4);font-style:italic;">Fetching...</p>';
+
+    const token = sessionStorage.getItem('adminToken');
+    try {
+      const res = await fetch(`/api/report-fetch?session=${sessionId}&token=${token}`);
+      const data = await res.json();
+      if (!data.success || !data.data) {
+        result.innerHTML = '<p style="font-size:0.78rem;color:rgba(184,115,51,0.7);">Report not found in KV.</p>';
+        return;
+      }
+      const r = data.data;
+      result.innerHTML = `
+        <p style="font-size:0.62rem;letter-spacing:0.15em;text-transform:uppercase;color:#b87333;margin:0 0 8px;font-family:'Courier Prime',monospace;">FOUND</p>
+        <p style="font-family:Georgia,serif;font-size:1rem;color:#f0ece4;margin:0 0 12px;">${r.narrativeName || 'Untitled'}</p>
+        <p style="font-size:0.72rem;color:rgba(240,236,228,0.4);margin:0 0 16px;">${r.generatedAt ? new Date(r.generatedAt).toLocaleString() : ''}</p>
+        <a href="/report?session=${sessionId}&admin=true" target="_blank"
+          style="font-size:0.78rem;color:#b87333;text-decoration:none;border-bottom:1px solid rgba(184,115,51,0.3);">
+          Open full report →
+        </a>
+      `;
+    } catch {
+      result.innerHTML = '<p style="font-size:0.78rem;color:rgba(184,115,51,0.7);">Error fetching report.</p>';
+    }
+  }
+
+  function renderReportIndex(reports) {
+    const el = document.getElementById('report-index-list');
+    if (!reports.length) {
+      el.innerHTML = '<p style="font-size:0.78rem;color:rgba(240,236,228,0.3);font-style:italic;">No reports generated yet.</p>';
+      return;
+    }
+    el.innerHTML = reports.map(r => `
+      <div style="border-top:1px solid rgba(184,115,51,0.1);padding:10px 0;display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <p style="margin:0 0 2px;font-family:Georgia,serif;font-size:0.88rem;color:#f0ece4;">${r.narrativeName || 'Untitled'}</p>
+          <p style="margin:0;font-size:0.65rem;color:rgba(240,236,228,0.3);">${r.generatedAt ? new Date(r.generatedAt).toLocaleDateString() : ''}</p>
+        </div>
+        <a href="/report?session=${r.sessionId}&admin=true" target="_blank"
+          style="font-size:0.72rem;color:#b87333;text-decoration:none;white-space:nowrap;margin-left:16px;">
+          View →
+        </a>
+      </div>
+    `).join('');
   }
 
   // ── CSV IMPORT ─────────────────────────────────────

@@ -151,6 +151,15 @@ Do not add any closing CTA, booking link, or sign-off. That gets added separatel
           },
           { ex: 60 * 60 * 24 * 90 }
         );
+
+        const reportIndex = await kv.get('report:index') || [];
+        const indexEntry = {
+          sessionId,
+          narrativeName: narrativeName || headline,
+          generatedAt: new Date().toISOString()
+        };
+        const updatedIndex = [indexEntry, ...reportIndex].slice(0, 200);
+        await kv.set('report:index', updatedIndex, { ex: 60 * 60 * 24 * 90 });
       } catch (kvErr) {
         console.warn('KV save failed (non-fatal):', kvErr.message);
       }

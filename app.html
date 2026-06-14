@@ -2105,6 +2105,15 @@
           <circle cx="100" cy="100" r="2" fill="#b87333" opacity="0.5"/>
         </svg>
       </div>
+      <div id="analysis-progress-wrap" style="width:100%;max-width:360px;margin:24px auto 0;transition:opacity 0.6s ease;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <span id="analysis-progress-label" style="font-family:'Courier Prime',monospace;font-size:0.68rem;letter-spacing:0.12em;color:rgba(240,236,228,0.55);">Reading your story...</span>
+          <span id="analysis-progress-pct" style="font-family:'Courier Prime',monospace;font-size:0.68rem;color:#b87333;">0%</span>
+        </div>
+        <div style="width:100%;height:1px;background:rgba(240,236,228,0.08);border-radius:1px;overflow:hidden;">
+          <div id="analysis-progress-bar" style="height:100%;width:0%;background:#b87333;transition:width 0.4s ease;border-radius:1px;"></div>
+        </div>
+      </div>
       <p class="loading-message" id="loading-message"></p>
     </div>
 
@@ -2169,9 +2178,6 @@
 
   </div><!-- /stage-content -->
 
-  <div class="analysis-progress-wrap" id="analysis-progress-wrap">
-    <div class="analysis-progress-bar" id="analysis-progress-bar"></div>
-  </div>
 </div>
 
 <!-- ═══════════════════════════════════════════════
@@ -2186,7 +2192,7 @@
     <p class="reveal-paragraph" id="reveal-para">Whatever you found — you found it because you wrote it before you could think about whether to write it. The analytical mind performs. The story reveals.</p>
     <p class="reveal-paragraph" id="reveal-default-narrative">What all of it has in common: there was a story running underneath it. Not the idea you were testing. Not the decision you were circling. The story about who you are and what's available to you that was making decisions before you could examine it. That's your Default Narrative. You just found evidence of yours.</p>
     <div class="reveal-btn" id="reveal-btn">
-      <button class="btn btn-primary" onclick="goToStage('stage-7-5'); initFeedback()">Get your clarity report</button>
+      <button class="btn btn-primary" onclick="goToStage('stage-7-5'); initFeedback(); initStage7_5()">Get your clarity report</button>
     </div>
   </div>
 </div>
@@ -2227,7 +2233,7 @@
       </div>
 
       <div style="display:flex; gap:16px; align-items:center; flex-wrap:wrap; margin-top:8px;">
-        <button class="btn btn-primary" onclick="submitFeedback()">Submit &amp; see report</button>
+        <button id="stage-7-5-submit" class="btn btn-primary">Submit &amp; see report</button>
         <button class="back-link" style="border:none; background:none; cursor:pointer; padding:0;" onclick="goToStage('stage-8'); buildReportTeaser()">Skip →</button>
       </div>
     </div>
@@ -2635,7 +2641,7 @@ function adminSkip() {
   if (next === 'stage-5') initQuestions();
   if (next === 'stage-6' || next === 'analysis') { savePartialRecord(); initAnalysis(); }
   if (next === 'stage-7') initReveal();
-  if (next === 'stage-7-5') initFeedback();
+  if (next === 'stage-7-5') { initFeedback(); initStage7_5(); }
   goToStage(next);
 }
 
@@ -3251,6 +3257,82 @@ function submitFeedback() {
   buildReportTeaser();
 }
 
+function initStage7_5() {
+  const submitBtn = document.getElementById('stage-7-5-submit');
+  if (!submitBtn) return;
+  // Remove any previously attached listener by replacing with a clone
+  const fresh = submitBtn.cloneNode(true);
+  submitBtn.parentNode.replaceChild(fresh, submitBtn);
+  fresh.addEventListener('click', function() {
+    const reflectionType = appState.reflectionType;
+    const liked = document.getElementById('feedback-liked')?.value || '';
+    const wishThis = document.getElementById('feedback-wish')?.value || '';
+
+    appState.feedbackLiked = liked;
+    appState.feedbackWish = wishThis;
+
+    fetch(SHEETS_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        feedbackOnly: true,
+        sessionId: appState.sessionId,
+        reflectionType,
+        liked,
+        wishThis
+      })
+    }).catch(() => {});
+
+    goToStage('stage-8');
+  });
+}
+
+
+// ─── ANALYSIS PROGRESS BAR ───────────────────────
+function startAnalysisProgress() {
+  const stages = [
+    { pct: 20, label: 'Reading your story...' },
+    { pct: 40, label: 'Finding the patterns...' },
+    { pct: 60, label: 'Mapping the emotional field...' },
+    { pct: 80, label: 'Naming the narrative...' },
+    { pct: 95, label: 'Writing your analysis...' },
+  ];
+
+  let currentStage = 0;
+  let currentPct = 0;
+  const bar = document.getElementById('analysis-progress-bar');
+  const label = document.getElementById('analysis-progress-label');
+  const pct = document.getElementById('analysis-progress-pct');
+
+  if (!bar) return;
+
+  // Ensure wrap is visible (may have been hidden from a previous navigation)
+  const wrap = document.getElementById('analysis-progress-wrap');
+  if (wrap) { wrap.style.display = ''; wrap.style.opacity = '1'; }
+
+  const interval = setInterval(() => {
+    if (currentStage >= stages.length) return;
+    const target = stages[currentStage];
+    currentPct = target.pct;
+    bar.style.width = currentPct + '%';
+    pct.textContent = currentPct + '%';
+    label.textContent = target.label;
+    currentStage++;
+  }, 2800);
+
+  window._analysisProgressInterval = interval;
+  window._completeAnalysisProgress = () => {
+    clearInterval(interval);
+    bar.style.width = '100%';
+    pct.textContent = '100%';
+    label.textContent = 'Done.';
+    setTimeout(() => {
+      const wrap = document.getElementById('analysis-progress-wrap');
+      if (wrap) wrap.style.opacity = '0';
+    }, 800);
+  };
+}
 
 // ─── ANALYSIS STAGE ──────────────────────────────
 const loadingMsgs = [
@@ -3338,6 +3420,8 @@ async function initAnalysis() {
   const apiEl = document.getElementById('adm-api');
   if (apiEl) apiEl.textContent = 'Calling...';
 
+  startAnalysisProgress();
+
   const state = appState;
   console.log("=== FRONTEND: CALLING /api/analyze ===");
   console.log("Payload:", JSON.stringify({
@@ -3398,6 +3482,8 @@ async function initAnalysis() {
     appState.analysisRaw = data.analysis;
     appState.analysis    = parseAnalysisSections(data.analysis);
     saveSessionToStorage();
+
+    if (window._completeAnalysisProgress) window._completeAnalysisProgress();
 
     fetch(SHEETS_URL, {
       method: 'POST',
@@ -3738,15 +3824,9 @@ function startAnalysisTimer() {
   const duration = appState.adminMode ? 5 : 90;
   let elapsed    = 0;
 
-  const wrap = document.getElementById('analysis-progress-wrap');
-  const bar  = document.getElementById('analysis-progress-bar');
-  wrap.style.display = 'block';
-  bar.style.width    = '0%';
-
   clearInterval(analysisTimerInt);
   analysisTimerInt = setInterval(() => {
     elapsed++;
-    bar.style.width = (elapsed / duration * 100) + '%';
     if (elapsed >= duration) {
       clearInterval(analysisTimerInt);
       document.getElementById('analysis-continue').classList.remove('hidden');
@@ -4471,6 +4551,7 @@ function saveSessionToStorage() {
   if (new URLSearchParams(window.location.search).has('id') ||
       new URLSearchParams(window.location.search).has('s')) return;
   try {
+    appState.savedAt = new Date().toISOString();
     localStorage.setItem('wyfSession', JSON.stringify({
       signal:          appState.signal,
       headline:        appState.headline,
@@ -4483,11 +4564,83 @@ function saveSessionToStorage() {
       stage:           appState.stage,
       lens:            appState.lens,
       questionVariant: appState.questionVariant,
+      savedAt:         appState.savedAt,
       ts:              Date.now()
     }));
   } catch(err) {
     console.warn('localStorage save failed:', err);
   }
+}
+
+function checkExistingSession() {
+  try {
+    const raw = localStorage.getItem('wyfSession');
+    if (!raw) return false;
+    const session = JSON.parse(raw);
+    const timestamp = session.savedAt || session.timestamp;
+    if (!timestamp) return false;
+    const age = Date.now() - new Date(timestamp).getTime();
+    if (age > 60 * 60 * 24 * 1000) return false;
+    if (!session.signal) return false;
+    return session;
+  } catch { return false; }
+}
+
+function showSessionFork(session) {
+  let snippet = '';
+  let snippetLabel = '';
+  if (session.analysisRaw) {
+    const nameMatch = session.analysisRaw.match(/NAME IT[^\n]*\n+\*?\*?([^\n*]+)/);
+    if (nameMatch) {
+      snippet = nameMatch[1].trim().replace(/\*\*/g, '');
+      snippetLabel = 'YOUR DEFAULT NARRATIVE';
+    }
+  }
+  if (!snippet && session.headline) {
+    snippet = session.headline;
+    snippetLabel = 'YOUR HEADLINE';
+  }
+  if (!snippet && session.signal) {
+    snippet = session.signal;
+    snippetLabel = 'WHAT YOU WERE CIRCLING';
+  }
+
+  const fork = document.createElement('div');
+  fork.id = 'session-fork-screen';
+  fork.style.cssText = 'position:fixed;inset:0;background:#0a0a0a;z-index:99999;display:flex;align-items:center;justify-content:center;padding:24px;';
+  fork.innerHTML = `
+    <div style="width:100%;max-width:480px;">
+      <p style="font-family:'Courier Prime',monospace;font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:#b87333;margin-bottom:16px;">YOU HAVE AN OPEN SESSION</p>
+      <h2 style="font-family:Georgia,serif;font-size:1.4rem;font-weight:normal;color:#f0ece4;margin:0 0 24px;line-height:1.4;">Looks like you were mid-sprint.</h2>
+      ${snippet ? `
+      <div style="border:1px solid rgba(184,115,51,0.2);border-radius:4px;padding:16px 20px;margin-bottom:28px;background:rgba(184,115,51,0.04);">
+        <p style="font-size:0.62rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(184,115,51,0.7);margin:0 0 8px;font-family:'Courier Prime',monospace;">${snippetLabel}</p>
+        <p style="font-family:Georgia,serif;font-size:0.95rem;color:rgba(240,236,228,0.85);line-height:1.6;margin:0;">${snippet}</p>
+      </div>` : ''}
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <button onclick="resumeExistingSession()" style="width:100%;padding:14px;background:#b87333;border:none;border-radius:3px;color:#fff;font-size:0.9rem;cursor:pointer;letter-spacing:0.03em;">
+          Continue where I left off
+        </button>
+        <button onclick="startFreshSession()" style="width:100%;padding:14px;background:transparent;border:1px solid rgba(240,236,228,0.15);border-radius:3px;color:rgba(240,236,228,0.55);font-size:0.9rem;cursor:pointer;letter-spacing:0.03em;">
+          Start fresh
+        </button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(fork);
+}
+
+function resumeExistingSession() {
+  const fork = document.getElementById('session-fork-screen');
+  if (fork) fork.remove();
+  restoreSessionOnLoad();
+}
+
+function startFreshSession() {
+  localStorage.removeItem('wyfSession');
+  const fork = document.getElementById('session-fork-screen');
+  if (fork) fork.remove();
+  goToStage('stage-1');
 }
 
 function restoreSessionFromStorage() {
@@ -5160,7 +5313,14 @@ document.querySelectorAll('.stage').forEach(s => {
 
   // Check for ?report=true from Stripe redirect
   if (!isSharedView && !urlParams.get('report')) {
-    restoreSessionOnLoad();
+    const isAdmin = urlParams.has('admin');
+    const isEmbedded = urlParams.has('embedded');
+    const existingSession = checkExistingSession();
+    if (existingSession && !isAdmin && !isEmbedded) {
+      showSessionFork(existingSession);
+    } else {
+      restoreSessionOnLoad();
+    }
   }
 
   if (!isSharedView && urlParams.get('report') === 'true') {

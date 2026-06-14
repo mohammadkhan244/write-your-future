@@ -4397,9 +4397,14 @@ function goToNarrativePage() {
     alert('Session not found. Please complete the sprint first.');
     return;
   }
-  const adminSuffix = appState.adminMode ? '&admin=true' : '';
-  const url = '/report?session=' + sid + adminSuffix;
-  window.open(url, '_blank');
+  const urlParams = new URLSearchParams(window.location.search);
+  const isEmbedded = urlParams.has('embedded') || urlParams.has('admin');
+  const url = '/report?session=' + sid + (isEmbedded ? '&admin=true' : '');
+  if (isEmbedded) {
+    window.open(url, '_blank');
+  } else {
+    window.location.assign(url);
+  }
 }
 
 // ─── BACKGROUND NARRATIVE GENERATION ────────────

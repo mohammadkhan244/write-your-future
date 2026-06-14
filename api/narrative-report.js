@@ -117,6 +117,29 @@ End with exactly two lines:
 "None of this is fixed. A narrative only runs if nothing interrupts it."
 Then one final line: "The fact that you can see it is the interrupt."
 
+## THE INTERRUPT
+
+You've shown where the narrative leads if nothing changes.
+Now write what happens if the ONE MOVE actually gets made — and made consistently for a year.
+
+Write four vignettes: 1 year, 3 years, 5 years, 10 years. Label each exactly as:
+"1 year, interrupted." / "3 years, interrupted." etc.
+
+Rules — these are hard constraints, not suggestions:
+- Every vignette must be grounded specifically in the ONE MOVE from this report. Not a generic improvement arc. The specific action, its specific consequences.
+- Name real places, real friction, real people where the story warrants it. "Someone in a city" is not acceptable. Name the city. Name the industry. Make it as specific as the uninterrupted arc.
+- Show what's harder than expected in at least two vignettes — not just what improves.
+- The narrative doesn't disappear. It loosens. Show the moment where the old belief still shows up — and now has something to argue with.
+- Each vignette ends with one sentence naming what's now possible that wasn't before. Not as encouragement. As observation.
+- Same length as the uninterrupted vignettes — 4-6 sentences each.
+- Same voice as the rest of this report — dry, precise, no enthusiasm, no soft hedges.
+- Never uses: "journey", "growth", "transformation", "shift", "breakthrough", "resonate", "unlock", "empower".
+
+After the four interrupted vignettes, close with exactly:
+"None of this is guaranteed. But the first move is already in your hands. You wrote it."
+
+If stage is "deep" (VERIFICATION mode): reframe THE INTERRUPT as "THE NEXT QUESTION" — not what changes if you act, but what becomes possible to ask that wasn't possible before. Same four time periods, same specificity, different frame. The narrative is working — show what it opens up next.
+
 ## WHAT THIS NARRATIVE COSTS WITHOUT YOU REALIZING IT
 
 Write 3 cost items. Each has a short bold title (2-4 words) followed by 2-3 sentences. Name the specific cost to this person — not generic. Quote their story where relevant.
@@ -133,7 +156,7 @@ Do not add any closing CTA, booking link, or sign-off. That gets added separatel
   try {
     const response = await client.messages.create({
       model: 'claude-sonnet-4-20250514',
-      max_tokens: 4000,
+      max_tokens: 5000,
       messages: [{ role: 'user', content: prompt }]
     });
 

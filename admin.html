@@ -98,11 +98,9 @@
 
   </div>
 
-  <!-- Reports Panel -->
-  <div style="padding:28px;border-top:1px solid rgba(184,115,51,0.12);overflow-y:auto;max-height:50vh;">
+  <div id="admin-reports-section" style="padding:28px;border-top:1px solid rgba(184,115,51,0.12);">
     <p style="font-family:'Courier Prime',monospace;font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:#b87333;margin:0 0 16px;">Reports</p>
 
-    <!-- Share link lookup -->
     <div style="display:flex;gap:8px;margin-bottom:20px;">
       <input id="report-link-input" placeholder="Paste report link or session ID"
         style="flex:1;background:rgba(240,236,228,0.04);border:1px solid rgba(240,236,228,0.12);border-radius:3px;padding:8px 12px;color:#f0ece4;font-size:0.82rem;font-family:Georgia,serif;">
@@ -112,11 +110,8 @@
       </button>
     </div>
 
-    <!-- Lookup result -->
-    <div id="report-lookup-result" style="display:none;border:1px solid rgba(184,115,51,0.2);border-radius:4px;padding:16px;margin-bottom:24px;background:rgba(184,115,51,0.04);max-height:320px;overflow-y:auto;">
-    </div>
+    <div id="report-lookup-result" style="display:none;border:1px solid rgba(184,115,51,0.2);border-radius:4px;padding:16px;margin-bottom:24px;background:rgba(184,115,51,0.04);max-height:320px;overflow-y:auto;"></div>
 
-    <!-- Report index list -->
     <div id="report-index-list">
       <p style="font-size:0.78rem;color:rgba(240,236,228,0.3);font-style:italic;">Loading...</p>
     </div>

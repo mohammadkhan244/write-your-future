@@ -5226,7 +5226,9 @@ document.querySelectorAll('.stage').forEach(s => {
 
   // Shared analysis view — renders for both ?id= (KV) and legacy ?s= (LZString)
   const urlParams = new URLSearchParams(location.search);
-  const isSharedView = urlParams.has('id') || urlParams.has('s');
+  const isSharedView = (urlParams.has('id') || urlParams.has('s')) &&
+                       !urlParams.has('admin') &&
+                       !urlParams.has('embedded');
 
   function mountSharedView(payload) {
     appState.headline    = payload.headline    || '';

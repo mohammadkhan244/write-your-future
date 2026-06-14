@@ -122,6 +122,18 @@
     </div>
   </div>
 
+  <!-- CSV Import Strip -->
+  <div style="padding:16px 28px;border-top:1px solid rgba(184,115,51,0.08);flex-shrink:0;display:flex;align-items:center;gap:12px;background:rgba(240,236,228,0.01);">
+    <p style="font-family:'Courier Prime',monospace;font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(184,115,51,0.4);margin:0;white-space:nowrap;">CSV Import</p>
+    <input id="csv-file-input" type="file" accept=".csv"
+      style="font-size:0.72rem;color:rgba(240,236,228,0.4);flex:1;min-width:0;">
+    <button onclick="importCSV()"
+      style="padding:6px 14px;background:transparent;border:1px solid rgba(184,115,51,0.3);border-radius:3px;color:rgba(184,115,51,0.7);font-size:0.72rem;cursor:pointer;white-space:nowrap;font-family:'DM Sans',system-ui,sans-serif;">
+      Import
+    </button>
+    <span id="import-status" style="font-size:0.7rem;color:rgba(240,236,228,0.3);white-space:nowrap;min-width:120px;"></span>
+  </div>
+
 </div>
 
 <script>
@@ -238,17 +250,54 @@
         return;
       }
       const r = data.data;
+      window._lastLookupResult = { sessionId, narrativeName: r.narrativeName || 'Untitled' };
       result.innerHTML = `
         <p style="font-size:0.62rem;letter-spacing:0.15em;text-transform:uppercase;color:#b87333;margin:0 0 8px;font-family:'Courier Prime',monospace;">FOUND</p>
         <p style="font-family:Georgia,serif;font-size:1rem;color:#f0ece4;margin:0 0 12px;">${r.narrativeName || 'Untitled'}</p>
         <p style="font-size:0.72rem;color:rgba(240,236,228,0.4);margin:0 0 16px;">${r.generatedAt ? new Date(r.generatedAt).toLocaleString() : ''}</p>
-        <a href="/report?session=${sessionId}&admin=true" target="_blank"
-          style="font-size:0.78rem;color:#b87333;text-decoration:none;border-bottom:1px solid rgba(184,115,51,0.3);">
-          Open full report →
-        </a>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <a href="/report?session=${sessionId}&admin=true" target="_blank"
+            style="font-size:0.78rem;color:#b87333;text-decoration:none;border-bottom:1px solid rgba(184,115,51,0.3);">
+            Open full report &#x2192;
+          </a>
+          <span style="color:rgba(240,236,228,0.15);">|</span>
+          <select id="import-stage-select"
+            style="background:#111;border:1px solid rgba(184,115,51,0.25);color:#b87333;font-size:0.68rem;padding:4px 8px;border-radius:3px;cursor:pointer;">
+            <option value="early">Early</option>
+            <option value="mid">Mid</option>
+            <option value="deep">Deep</option>
+          </select>
+          <button onclick="importFromShareLink()"
+            style="padding:5px 12px;background:transparent;border:1px solid rgba(184,115,51,0.35);border-radius:3px;color:#b87333;font-size:0.72rem;cursor:pointer;font-family:'DM Sans',system-ui,sans-serif;">
+            Import to Narratives
+          </button>
+        </div>
+        <span id="share-import-status" style="display:block;font-size:0.7rem;color:rgba(240,236,228,0.3);margin-top:8px;"></span>
       `;
     } catch {
       result.innerHTML = '<p style="font-size:0.78rem;color:rgba(184,115,51,0.7);">Error fetching report.</p>';
+    }
+  }
+
+  async function importFromShareLink() {
+    if (!window._lastLookupResult) return;
+    const { sessionId, narrativeName } = window._lastLookupResult;
+    const stage = document.getElementById('import-stage-select')?.value || 'early';
+    const statusEl = document.getElementById('share-import-status');
+    if (statusEl) statusEl.textContent = 'Importing...';
+    const tok = sessionStorage.getItem('adminToken');
+    try {
+      const res = await fetch('/api/admin-import', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: tok, narratives: [{ sessionId, narrativeName, stage, lens: '', timestamp: new Date().toISOString() }], feedback: [] })
+      });
+      const data = await res.json();
+      if (!data.success) { if (statusEl) statusEl.textContent = 'Error: ' + (data.error || 'unknown'); return; }
+      if (statusEl) statusEl.textContent = data.narrativesSkipped ? 'Already in Narratives.' : 'Imported to Narratives.';
+      await loadData();
+    } catch {
+      if (statusEl) statusEl.textContent = 'Network error.';
     }
   }
 

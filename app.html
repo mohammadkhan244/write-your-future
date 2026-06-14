@@ -4754,6 +4754,8 @@ function restoreSessionOnLoad() {
 
 // ─── REPORT TEASER ───────────────────────────────
 function buildReportTeaser() {
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.has('embedded') || urlParams.has('admin')) return;
   const raw = appState.analysisRaw || '';
 
   const nameMatch = raw.match(/\*{0,2}NAME IT\*{0,2}\s*\n+([^\n]+)/i);

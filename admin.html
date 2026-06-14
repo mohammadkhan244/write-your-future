@@ -198,18 +198,25 @@
 
   function renderNarratives(items) {
     const el = document.getElementById('narrative-list');
-    if (!items.length) {
+    if (!items || !items.length) {
       el.innerHTML = '<p style="font-size:0.78rem;color:rgba(240,236,228,0.3);font-style:italic;">No narratives yet.</p>';
       return;
     }
     el.innerHTML = items.map(n => `
-      <div style="border-top:1px solid rgba(184,115,51,0.1);padding:12px 0;">
-        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
-          <span style="font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(184,115,51,0.6);">${n.stage}</span>
-          <span style="font-size:0.65rem;color:rgba(240,236,228,0.3);">${new Date(n.timestamp).toLocaleDateString()}</span>
+      <div style="border-top:1px solid rgba(184,115,51,0.1);padding:12px 0;display:flex;justify-content:space-between;align-items:flex-start;">
+        <div style="flex:1;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+            <span style="font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(184,115,51,0.6);">${n.stage || 'early'}</span>
+            <span style="font-size:0.65rem;color:rgba(240,236,228,0.3);">${n.timestamp ? new Date(n.timestamp).toLocaleDateString() : ''}</span>
+          </div>
+          <p style="margin:0 0 4px;font-family:Georgia,serif;font-size:0.9rem;color:#f0ece4;line-height:1.5;">${n.narrativeName}</p>
+          ${n.lens ? `<p style="margin:0 0 4px;font-size:0.72rem;color:rgba(240,236,228,0.4);font-style:italic;">Lens: ${n.lens}</p>` : ''}
         </div>
-        <p style="margin:0 0 4px;font-family:Georgia,serif;font-size:0.9rem;color:#f0ece4;line-height:1.5;">${n.narrativeName}</p>
-        ${n.lens ? `<p style="margin:0;font-size:0.72rem;color:rgba(240,236,228,0.4);font-style:italic;">Lens: ${n.lens}</p>` : ''}
+        ${n.sessionId ? `
+        <a href="/report?session=${n.sessionId}&admin=true" target="_blank"
+          style="font-size:0.72rem;color:#b87333;text-decoration:none;white-space:nowrap;margin-left:16px;border-bottom:1px solid rgba(184,115,51,0.3);flex-shrink:0;">
+          View &rarr;
+        </a>` : ''}
       </div>
     `).join('');
   }

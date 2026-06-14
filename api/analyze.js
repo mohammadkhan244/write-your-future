@@ -99,7 +99,7 @@ What was conspicuously absent from the story given what they said they were circ
 ## PART 8 — DEFAULT NARRATIVE
 
 NAME IT
-One sentence. The exact narrative running underneath this story. Not a summary of beliefs — the cultural or inherited story they're operating inside without knowing it.
+One sentence. The exact narrative running underneath this story — the invisible belief or tension that has been shaping decisions without being named. Not a character type or archetype ("the visionary," "the teacher-mystic"). Not a summary of their views. The sentence that makes someone say "that's exactly the story I've been living." It names a structural belief — what must be true, what is at stake, what is being protected — in the specific form this writer's story reveals it.
 
 WHY IT MATTERS
 Two to three sentences. What this narrative has already been building in the background — decisions made, paths taken, energy spent — without the person choosing it consciously. Make it feel like recognition, not accusation.

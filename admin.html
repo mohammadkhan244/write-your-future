@@ -9,7 +9,7 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { background: #0a0a0a; color: #f0ece4; font-family: 'DM Sans', system-ui, sans-serif; }
-    #admin-dashboard { display: none; flex-direction: column; height: 100vh; overflow: hidden; }
+    #admin-dashboard { display: none; flex-direction: column; height: 100vh; }
 
     @media (max-width: 768px) {
       #data-panels { grid-template-columns: 1fr !important; }
@@ -52,8 +52,11 @@
     <iframe src="/app?admin=true&embedded=true" style="width:100%;height:100%;border:none;"></iframe>
   </div>
 
+  <!-- Scrollable lower section: data panels + reports + CSV -->
+  <div style="flex:1;overflow-y:auto;">
+
   <!-- Data panels -->
-  <div id="data-panels" style="display:grid;grid-template-columns:1fr 1fr;gap:0;min-height:45vh;overflow:hidden;">
+  <div id="data-panels" style="display:grid;grid-template-columns:1fr 1fr;gap:0;">
 
     <!-- Feedback Panel -->
     <div style="padding:28px;border-right:1px solid rgba(184,115,51,0.12);overflow-y:auto;max-height:45vh;">
@@ -118,7 +121,7 @@
   </div>
 
   <!-- CSV Import Strip -->
-  <div style="padding:16px 28px;border-top:1px solid rgba(184,115,51,0.08);flex-shrink:0;display:flex;align-items:center;gap:12px;background:rgba(240,236,228,0.01);">
+  <div style="padding:16px 28px;border-top:1px solid rgba(184,115,51,0.08);display:flex;align-items:center;gap:12px;background:rgba(240,236,228,0.01);">
     <p style="font-family:'Courier Prime',monospace;font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(184,115,51,0.4);margin:0;white-space:nowrap;">CSV Import</p>
     <input id="csv-file-input" type="file" accept=".csv"
       style="font-size:0.72rem;color:rgba(240,236,228,0.4);flex:1;min-width:0;">
@@ -128,6 +131,8 @@
     </button>
     <span id="import-status" style="font-size:0.7rem;color:rgba(240,236,228,0.3);white-space:nowrap;min-width:120px;"></span>
   </div>
+
+  </div><!-- end scrollable lower section -->
 
 </div>
 

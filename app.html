@@ -4397,8 +4397,9 @@ function goToNarrativePage() {
     alert('Session not found. Please complete the sprint first.');
     return;
   }
-  const url = 'https://early-warning-system-kappa.vercel.app/report?session=' + sid;
-  window.location.assign(url);
+  const adminSuffix = appState.adminMode ? '&admin=true' : '';
+  const url = '/report?session=' + sid + adminSuffix;
+  window.open(url, '_blank');
 }
 
 // ─── BACKGROUND NARRATIVE GENERATION ────────────
@@ -4754,8 +4755,6 @@ function restoreSessionOnLoad() {
 
 // ─── REPORT TEASER ───────────────────────────────
 function buildReportTeaser() {
-  const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.has('embedded') || urlParams.has('admin')) return;
   const raw = appState.analysisRaw || '';
 
   const nameMatch = raw.match(/\*{0,2}NAME IT\*{0,2}\s*\n+([^\n]+)/i);

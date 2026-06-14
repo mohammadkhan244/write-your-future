@@ -246,6 +246,35 @@
       .cards { flex-direction: column; }
       .btn-primary { display: block; text-align: center; }
     }
+
+    .scroll-indicator {
+      position: absolute;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      animation: scrollBounce 2s ease-in-out infinite;
+      opacity: 0.45;
+    }
+    .scroll-indicator svg {
+      width: 20px;
+      height: 20px;
+      stroke: #b87333;
+      fill: none;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    @keyframes scrollBounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.45; }
+      50% { transform: translateX(-50%) translateY(6px); opacity: 0.7; }
+    }
+    @media (max-width: 768px) {
+      .scroll-indicator { bottom: 20px; }
+    }
   </style>
 </head>
 <body>
@@ -289,6 +318,14 @@
       <p>Engineers, founders, operators — people who trust a spreadsheet more than a story. Which is exactly why this works on them.</p>
     </div>
     <a href="/app" class="btn-primary">Write your future →</a>
+  </div>
+  <div class="scroll-indicator" aria-hidden="true">
+    <svg viewBox="0 0 24 24">
+      <polyline points="6 9 12 15 18 9"></polyline>
+    </svg>
+    <svg viewBox="0 0 24 24" style="opacity:0.5;margin-top:-8px;">
+      <polyline points="6 9 12 15 18 9"></polyline>
+    </svg>
   </div>
 </section>
 

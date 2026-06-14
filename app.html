@@ -2186,11 +2186,8 @@
 <div id="stage-7" class="stage">
   <div class="stage-content">
     <button class="back-link" onclick="goBack()">← back</button>
-    <div class="reveal-line" id="reveal-1">You just did what Socrates couldn't scale.</div>
-    <div class="reveal-line" id="reveal-2">The unexamined life isn't a philosophy problem. It's a ten-minute problem.</div>
-    <div class="reveal-line" id="reveal-3">You found what you couldn't see from inside your own thinking.</div>
-    <p class="reveal-paragraph" id="reveal-para">Whatever you found — you found it because you wrote it before you could think about whether to write it. The analytical mind performs. The story reveals.</p>
-    <p class="reveal-paragraph" id="reveal-default-narrative">What all of it has in common: there was a story running underneath it. Not the idea you were testing. Not the decision you were circling. The story about who you are and what's available to you that was making decisions before you could examine it. That's your Default Narrative. You just found evidence of yours.</p>
+    <h2 id="reveal-1" class="reveal-line" style="font-family:Georgia,serif;font-size:clamp(1.4rem,3vw,2rem);font-weight:normal;color:#f0ece4;margin:0 0 16px;line-height:1.3;">The story showed what thinking couldn't reach.</h2>
+    <p id="reveal-para" class="reveal-paragraph" style="font-family:'DM Sans',system-ui,sans-serif;font-size:1rem;color:rgba(240,236,228,0.7);margin:0;">Your clarity report is ready.</p>
     <div class="reveal-btn" id="reveal-btn">
       <button class="btn btn-primary" onclick="goToStage('stage-7-5'); initFeedback(); initStage7_5()">Get your clarity report</button>
     </div>
@@ -3839,17 +3836,15 @@ function startAnalysisTimer() {
 
 // ─── REVEAL STAGE ────────────────────────────────
 function initReveal() {
-  ['reveal-1','reveal-2','reveal-3','reveal-para','reveal-default-narrative','reveal-btn'].forEach(id => {
-    document.getElementById(id).classList.remove('visible');
+  ['reveal-1','reveal-para','reveal-btn'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('visible');
   });
 
-  const base = 500; // wait for transition
-  setTimeout(() => document.getElementById('reveal-1').classList.add('visible'),                  base);
-  setTimeout(() => document.getElementById('reveal-2').classList.add('visible'),                  base + 2200);
-  setTimeout(() => document.getElementById('reveal-3').classList.add('visible'),                  base + 4400);
-  setTimeout(() => document.getElementById('reveal-para').classList.add('visible'),               base + 6800);
-  setTimeout(() => document.getElementById('reveal-default-narrative').classList.add('visible'),  base + 8400);
-  setTimeout(() => document.getElementById('reveal-btn').classList.add('visible'),                base + 9600);
+  const base = 500;
+  setTimeout(() => { const el = document.getElementById('reveal-1');    if (el) el.classList.add('visible'); }, base);
+  setTimeout(() => { const el = document.getElementById('reveal-para'); if (el) el.classList.add('visible'); }, base + 1400);
+  setTimeout(() => { const el = document.getElementById('reveal-btn');  if (el) el.classList.add('visible'); }, base + 2400);
 }
 
 

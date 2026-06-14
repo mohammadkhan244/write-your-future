@@ -5269,10 +5269,16 @@ document.querySelectorAll('.stage').forEach(s => {
       document.getElementById('share-analysis-btn').classList.remove('hidden');
       const cta = document.createElement('div');
       cta.className = 'share-sprint-cta';
-      cta.innerHTML = `
-        <p class=”share-sprint-cta-label”>You just read what a 10-minute sprint surfaced in someone else's story.</p>
-        <a href=”${location.origin + location.pathname}” class=”share-sprint-cta-btn” style=”display:inline-block;background:#b87333;color:#ffffff;text-decoration:none;padding:14px 28px;border-radius:4px;font-size:0.9rem;letter-spacing:0.03em;”>Write your own 10-minute sprint →</a>
-      `;
+      const ctaLabel = document.createElement('p');
+      ctaLabel.className = 'share-sprint-cta-label';
+      ctaLabel.textContent = “You just read what a 10-minute sprint surfaced in someone else's story.”;
+      const ctaLink = document.createElement('a');
+      ctaLink.href = 'https://early-warning-system-kappa.vercel.app/';
+      ctaLink.className = 'share-sprint-cta-btn';
+      ctaLink.style.cssText = 'display:inline-block;background:#b87333;color:#ffffff;text-decoration:none;padding:14px 28px;border-radius:4px;font-size:0.9rem;letter-spacing:0.03em;';
+      ctaLink.textContent = 'Write your own 10-minute sprint →';
+      cta.appendChild(ctaLabel);
+      cta.appendChild(ctaLink);
       container.appendChild(cta);
     }, 450);
   }

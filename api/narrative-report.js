@@ -155,7 +155,7 @@ Do not add any closing CTA, booking link, or sign-off. That gets added separatel
 
   try {
     const response = await client.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-6',
       max_tokens: 5000,
       messages: [{ role: 'user', content: prompt }]
     });

@@ -10,11 +10,6 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { background: #0a0a0a; color: #f0ece4; font-family: 'DM Sans', system-ui, sans-serif; }
     #admin-dashboard { display: none; flex-direction: column; height: 100vh; }
-
-    @media (max-width: 768px) {
-      #data-panels { grid-template-columns: 1fr !important; }
-      #data-panels > div { max-height: 60vh !important; border-right: none !important; border-bottom: 1px solid rgba(184,115,51,0.12); }
-    }
   </style>
 </head>
 <body>
@@ -36,111 +31,25 @@
 </div>
 
 <!-- ── ADMIN DASHBOARD ── -->
-<div id="admin-dashboard">
-
+<div id="admin-dashboard" style="display:none;flex-direction:column;height:100vh;">
   <!-- Top bar -->
   <div style="background:#111;border-bottom:1px solid rgba(184,115,51,0.15);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
-    <span style="font-family:'Courier Prime',monospace;font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:#b87333;">ADMIN // WRITE YOUR FUTURE</span>
+    <div style="display:flex;align-items:center;gap:24px;">
+      <span style="font-family:'Courier Prime',monospace;font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:#b87333;">ADMIN // WRITE YOUR FUTURE</span>
+      <a href="/admin-data" style="font-family:'Courier Prime',monospace;font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(184,115,51,0.5);text-decoration:none;border-bottom:1px solid rgba(184,115,51,0.25);">View Data →</a>
+    </div>
     <button onclick="sessionStorage.removeItem('adminToken');location.reload();"
       style="background:transparent;border:1px solid rgba(240,236,228,0.15);color:rgba(240,236,228,0.4);font-size:0.72rem;padding:4px 12px;cursor:pointer;border-radius:3px;font-family:'DM Sans',system-ui,sans-serif;">
       Sign out
     </button>
   </div>
-
-  <!-- Sprint iframe -->
-  <div style="height:55vh;border-bottom:1px solid rgba(184,115,51,0.15);flex-shrink:0;">
+  <!-- Sprint iframe — full remaining height -->
+  <div style="flex:1;overflow:hidden;">
     <iframe src="/app?admin=true&embedded=true" style="width:100%;height:100%;border:none;"></iframe>
   </div>
-
-  <!-- Reports section -->
-  <div id="admin-reports-section" style="padding:28px;border-bottom:1px solid rgba(184,115,51,0.12);flex-shrink:0;">
-    <p style="font-family:'Courier Prime',monospace;font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:#b87333;margin:0 0 16px;">Reports</p>
-
-    <div style="display:flex;gap:8px;margin-bottom:20px;">
-      <input id="report-link-input" placeholder="Paste report link or session ID"
-        style="flex:1;background:rgba(240,236,228,0.04);border:1px solid rgba(240,236,228,0.12);border-radius:3px;padding:8px 12px;color:#f0ece4;font-size:0.82rem;font-family:Georgia,serif;">
-      <button onclick="lookupReport()"
-        style="padding:8px 16px;background:#b87333;border:none;border-radius:3px;color:#fff;font-size:0.78rem;cursor:pointer;white-space:nowrap;">
-        Fetch
-      </button>
-    </div>
-
-    <div id="report-lookup-result" style="display:none;border:1px solid rgba(184,115,51,0.2);border-radius:4px;padding:16px;margin-bottom:24px;background:rgba(184,115,51,0.04);max-height:320px;overflow-y:auto;"></div>
-
-    <div id="report-index-list">
-      <p style="font-size:0.78rem;color:rgba(240,236,228,0.3);font-style:italic;">Loading...</p>
-    </div>
-  </div>
-
-  <!-- Scrollable lower section: data panels + CSV -->
-  <div style="flex:1;overflow-y:auto;">
-
-  <!-- Data panels -->
-  <div id="data-panels" style="display:grid;grid-template-columns:1fr 1fr;gap:0;">
-
-    <!-- Feedback Panel -->
-    <div style="padding:28px;border-right:1px solid rgba(184,115,51,0.12);overflow-y:auto;max-height:45vh;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-        <p style="font-family:'Courier Prime',monospace;font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:#b87333;margin:0;">Feedback</p>
-        <select id="feedback-stage-filter" onchange="filterFeedback(this.value)"
-          style="background:#111;border:1px solid rgba(184,115,51,0.25);color:#b87333;font-size:0.68rem;padding:4px 8px;border-radius:3px;cursor:pointer;">
-          <option value="all">All stages</option>
-          <option value="Stage 1">Stage 1</option>
-          <option value="Stage 2">Stage 2</option>
-          <option value="Stage 3">Stage 3</option>
-          <option value="Stage 4">Stage 4</option>
-          <option value="Stage 4.5">Stage 4.5</option>
-          <option value="Stage 5">Stage 5</option>
-          <option value="Stage 6">Stage 6</option>
-          <option value="Stage 7">Stage 7</option>
-          <option value="Stage 7.5">Stage 7.5</option>
-          <option value="Stage 8">Stage 8</option>
-        </select>
-      </div>
-      <div id="feedback-list">
-        <p style="font-size:0.78rem;color:rgba(240,236,228,0.3);font-style:italic;">Loading...</p>
-      </div>
-    </div>
-
-    <!-- Narratives Panel -->
-    <div style="padding:28px;overflow-y:auto;max-height:45vh;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-        <p style="font-family:'Courier Prime',monospace;font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:#b87333;margin:0;">Default Narratives</p>
-        <select id="narrative-stage-filter" onchange="filterNarratives(this.value)"
-          style="background:#111;border:1px solid rgba(184,115,51,0.25);color:#b87333;font-size:0.68rem;padding:4px 8px;border-radius:3px;cursor:pointer;">
-          <option value="all">All stages</option>
-          <option value="early">Early</option>
-          <option value="mid">Mid</option>
-          <option value="deep">Deep</option>
-        </select>
-      </div>
-      <div id="narrative-list">
-        <p style="font-size:0.78rem;color:rgba(240,236,228,0.3);font-style:italic;">Loading...</p>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- CSV Import Strip -->
-  <div style="padding:16px 28px;border-top:1px solid rgba(184,115,51,0.08);display:flex;align-items:center;gap:12px;background:rgba(240,236,228,0.01);">
-    <p style="font-family:'Courier Prime',monospace;font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(184,115,51,0.4);margin:0;white-space:nowrap;">CSV Import</p>
-    <input id="csv-file-input" type="file" accept=".csv"
-      style="font-size:0.72rem;color:rgba(240,236,228,0.4);flex:1;min-width:0;">
-    <button onclick="importCSV()"
-      style="padding:6px 14px;background:transparent;border:1px solid rgba(184,115,51,0.3);border-radius:3px;color:rgba(184,115,51,0.7);font-size:0.72rem;cursor:pointer;white-space:nowrap;font-family:'DM Sans',system-ui,sans-serif;">
-      Import
-    </button>
-    <span id="import-status" style="font-size:0.7rem;color:rgba(240,236,228,0.3);white-space:nowrap;min-width:120px;"></span>
-  </div>
-
-  </div><!-- end scrollable lower section -->
-
 </div>
 
 <script>
-  let allFeedback = [];
-  let allNarratives = [];
-
   async function submitPassword() {
     const password = document.getElementById('password-input').value;
     const err = document.getElementById('auth-error');
@@ -160,272 +69,13 @@
     }
   }
 
-  async function showDashboard() {
+  function showDashboard() {
     document.getElementById('auth-screen').style.display = 'none';
     const dash = document.getElementById('admin-dashboard');
     dash.style.display = 'flex';
-    await loadData();
   }
 
-  async function loadData() {
-    const token = sessionStorage.getItem('adminToken');
-    const res = await fetch(`/api/admin-data?token=${encodeURIComponent(token)}`);
-    const data = await res.json();
-    if (!data.success) {
-      sessionStorage.removeItem('adminToken');
-      location.reload();
-      return;
-    }
-    allFeedback = data.feedback;
-    allNarratives = data.narratives;
-    renderFeedback(allFeedback);
-    renderNarratives(allNarratives);
-    renderReportIndex(data.reports || []);
-  }
-
-  function renderFeedback(items) {
-    const el = document.getElementById('feedback-list');
-    if (!items.length) {
-      el.innerHTML = '<p style="font-size:0.78rem;color:rgba(240,236,228,0.3);font-style:italic;">No feedback yet.</p>';
-      return;
-    }
-    el.innerHTML = items.map(f => `
-      <div style="border-top:1px solid rgba(184,115,51,0.1);padding:12px 0;">
-        <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-          <span style="font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:#b87333;">${f.type}</span>
-          <span style="font-size:0.65rem;color:rgba(240,236,228,0.3);">${f.stage} · ${new Date(f.submittedAt).toLocaleDateString()}</span>
-        </div>
-        <p style="margin:0 0 4px;font-size:0.82rem;color:rgba(240,236,228,0.85);line-height:1.55;">${f.message}</p>
-        ${f.featureRequest ? `<p style="margin:0 0 4px;font-size:0.75rem;color:rgba(240,236,228,0.5);font-style:italic;">Feature: ${f.featureRequest}</p>` : ''}
-        <p style="margin:0;font-size:0.65rem;color:rgba(240,236,228,0.3);">${f.name}${f.email ? ' · ' + f.email : ''}</p>
-      </div>
-    `).join('');
-  }
-
-  function renderNarratives(items) {
-    const el = document.getElementById('narrative-list');
-    if (!items || !items.length) {
-      el.innerHTML = '<p style="font-size:0.78rem;color:rgba(240,236,228,0.3);font-style:italic;">No narratives yet.</p>';
-      return;
-    }
-    el.innerHTML = items.map(n => `
-      <div style="border-top:1px solid rgba(184,115,51,0.1);padding:12px 0;display:flex;justify-content:space-between;align-items:flex-start;">
-        <div style="flex:1;">
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-            <span style="font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(184,115,51,0.6);">${n.stage || 'early'}</span>
-            <span style="font-size:0.65rem;color:rgba(240,236,228,0.3);">${n.timestamp ? new Date(n.timestamp).toLocaleDateString() : ''}</span>
-          </div>
-          <p style="margin:0 0 4px;font-family:Georgia,serif;font-size:0.9rem;color:#f0ece4;line-height:1.5;">${n.narrativeName}</p>
-          ${n.lens ? `<p style="margin:0 0 4px;font-size:0.72rem;color:rgba(240,236,228,0.4);font-style:italic;">Lens: ${n.lens}</p>` : ''}
-        </div>
-        ${n.sessionId ? `
-        <a href="/report?session=${n.sessionId}&admin=true" target="_blank"
-          style="font-size:0.72rem;color:#b87333;text-decoration:none;white-space:nowrap;margin-left:16px;border-bottom:1px solid rgba(184,115,51,0.3);flex-shrink:0;">
-          View &rarr;
-        </a>` : ''}
-      </div>
-    `).join('');
-  }
-
-  function filterFeedback(stage) {
-    const filtered = stage === 'all' ? allFeedback : allFeedback.filter(f => f.stage === stage);
-    renderFeedback(filtered);
-  }
-
-  function filterNarratives(stage) {
-    const filtered = stage === 'all' ? allNarratives : allNarratives.filter(n => n.stage === stage);
-    renderNarratives(filtered);
-  }
-
-  async function lookupReport() {
-    const input = document.getElementById('report-link-input').value.trim();
-    const result = document.getElementById('report-lookup-result');
-    if (!input) return;
-
-    let sessionId = input;
-    const urlMatch = input.match(/session=([a-f0-9-]{36})/);
-    if (urlMatch) sessionId = urlMatch[1];
-
-    result.style.display = 'block';
-    result.innerHTML = '<p style="font-size:0.78rem;color:rgba(240,236,228,0.4);font-style:italic;">Fetching...</p>';
-
-    const token = sessionStorage.getItem('adminToken');
-    try {
-      const res = await fetch(`/api/report-fetch?session=${sessionId}&token=${token}`);
-      const data = await res.json();
-      if (!data.success || !data.data) {
-        result.innerHTML = '<p style="font-size:0.78rem;color:rgba(184,115,51,0.7);">Report not found in KV.</p>';
-        return;
-      }
-      const r = data.data;
-      window._lastLookupResult = { sessionId, narrativeName: r.narrativeName || 'Untitled' };
-      result.innerHTML = `
-        <p style="font-size:0.62rem;letter-spacing:0.15em;text-transform:uppercase;color:#b87333;margin:0 0 8px;font-family:'Courier Prime',monospace;">FOUND</p>
-        <p style="font-family:Georgia,serif;font-size:1rem;color:#f0ece4;margin:0 0 12px;">${r.narrativeName || 'Untitled'}</p>
-        <p style="font-size:0.72rem;color:rgba(240,236,228,0.4);margin:0 0 16px;">${r.generatedAt ? new Date(r.generatedAt).toLocaleString() : ''}</p>
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-          <a href="/report?session=${sessionId}&admin=true" target="_blank"
-            style="font-size:0.78rem;color:#b87333;text-decoration:none;border-bottom:1px solid rgba(184,115,51,0.3);">
-            Open full report &#x2192;
-          </a>
-          <span style="color:rgba(240,236,228,0.15);">|</span>
-          <select id="import-stage-select"
-            style="background:#111;border:1px solid rgba(184,115,51,0.25);color:#b87333;font-size:0.68rem;padding:4px 8px;border-radius:3px;cursor:pointer;">
-            <option value="early">Early</option>
-            <option value="mid">Mid</option>
-            <option value="deep">Deep</option>
-          </select>
-          <button onclick="importFromShareLink()"
-            style="padding:5px 12px;background:transparent;border:1px solid rgba(184,115,51,0.35);border-radius:3px;color:#b87333;font-size:0.72rem;cursor:pointer;font-family:'DM Sans',system-ui,sans-serif;">
-            Import to Narratives
-          </button>
-        </div>
-        <span id="share-import-status" style="display:block;font-size:0.7rem;color:rgba(240,236,228,0.3);margin-top:8px;"></span>
-      `;
-    } catch {
-      result.innerHTML = '<p style="font-size:0.78rem;color:rgba(184,115,51,0.7);">Error fetching report.</p>';
-    }
-  }
-
-  async function importFromShareLink() {
-    if (!window._lastLookupResult) return;
-    const { sessionId, narrativeName } = window._lastLookupResult;
-    const stage = document.getElementById('import-stage-select')?.value || 'early';
-    const statusEl = document.getElementById('share-import-status');
-    if (statusEl) statusEl.textContent = 'Importing...';
-    const tok = sessionStorage.getItem('adminToken');
-    try {
-      const res = await fetch('/api/admin-import', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: tok, narratives: [{ sessionId, narrativeName, stage, lens: '', timestamp: new Date().toISOString() }], feedback: [] })
-      });
-      const data = await res.json();
-      if (!data.success) { if (statusEl) statusEl.textContent = 'Error: ' + (data.error || 'unknown'); return; }
-      if (statusEl) statusEl.textContent = data.narrativesSkipped ? 'Already in Narratives.' : 'Imported to Narratives.';
-      await loadData();
-    } catch {
-      if (statusEl) statusEl.textContent = 'Network error.';
-    }
-  }
-
-  function renderReportIndex(reports) {
-    const el = document.getElementById('report-index-list');
-    if (!el) return;
-    if (!reports || !reports.length) {
-      el.innerHTML = '<p style="font-size:0.78rem;color:rgba(240,236,228,0.3);font-style:italic;">No reports generated yet.</p>';
-      return;
-    }
-    el.innerHTML = reports.map(r => `
-      <div style="border-top:1px solid rgba(184,115,51,0.1);padding:10px 0;display:flex;justify-content:space-between;align-items:center;">
-        <div>
-          <p style="margin:0 0 2px;font-family:Georgia,serif;font-size:0.88rem;color:#f0ece4;">${r.narrativeName || 'Untitled'}</p>
-          <p style="margin:0;font-size:0.65rem;color:rgba(240,236,228,0.3);">${r.generatedAt ? new Date(r.generatedAt).toLocaleDateString() : ''}</p>
-        </div>
-        <a href="/report?session=${r.sessionId}&admin=true" target="_blank"
-          style="font-size:0.72rem;color:#b87333;text-decoration:none;white-space:nowrap;margin-left:16px;">
-          View →
-        </a>
-      </div>
-    `).join('');
-  }
-
-  // ── CSV IMPORT ─────────────────────────────────────
-  function parseCSV(text) {
-    const rows = [];
-    let row = [], field = '', inQuotes = false;
-    for (let i = 0; i < text.length; i++) {
-      const ch = text[i], next = text[i + 1];
-      if (inQuotes) {
-        if (ch === '"' && next === '"') { field += '"'; i++; }
-        else if (ch === '"') { inQuotes = false; }
-        else { field += ch; }
-      } else {
-        if (ch === '"') { inQuotes = true; }
-        else if (ch === ',') { row.push(field); field = ''; }
-        else if (ch === '\n' || (ch === '\r' && next === '\n')) {
-          if (ch === '\r') i++;
-          row.push(field); rows.push(row); row = []; field = '';
-        } else { field += ch; }
-      }
-    }
-    if (field !== '' || row.length) { row.push(field); rows.push(row); }
-    return rows;
-  }
-
-  async function importCSV() {
-    const fileInput = document.getElementById('csv-file-input');
-    const statusEl = document.getElementById('import-status');
-    const file = fileInput.files[0];
-    if (!file) { statusEl.textContent = 'No file selected.'; return; }
-
-    statusEl.textContent = 'Parsing…';
-    const text = await file.text();
-    const rows = parseCSV(text);
-
-    // Skip header row; require at least 13 columns (through stage)
-    const dataRows = rows.slice(1).filter(r => r.length >= 12 && r[10]);
-
-    const narratives = [];
-    const feedback = [];
-
-    for (const r of dataRows) {
-      const timestamp  = r[0]  || new Date().toISOString();
-      const analysis   = r[5]  || '';
-      const sessionId  = r[10] || '';
-      const stage      = r[11] || 'early';
-      const liked      = r[13] || '';
-      const wishThis   = r[14] || '';
-
-      if (analysis && sessionId) {
-        const m = analysis.match(/NAME IT[^\n]*\n+\*?\*?([^\n*]+)/);
-        const narrativeName = m ? m[1].trim() : '';
-        if (narrativeName) narratives.push({ sessionId, narrativeName, stage, lens: '', timestamp });
-      }
-
-      if ((liked || wishThis) && sessionId) {
-        const parts = [];
-        if (liked)     parts.push('Avoiding action: ' + liked);
-        if (wishThis)  parts.push('Already know: ' + wishThis);
-        feedback.push({
-          id: 'csv-' + sessionId,
-          type: 'Session Reflection',
-          name: 'Anonymous',
-          email: r[6] || '',
-          stage: stage,
-          message: parts.join(' · '),
-          featureRequest: '',
-          submittedAt: timestamp
-        });
-      }
-    }
-
-    if (!narratives.length && !feedback.length) {
-      statusEl.textContent = 'Nothing importable found (no narrative names or reflections).';
-      return;
-    }
-
-    statusEl.textContent = 'Uploading…';
-    const tok = sessionStorage.getItem('adminToken');
-    try {
-      const res = await fetch('/api/admin-import', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: tok, narratives, feedback })
-      });
-      const data = await res.json();
-      if (!data.success) { statusEl.textContent = 'Error: ' + (data.error || 'unknown'); return; }
-      const n = data.narrativesImported || 0;
-      const f = data.feedbackImported   || 0;
-      const ns = data.narrativesSkipped || 0;
-      statusEl.textContent = `Done — ${n} narratives, ${f} reflections imported${ns ? ` (${ns} dupes skipped)` : ''}.`;
-      await loadData();
-    } catch {
-      statusEl.textContent = 'Network error.';
-    }
-  }
-
-  // On load
+  // On load — check existing token
   const token = sessionStorage.getItem('adminToken');
   if (token) {
     showDashboard();

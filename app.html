@@ -534,7 +534,7 @@
       padding: 80px;
       pointer-events: none;
       transition: opacity 0.6s ease;
-      z-index: 5;
+      z-index: 1;
     }
     .story-instruction p {
       font-family: Georgia, serif;
@@ -544,6 +544,8 @@
       white-space: pre-line;
       max-width: 540px;
       margin: 0;
+      position: relative;
+      z-index: 1;
     }
     #story-textarea {
       flex: 1;
@@ -559,6 +561,8 @@
       resize: none;
       line-height: 1.9;
       caret-color: #b87333;
+      position: relative;
+      z-index: 2;
     }
     .story-bottom-bar {
       position: fixed;
@@ -2583,6 +2587,7 @@ function goToStage(id) {
   setTimeout(() => {
     current.classList.remove('active');
     appState.currentStage = id;
+    history.pushState({ stage: id }, '', window.location.pathname + window.location.search);
     next.scrollTop = 0;
     next.style.opacity = '';
     next.style.pointerEvents = '';
@@ -3460,7 +3465,7 @@ async function initAnalysis() {
       console.error("=== FRONTEND: JSON PARSE FAILED ===", parseErr);
       clearInterval(loadingInt);
       analysisInProgress = false;
-      showAnalysisError(`Response parse failed: ${parseErr.message}`, r.status, null);
+      showAnalysisError();
       return;
     }
 
@@ -3468,11 +3473,7 @@ async function initAnalysis() {
       console.error("=== FRONTEND: API RETURNED ERROR ===", data);
       clearInterval(loadingInt);
       analysisInProgress = false;
-      showAnalysisError(
-        `${data.error || 'Unknown error'} — ${data.message || ''} (HTTP ${r.status})`,
-        r.status,
-        data
-      );
+      showAnalysisError();
       return;
     }
 
@@ -3506,49 +3507,62 @@ async function initAnalysis() {
     console.error("Error:", err.message);
     clearInterval(loadingInt);
     analysisInProgress = false;
-    showAnalysisError(`Network error: ${err.message}`, null, null);
+    showAnalysisError();
   });
 }
 
-function showAnalysisError(message, httpStatus, data) {
-  console.error("showAnalysisError called:", message, httpStatus, data);
-
+function showAnalysisError() {
   const apiEl = document.getElementById('adm-api');
-  if (apiEl) { apiEl.textContent = `Error ${httpStatus || ''}`; apiEl.style.color = '#cc3333'; }
+  if (apiEl) { apiEl.textContent = 'Error'; apiEl.style.color = '#cc3333'; }
 
-  const adminOverlay = document.getElementById('admin-overlay');
-  if (adminOverlay && appState.adminMode) {
-    let errorDetail = adminOverlay.querySelector('#admin-error-detail');
-    if (!errorDetail) {
-      errorDetail = document.createElement('div');
-      errorDetail.id = 'admin-error-detail';
-      errorDetail.style.cssText = 'margin-top:8px;padding:8px;background:rgba(204,51,51,0.15);border:1px solid rgba(204,51,51,0.4);border-radius:4px;font-size:11px;color:#ff6b6b;word-break:break-word;max-width:280px;';
-      adminOverlay.appendChild(errorDetail);
-    }
-    errorDetail.innerHTML = `<strong>Error detail:</strong><br>${message}${data?.name ? `<br>Type: ${data.name}` : ''}${data?.detail ? `<br>Detail: ${JSON.stringify(data.detail)}` : ''}`;
-  }
+  // Remove any existing error overlay
+  const existing = document.getElementById('analysis-error-overlay');
+  if (existing) existing.remove();
+
+  // Hide radar animation children so the error stands alone
+  const radarContainer = document.querySelector('#radar-loading .radar-container');
+  if (radarContainer) radarContainer.style.display = 'none';
+  const progressWrap = document.getElementById('analysis-progress-wrap');
+  if (progressWrap) progressWrap.style.display = 'none';
+  const loadingMsg = document.getElementById('loading-message');
+  if (loadingMsg) loadingMsg.style.display = 'none';
+
+  const errorEl = document.createElement('div');
+  errorEl.id = 'analysis-error-overlay';
+  errorEl.innerHTML = `
+    <div style="text-align:center;padding:40px 24px;max-width:480px;margin:0 auto;">
+      <p style="font-family:'Courier Prime',monospace;font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:#b87333;margin-bottom:16px;">ANALYSIS INCOMPLETE</p>
+      <h3 style="font-family:Georgia,serif;font-size:1.2rem;font-weight:normal;color:#f0ece4;margin:0 0 12px;line-height:1.4;">The analysis couldn't complete.</h3>
+      <p style="font-size:0.88rem;color:rgba(240,236,228,0.6);line-height:1.65;margin:0 0 28px;">This is usually temporary — a dropped connection or a slow response. Your story is safe. Try again and it typically works on the second attempt.</p>
+      <button onclick="retryAnalysis()" style="background:#b87333;border:none;border-radius:3px;color:#fff;padding:12px 28px;font-size:0.9rem;cursor:pointer;font-family:'DM Sans',system-ui,sans-serif;">
+        Try again
+      </button>
+      <p style="font-size:0.72rem;color:rgba(240,236,228,0.3);margin-top:16px;">Your story and all prior answers are preserved.</p>
+    </div>
+  `;
 
   const radarEl = document.getElementById('radar-loading');
   if (radarEl) {
-    radarEl.innerHTML = `
-      <div style="text-align:center;padding:40px 24px;max-width:480px;margin:0 auto;">
-        <p style="color:#cc3333;font-size:15px;margin-bottom:12px;font-family:Georgia,serif;">Analysis failed</p>
-        <p style="color:rgba(240,236,228,0.92);font-size:13px;line-height:1.6;margin-bottom:8px;font-family:monospace;background:rgba(255,255,255,0.04);padding:12px;border-radius:4px;text-align:left;word-break:break-word;">${message}</p>
-        ${data ? `<p style="color:rgba(240,236,228,0.75);font-size:11px;font-family:monospace;text-align:left;word-break:break-word;margin-bottom:20px;">${escHtml(JSON.stringify(data, null, 2))}</p>` : ''}
-        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
-          <button onclick="retryAnalysis()">Try again</button>
-          <button onclick="goToStage('stage-5')" style="background:transparent;border:1px solid rgba(240,236,228,0.35);color:rgba(240,236,228,0.85);">Go back</button>
-        </div>
-      </div>`;
+    radarEl.style.display = '';
+    radarEl.appendChild(errorEl);
   }
 }
 
-function retryAnalysis() {
-  const errorDetail = document.getElementById('admin-error-detail');
-  if (errorDetail) errorDetail.remove();
+async function retryAnalysis() {
+  // Remove error overlay
+  const errorEl = document.getElementById('analysis-error-overlay');
+  if (errorEl) errorEl.remove();
+
+  // Restore radar children hidden by showAnalysisError
+  const radarContainer = document.querySelector('#radar-loading .radar-container');
+  if (radarContainer) radarContainer.style.display = '';
+  const progressWrap = document.getElementById('analysis-progress-wrap');
+  if (progressWrap) progressWrap.style.display = '';
+  const loadingMsg = document.getElementById('loading-message');
+  if (loadingMsg) { loadingMsg.style.display = ''; loadingMsg.classList.remove('visible'); }
+
   analysisInProgress = false;
-  goToStage('stage-6');
-  initAnalysis();
+  await initAnalysis();
 }
 
 function parseAnalysisSections(text) {
@@ -5344,6 +5358,31 @@ document.querySelectorAll('.stage').forEach(s => {
       if (subhead) subhead.textContent = 'Your session expired. Run the sprint again to access your report.';
     }
   }
+
+  // Set initial history state so back-button has a base entry
+  history.replaceState({ stage: 'stage-1' }, '', window.location.pathname + window.location.search);
+
+  // Back/forward navigation — warn if leaving Stage 4 with content
+  window.addEventListener('popstate', function(e) {
+    if (e.state && e.state.stage) {
+      const targetStage = e.state.stage;
+      if (appState.currentStage === 'stage-4') {
+        const storyText = document.getElementById('story-textarea')?.value || '';
+        if (storyText.trim().length > 0) {
+          const confirmed = confirm("You'll lose what you've written. Are you sure you want to go back?");
+          if (!confirmed) {
+            history.pushState({ stage: 'stage-4' }, '', window.location.pathname + window.location.search);
+            return;
+          }
+        }
+      }
+      const stages = document.querySelectorAll('.stage');
+      stages.forEach(s => s.style.display = 'none');
+      const target = document.getElementById(targetStage);
+      if (target) target.style.display = 'block';
+      appState.currentStage = targetStage;
+    }
+  });
 
   loadCookieCount();
 })();

@@ -28,7 +28,7 @@
     <span style="font-family:'Courier Prime',monospace;font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:#b87333;">DATA // WRITE YOUR FUTURE</span>
   </div>
   <button onclick="sessionStorage.removeItem('adminToken');window.location.href='/admin';"
-    style="background:transparent;border:1px solid rgba(240,236,228,0.15);color:rgba(240,236,228,0.4);font-size:0.72rem;padding:4px 12px;cursor:pointer;border-radius:3px;font-family:'DM Sans',system-ui,sans-serif;">
+    style="background:transparent;border:1px solid rgba(240,236,228,0.15);color:rgba(240,236,228,0.88);font-size:0.72rem;padding:4px 12px;cursor:pointer;border-radius:3px;font-family:'DM Sans',system-ui,sans-serif;">
     Sign out
   </button>
 </div>
@@ -90,7 +90,7 @@
   <p style="font-family:'Courier Prime',monospace;font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:#b87333;margin:0 0 16px;">CSV Import</p>
   <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
     <input id="csv-file-input" type="file" accept=".csv"
-      style="font-size:0.78rem;color:rgba(240,236,228,0.5);">
+      style="font-size:0.78rem;color:rgba(240,236,228,0.88);">
     <button onclick="importCSV()"
       style="padding:8px 16px;background:transparent;border:1px solid rgba(184,115,51,0.3);border-radius:3px;color:rgba(184,115,51,0.7);font-size:0.78rem;cursor:pointer;font-family:'DM Sans',system-ui,sans-serif;">
       Import
@@ -132,7 +132,7 @@
           <span style="font-size:0.65rem;color:rgba(240,236,228,0.3);">${f.stage} · ${new Date(f.submittedAt).toLocaleDateString()}</span>
         </div>
         <p style="margin:0 0 4px;font-size:0.82rem;color:rgba(240,236,228,0.85);line-height:1.55;">${f.message}</p>
-        ${f.featureRequest ? `<p style="margin:0 0 4px;font-size:0.75rem;color:rgba(240,236,228,0.5);font-style:italic;">Feature: ${f.featureRequest}</p>` : ''}
+        ${f.featureRequest ? `<p style="margin:0 0 4px;font-size:0.75rem;color:rgba(240,236,228,0.88);font-style:italic;">Feature: ${f.featureRequest}</p>` : ''}
         <p style="margin:0;font-size:0.65rem;color:rgba(240,236,228,0.3);">${f.name}${f.email ? ' · ' + f.email : ''}</p>
       </div>
     `).join('');
@@ -154,7 +154,7 @@
             <span style="font-size:0.65rem;color:rgba(240,236,228,0.3);">${n.timestamp ? new Date(n.timestamp).toLocaleDateString() : ''}</span>
           </div>
           <p style="margin:0 0 4px;font-family:Georgia,serif;font-size:0.9rem;color:#f0ece4;line-height:1.5;">${n.narrativeName}</p>
-          ${n.lens ? `<p style="margin:0 0 4px;font-size:0.72rem;color:rgba(240,236,228,0.4);font-style:italic;">Lens: ${n.lens}</p>` : ''}
+          ${n.lens ? `<p style="margin:0 0 4px;font-size:0.72rem;color:rgba(240,236,228,0.88);font-style:italic;">Lens: ${n.lens}</p>` : ''}
         </div>
         ${n.sessionId ? `
         <a href="/report?session=${n.sessionId}&admin=true" target="_blank"
@@ -185,7 +185,7 @@
     if (urlMatch) sessionId = urlMatch[1];
 
     result.style.display = 'block';
-    result.innerHTML = '<p style="font-size:0.78rem;color:rgba(240,236,228,0.4);font-style:italic;">Fetching...</p>';
+    result.innerHTML = '<p style="font-size:0.78rem;color:rgba(240,236,228,0.88);font-style:italic;">Fetching...</p>';
 
     const token = sessionStorage.getItem('adminToken');
     try {

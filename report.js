@@ -243,7 +243,7 @@ document.addEventListener('DOMContentLoaded', function () {
     lockBlock.innerHTML =
       '<div style="font-size:0.65rem;letter-spacing:0.18em;text-transform:uppercase;color:#b87333;margin-bottom:12px;">YOUR DEFAULT NARRATIVE REPORT</div>' +
       '<h2 style="font-family:Georgia,serif;font-size:1.4rem;color:#f0ece4;font-weight:normal;margin:0 0 12px;">See where this narrative leads.</h2>' +
-      '<p style="font-size:0.9rem;color:rgba(240,236,228,0.7);line-height:1.65;margin:0 0 28px;max-width:420px;margin-left:auto;margin-right:auto;">Four vignettes — 1, 3, 5, and 10 years — showing the world this narrative builds if it stays unexamined. Written from your story, in your words.</p>' +
+      '<p style="font-size:0.9rem;color:rgba(240,236,228,0.9);line-height:1.65;margin:0 0 28px;max-width:420px;margin-left:auto;margin-right:auto;">Four vignettes — 1, 3, 5, and 10 years — showing the world this narrative builds if it stays unexamined. Written from your story, in your words.</p>' +
       '<a href="' + stripeUrl + '" target="_blank" rel="noopener noreferrer" style="display:inline-block;background:#b87333;color:#fff;border:none;border-radius:4px;padding:14px 32px;font-size:1rem;font-family:system-ui,sans-serif;letter-spacing:0.03em;cursor:pointer;text-decoration:none;">$30 — Unlock full report</a>' +
       '<p style="font-size:0.75rem;color:rgba(240,236,228,0.35);margin-top:12px;">One-time. Opens in a new tab — your data stays here.</p>';
     container.appendChild(lockBlock);
